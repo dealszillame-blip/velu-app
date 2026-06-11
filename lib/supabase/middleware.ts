@@ -1,0 +1,122 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+
+const ROLE_HOME: Record<string, string> = {
+  buyer: "/buyer/map",
+  builder: "/builder/dashboard",
+  agent: "/agent/listings",
+  admin: "/admin/dashboard",
+  pending_agent: "/agent/listings",
+};
+
+const PROTECTED_PREFIXES = ["/buyer", "/builder", "/agent", "/admin"];
+const AUTH_PREFIXES = ["/login", "/register", "/verify"];
+const ONBOARDING_PREFIXES = ["/onboarding"];
+
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const path = request.nextUrl.pathname;
+
+  // API routes handle their own auth — never redirect them to HTML pages
+  if (path.startsWith("/api")) {
+    return supabaseResponse;
+  }
+
+  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
+    path.startsWith(prefix)
+  );
+  const isAuthRoute = AUTH_PREFIXES.some((prefix) => path.startsWith(prefix));
+  const isOnboardingRoute = ONBOARDING_PREFIXES.some((prefix) =>
+    path.startsWith(prefix)
+  );
+
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirect", path);
+    return NextResponse.redirect(url);
+  }
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const role = profile?.role ?? null;
+
+    if (isAuthRoute && role) {
+      const url = request.nextUrl.clone();
+      url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+      return NextResponse.redirect(url);
+    }
+
+    if (path === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = role
+        ? (ROLE_HOME[role] ?? "/buyer/map")
+        : "/onboarding/complete";
+      return NextResponse.redirect(url);
+    }
+
+    if (isOnboardingRoute && role) {
+      const url = request.nextUrl.clone();
+      url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+      return NextResponse.redirect(url);
+    }
+
+    if (isAuthRoute && user && !role) {
+      return supabaseResponse;
+    }
+
+    if (role && isProtected) {
+      const expectedPrefix = `/${role === "pending_agent" ? "agent" : role}`;
+      if (!path.startsWith(expectedPrefix) && role !== "admin") {
+        const url = request.nextUrl.clone();
+        url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    if (isProtected && !role) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding/complete";
+      return NextResponse.redirect(url);
+    }
+
+    if (!role && !isOnboardingRoute && !isAuthRoute && path !== "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding/complete";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return supabaseResponse;
+}
