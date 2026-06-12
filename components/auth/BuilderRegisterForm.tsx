@@ -99,7 +99,7 @@ export function BuilderRegisterForm() {
 
   if (needsVerification) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
         <CardHeader>
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
@@ -116,7 +116,7 @@ export function BuilderRegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader>
         <CardTitle>Register as a builder</CardTitle>
         <CardDescription>

@@ -6,7 +6,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { DEMO_LISTINGS } from "./demo-listings-data";
+import { DEMO_LISTINGS, type DemoListing } from "./demo-listings-data";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -24,37 +24,80 @@ const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+async function upsertSoldListing(listing: DemoListing): Promise<string> {
+  const soldAt = listing.soldDaysAgo
+    ? new Date(Date.now() - listing.soldDaysAgo * 86400000).toISOString()
+    : null;
+
+  const baseRow = {
+    domain_listing_id: listing.domainListingId,
+    address: listing.address,
+    suburb: listing.suburb,
+    postcode: listing.postcode,
+    price: listing.price,
+    price_display: listing.priceDisplay,
+    land_size_sqm: listing.landSizeSqm,
+    frontage_meters: listing.frontageMeters,
+    zoning: listing.zoning,
+    status: listing.status,
+    sold_at: soldAt,
+    source: "domain",
+    listing_category: "vacant_land",
+    domain_synced_at: new Date().toISOString(),
+    domain_data: { demo: true, seed: "builder-leads" },
+  };
+
+  const { data: byDomainId } = await supabase
+    .from("land_listings")
+    .select("id")
+    .eq("domain_listing_id", listing.domainListingId)
+    .maybeSingle();
+
+  if (byDomainId) {
+    const { error } = await supabase
+      .from("land_listings")
+      .update(baseRow)
+      .eq("id", byDomainId.id);
+    if (error) throw new Error(`${listing.address}: ${error.message}`);
+    return byDomainId.id;
+  }
+
+  const { data: byAddress } = await supabase
+    .from("land_listings")
+    .select("id")
+    .eq("address", listing.address)
+    .eq("suburb", listing.suburb)
+    .maybeSingle();
+
+  if (byAddress) {
+    const { error } = await supabase
+      .from("land_listings")
+      .update(baseRow)
+      .eq("id", byAddress.id);
+    if (error) throw new Error(`${listing.address}: ${error.message}`);
+    return byAddress.id;
+  }
+
+  const { data: inserted, error } = await supabase
+    .from("land_listings")
+    .insert({
+      ...baseRow,
+      geom: `SRID=4326;POINT(${listing.longitude} ${listing.latitude})`,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw new Error(`${listing.address}: ${error.message}`);
+  return inserted.id;
+}
+
 async function seedSoldListings(): Promise<string[]> {
   const sold = DEMO_LISTINGS.filter((l) => l.status === "sold");
   const ids: string[] = [];
 
   for (const listing of sold) {
-    const soldAt = listing.soldDaysAgo
-      ? new Date(Date.now() - listing.soldDaysAgo * 86400000).toISOString()
-      : null;
-
-    const { data: listingId, error } = await supabase.rpc(
-      "upsert_domain_land_listing",
-      {
-        p_domain_listing_id: listing.domainListingId,
-        p_address: listing.address,
-        p_suburb: listing.suburb,
-        p_postcode: listing.postcode,
-        p_price: listing.price,
-        p_price_display: listing.priceDisplay,
-        p_land_size_sqm: listing.landSizeSqm,
-        p_frontage_meters: listing.frontageMeters,
-        p_zoning: listing.zoning,
-        p_longitude: listing.longitude,
-        p_latitude: listing.latitude,
-        p_status: listing.status,
-        p_sold_at: soldAt,
-        p_domain_data: { demo: true, seed: "builder-leads" },
-      }
-    );
-
-    if (error) throw new Error(`${listing.address}: ${error.message}`);
-    ids.push(listingId as string);
+    const listingId = await upsertSoldListing(listing);
+    ids.push(listingId);
     console.log(`✓ Sold lot: ${listing.address}, ${listing.suburb}`);
   }
 

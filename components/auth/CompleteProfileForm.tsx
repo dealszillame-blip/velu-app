@@ -133,7 +133,7 @@ export function CompleteProfileForm() {
 
   if (checking) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
           Loading…
         </CardContent>
@@ -142,7 +142,7 @@ export function CompleteProfileForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader>
         <CardTitle>Finish your profile</CardTitle>
         <CardDescription>

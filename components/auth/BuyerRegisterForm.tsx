@@ -79,7 +79,7 @@ export function BuyerRegisterForm({ redirectTo = "/buyer/map" }: BuyerRegisterFo
 
   if (needsVerification) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
         <CardHeader>
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
@@ -97,7 +97,7 @@ export function BuyerRegisterForm({ redirectTo = "/buyer/map" }: BuyerRegisterFo
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader>
         <CardTitle>Register as a buyer</CardTitle>
         <CardDescription>
@@ -157,11 +157,11 @@ export function BuyerRegisterForm({ redirectTo = "/buyer/map" }: BuyerRegisterFo
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          <Link href="/register/builder" className="underline">
+          <Link href="/register/builder" className="text-link">
             Register as builder
           </Link>
           {" · "}
-          <Link href="/register/agent" className="underline">
+          <Link href="/register/agent" className="text-link">
             Register as agent
           </Link>
         </p>

@@ -3,6 +3,28 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+const breakdownLineSchema = z.object({
+  category: z.string(),
+  label: z.string().min(1),
+  amount: z.number().min(0),
+  note: z.string().optional(),
+});
+
+const inclusionItemSchema = z.object({
+  category: z.string(),
+  item: z.string().min(1),
+  detail: z.string(),
+  included: z.boolean(),
+});
+
+const homeSpecsSchema = z.object({
+  bedrooms: z.number().int().positive().optional(),
+  bathrooms: z.number().positive().optional(),
+  car_spaces: z.number().int().min(0).optional(),
+  living_area_sqm: z.number().positive().optional(),
+  storeys: z.number().int().positive().optional(),
+});
+
 const createSchema = z.object({
   land_listing_id: z.string().uuid(),
   package_name: z.string().min(2),
@@ -10,6 +32,9 @@ const createSchema = z.object({
   inclusions: z.string().optional(),
   estimated_build_weeks: z.number().int().positive().optional(),
   notes: z.string().optional(),
+  price_breakdown: z.array(breakdownLineSchema).optional(),
+  inclusion_items: z.array(inclusionItemSchema).optional(),
+  home_specs: homeSpecsSchema.optional(),
 });
 
 export async function POST(request: Request) {
@@ -74,6 +99,9 @@ export async function POST(request: Request) {
       inclusions: body.data.inclusions ?? null,
       estimated_build_weeks: body.data.estimated_build_weeks ?? null,
       notes: body.data.notes ?? null,
+      price_breakdown: body.data.price_breakdown ?? [],
+      inclusion_items: body.data.inclusion_items ?? [],
+      home_specs: body.data.home_specs ?? {},
       status: "pending",
     })
     .select("id")
@@ -148,6 +176,9 @@ export async function GET(request: Request) {
         inclusions,
         estimated_build_weeks,
         notes,
+        price_breakdown,
+        inclusion_items,
+        home_specs,
         status,
         created_at,
         land_listings (address, suburb, postcode)

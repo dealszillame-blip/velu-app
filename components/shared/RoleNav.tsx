@@ -4,17 +4,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { VeluLogo } from "@/components/shared/VeluLogo";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string };
 
 type RoleNavProps = {
-  role: "buyer" | "builder" | "agent";
   items: NavItem[];
   userName: string;
 };
 
-export function RoleNav({ role, items, userName }: RoleNavProps) {
+export function RoleNav({ items, userName }: RoleNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -26,16 +26,13 @@ export function RoleNav({ role, items, userName }: RoleNavProps) {
   }
 
   const firstName = userName.split(" ")[0];
+  const homeHref =
+    items[0]?.href.split("/").slice(0, 3).join("/") ?? "/";
 
   return (
     <header className="glass-nav sticky top-0 z-40">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
-        <Link
-          href="/"
-          className="text-lg font-semibold tracking-tight sm:text-xl"
-        >
-          Velu
-        </Link>
+        <VeluLogo href={homeHref} size="sm" />
 
         <nav className="hidden items-center gap-1 sm:flex">
           {items.map((item) => {
@@ -47,8 +44,8 @@ export function RoleNav({ role, items, userName }: RoleNavProps) {
                 className={cn(
                   "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                   active
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 {item.label}

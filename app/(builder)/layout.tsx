@@ -16,12 +16,12 @@ export default async function BuilderLayout({
   const { profile } = await requireRole(["builder"]);
 
   return (
-    <>
-      <RoleNav role="builder" items={NAV} userName={profile.full_name} />
+    <div className="flex min-h-full flex-col bg-background">
+      <RoleNav items={NAV} userName={profile.full_name} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {children}
       </main>
       <MobileTabBar items={NAV} />
-    </>
+    </div>
   );
 }

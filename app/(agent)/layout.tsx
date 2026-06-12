@@ -14,11 +14,11 @@ export default async function AgentLayout({
   const { profile } = await requireRole(["agent", "pending_agent"]);
 
   return (
-    <>
-      <RoleNav role="agent" items={NAV} userName={profile.full_name} />
+    <div className="flex min-h-full flex-col bg-background">
+      <RoleNav items={NAV} userName={profile.full_name} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
         {children}
       </main>
-    </>
+    </div>
   );
 }

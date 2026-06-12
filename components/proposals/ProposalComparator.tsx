@@ -14,6 +14,12 @@ import {
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { StatStrip } from "@/components/shared/StatStrip";
+import {
+  ProposalBreakdownTable,
+  ProposalComparisonGrid,
+  ProposalHomeSpecs,
+  ProposalInclusionsList,
+} from "@/components/proposals/ProposalBreakdownView";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -175,11 +181,17 @@ function ProposalCard({
             </p>
           </div>
         </div>
-        {proposal.inclusions && (
+        <ProposalHomeSpecs specs={proposal.home_specs} />
+        {proposal.price_breakdown && proposal.price_breakdown.length > 0 ? (
+          <ProposalBreakdownTable lines={proposal.price_breakdown} compact />
+        ) : null}
+        {proposal.inclusion_items && proposal.inclusion_items.length > 0 ? (
+          <ProposalInclusionsList items={proposal.inclusion_items} compact />
+        ) : proposal.inclusions ? (
           <p className="leading-relaxed text-muted-foreground">
             {proposal.inclusions}
           </p>
-        )}
+        ) : null}
         {isPending && (
           <div className="flex gap-2 pt-1">
             <Button
@@ -389,6 +401,13 @@ export function ProposalComparator() {
               {pending.length}
             </Badge>
           </div>
+
+          {pending.length >= 2 && (
+            <div className="mb-6">
+              <ProposalComparisonGrid proposals={pending} />
+            </div>
+          )}
+
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {pending.map((proposal) => (
               <ProposalCard

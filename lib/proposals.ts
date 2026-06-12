@@ -1,4 +1,9 @@
 import type { ProposalStatus } from "@/lib/types";
+import type {
+  HomeSpecs,
+  InclusionItem,
+  PriceBreakdownLine,
+} from "@/lib/proposal-breakdown";
 
 export interface ProposalRow {
   id: string;
@@ -12,6 +17,9 @@ export interface ProposalRow {
   inclusions: string | null;
   estimated_build_weeks: number | null;
   notes: string | null;
+  price_breakdown?: PriceBreakdownLine[];
+  inclusion_items?: InclusionItem[];
+  home_specs?: HomeSpecs;
   status: ProposalStatus;
   created_at: string;
 }
@@ -23,6 +31,9 @@ export interface CreateProposalInput {
   inclusions?: string;
   estimated_build_weeks?: number;
   notes?: string;
+  price_breakdown?: PriceBreakdownLine[];
+  inclusion_items?: InclusionItem[];
+  home_specs?: HomeSpecs;
 }
 
 export function formatProposalPrice(price: number): string {

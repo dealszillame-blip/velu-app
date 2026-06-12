@@ -11,24 +11,19 @@ import {
 
 export default function VerifyPage() {
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Verify your email</CardTitle>
-          <CardDescription>
-            Click the link in your inbox to activate your Velu account, then
-            sign in to continue.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link
-            href="/login"
-            className={cn(buttonVariants(), "w-full")}
-          >
-            Continue to sign in
-          </Link>
-        </CardContent>
-      </Card>
-    </main>
+    <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
+      <CardHeader>
+        <CardTitle>Verify your email</CardTitle>
+        <CardDescription>
+          Click the link in your inbox to activate your Velu account, then sign
+          in to continue.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Link href="/login" className={cn(buttonVariants(), "h-12 w-full rounded-full")}>
+          Continue to sign in
+        </Link>
+      </CardContent>
+    </Card>
   );
 }
