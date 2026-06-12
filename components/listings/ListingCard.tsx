@@ -1,5 +1,6 @@
 "use client";
 
+import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import {
   listingPriceLabel,
-  statusBadgeVariant,
   statusLabel,
   type LandListingRow,
   type MapListing,
@@ -23,44 +23,49 @@ type ListingCardProps = {
 
 export function ListingCard({ listing, onClose }: ListingCardProps) {
   return (
-    <Card className="shadow-lg">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
+    <Card className="overflow-hidden border-0 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+      <LandThumbnail />
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-base">{listing.address}</CardTitle>
-            <CardDescription>
+            <CardTitle>{listing.address}</CardTitle>
+            <CardDescription className="mt-1">
               {listing.suburb} {listing.postcode}
             </CardDescription>
           </div>
-          <Badge variant={statusBadgeVariant(listing.status)}>
+          <Badge variant="secondary" className="shrink-0 rounded-full">
             {statusLabel(listing.status)}
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Price</span>
-          <span className="font-medium">{listingPriceLabel(listing)}</span>
+      <CardContent className="space-y-3">
+        <div className="flex items-baseline justify-between border-b border-black/[0.06] pb-3">
+          <span className="label-caps">Price</span>
+          <span className="text-xl font-semibold tracking-tight">
+            {listingPriceLabel(listing)}
+          </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Land size</span>
-          <span>{listing.land_size_sqm} m²</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Frontage</span>
-          <span>{listing.frontage_meters} m</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Zoning</span>
-          <span>{listing.zoning}</span>
+        <div className="grid grid-cols-3 gap-3 text-center text-sm">
+          <div>
+            <p className="label-caps mb-1">Size</p>
+            <p className="font-medium">{listing.land_size_sqm} m²</p>
+          </div>
+          <div>
+            <p className="label-caps mb-1">Frontage</p>
+            <p className="font-medium">{listing.frontage_meters} m</p>
+          </div>
+          <div>
+            <p className="label-caps mb-1">Zoning</p>
+            <p className="font-medium">{listing.zoning}</p>
+          </div>
         </div>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 text-xs text-muted-foreground underline"
+            className="w-full pt-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Close
+            Dismiss
           </button>
         )}
       </CardContent>

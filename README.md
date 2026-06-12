@@ -121,13 +121,31 @@ Register a database webhook: `land_listings` UPDATE where `status = sold`.
 
 ## Build plan
 
-| Week | Focus                                      |
-|------|--------------------------------------------|
-| 1    | Auth, onboarding, role dashboards ✅        |
-| 2    | Domain listing sync + MapLibre map         |
-| 3    | Sold trigger, lead feed, proposals         |
-| 4    | Buyer comparator + accept flow             |
-| 5    | Milestone tracker + demo polish            |
+| Week | Focus                                      | Status |
+|------|--------------------------------------------|--------|
+| 1    | Auth, onboarding, role dashboards          | Done   |
+| 2    | Domain listing sync + MapLibre map         | Done (Domain pending approval) |
+| 3    | Sold trigger, lead feed, proposals         | Done   |
+| 4    | Buyer comparator + accept flow             | Done   |
+| 5    | Milestone tracker + demo seed              | Done   |
+
+### Demo loop (without Domain)
+
+1. Run migrations `009_week3_core_loop.sql` and `010_demo_seed.sql` in Supabase (after registering a buyer + builder account).
+2. **Builder** → `/builder/leads` — see the sold Leumeah lot.
+3. Submit a proposal → **Buyer** → `/buyer/compare` → Accept.
+4. Both roles can track milestones at `/buyer/project/[id]` or `/builder/project/[id]`.
+
+To test the sold trigger live, mark any listing sold via:
+
+```bash
+curl -X PATCH https://velu-app-sigma.vercel.app/api/listings/LISTING_ID/status \
+  -H "Authorization: Bearer YOUR_DOMAIN_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d "{\"status\":\"sold\"}"
+```
+
+Register a Supabase **Database Webhook** on `land_listings` UPDATE → `POST /api/webhooks/listing-sold` for production (same Bearer secret).
 
 ## Scripts
 

@@ -109,6 +109,11 @@ GRANT EXECUTE ON FUNCTION public.upsert_domain_land_listing(
   DOUBLE PRECISION, DOUBLE PRECISION, listing_status, TIMESTAMPTZ, JSONB
 ) TO service_role;
 
+-- Return type changed (added price_display, source) — must drop before recreate
+DROP FUNCTION IF EXISTS public.get_listings_for_map(
+  listing_status, NUMERIC, NUMERIC, NUMERIC, NUMERIC, TEXT
+);
+
 CREATE OR REPLACE FUNCTION public.get_listings_for_map(
   p_status listing_status DEFAULT NULL,
   p_price_min NUMERIC DEFAULT NULL,

@@ -3,10 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { MapPin } from "lucide-react";
 import { ListingCard } from "@/components/listings/ListingCard";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { MapFiltersPanel } from "@/components/maps/MapFilters";
 import type { MapFilters, MapListing } from "@/lib/listings";
-import { listingPriceLabel } from "@/lib/listings";
+import { listingPriceLabel, statusLabel } from "@/lib/listings";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   DEFAULT_ZOOM,
   MAP_STYLE,
@@ -16,9 +20,9 @@ import {
 import type { ListingStatus } from "@/lib/types";
 
 const STATUS_MARKER_COLORS: Record<ListingStatus, string> = {
-  available: "bg-emerald-600",
-  under_offer: "bg-amber-500",
-  sold: "bg-slate-500",
+  available: "bg-foreground",
+  under_offer: "bg-[#86868b]",
+  sold: "bg-[#d2d2d7] text-foreground",
 };
 
 function buildQuery(filters: MapFilters): string {
@@ -52,6 +56,51 @@ function markerLabel(listing: MapListing): string {
   return "Land";
 }
 
+function MapListingItem({
+  listing,
+  selected,
+  onSelect,
+}: {
+  listing: MapListing;
+  selected: boolean;
+  onSelect: (listing: MapListing) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(listing)}
+      className={cn(
+        "w-full rounded-xl px-3 py-3 text-left transition-colors",
+        selected
+          ? "bg-foreground text-background"
+          : "hover:bg-muted/80"
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{listing.address}</p>
+          <p
+            className={cn(
+              "text-xs",
+              selected ? "text-background/70" : "text-muted-foreground"
+            )}
+          >
+            {listing.suburb} · {listing.land_size_sqm} m²
+          </p>
+        </div>
+        <span
+          className={cn(
+            "shrink-0 text-sm font-semibold",
+            selected ? "text-background" : "text-foreground"
+          )}
+        >
+          {listingPriceLabel(listing)}
+        </span>
+      </div>
+    </button>
+  );
+}
+
 export function LandMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -68,6 +117,17 @@ export function LandMap() {
     markersRef.current = [];
   }, []);
 
+  const selectListing = useCallback((listing: MapListing) => {
+    setSelected(listing);
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: [listing.longitude, listing.latitude],
+        zoom: 14,
+        essential: true,
+      });
+    }
+  }, []);
+
   const renderMarkers = useCallback(
     (map: maplibregl.Map, data: MapListing[]) => {
       clearMarkers();
@@ -75,18 +135,13 @@ export function LandMap() {
       data.forEach((listing) => {
         const el = document.createElement("button");
         el.type = "button";
-        el.className = `rounded-full border-2 border-white px-2 py-1 text-xs font-semibold text-white shadow-md ${STATUS_MARKER_COLORS[listing.status]}`;
+        el.className = `rounded-full px-3 py-1.5 text-xs font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${STATUS_MARKER_COLORS[listing.status]} ${listing.status === "sold" ? "" : "text-white"}`;
         el.textContent = markerLabel(listing);
         el.setAttribute("aria-label", `${listing.address}, ${listing.suburb}`);
 
         el.addEventListener("click", (e) => {
           e.stopPropagation();
-          setSelected(listing);
-          map.flyTo({
-            center: [listing.longitude, listing.latitude],
-            zoom: 14,
-            essential: true,
-          });
+          selectListing(listing);
         });
 
         const marker = new maplibregl.Marker({ element: el })
@@ -96,7 +151,7 @@ export function LandMap() {
         markersRef.current.push(marker);
       });
     },
-    [clearMarkers]
+    [clearMarkers, selectListing]
   );
 
   const loadListings = useCallback(async () => {
@@ -178,51 +233,94 @@ export function LandMap() {
   const status = filters.status ?? "available";
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-      <MapFiltersPanel
-        filters={filters}
-        onChange={setFilters}
-        resultCount={listings.length}
-        onClear={() => setFilters({ status })}
-      />
+    <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+      <div className="space-y-4">
+        <MapFiltersPanel
+          filters={filters}
+          onChange={setFilters}
+          resultCount={listings.length}
+          onClear={() => setFilters({ status })}
+        />
 
-      <div className="relative min-h-[480px] overflow-hidden rounded-lg border bg-muted/20">
+        <div className="surface-subtle overflow-hidden">
+          <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-3">
+            <p className="label-caps">Listings</p>
+            {!loading && (
+              <Badge variant="outline" className="rounded-full text-xs">
+                {statusLabel(status)}
+              </Badge>
+            )}
+          </div>
+
+          {loading && (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              Loading listings…
+            </p>
+          )}
+
+          {!loading && listings.length > 0 && (
+            <div className="max-h-[320px] space-y-1 overflow-y-auto p-2 lg:max-h-[400px]">
+              {listings.map((listing) => (
+                <MapListingItem
+                  key={listing.id}
+                  listing={listing}
+                  selected={selected?.id === listing.id}
+                  onSelect={selectListing}
+                />
+              ))}
+            </div>
+          )}
+
+          {showEmptyState && (
+            <div className="px-4 py-6">
+              <EmptyState
+                className="py-8"
+                icon={<MapPin className="h-5 w-5" strokeWidth={1.5} />}
+                title={`No ${status === "under_offer" ? "under contract" : status} listings`}
+                description={
+                  hasActiveFilters(filters)
+                    ? "Try adjusting your filters or reset to see all listings."
+                    : "Listings appear here once synced from Domain or demo seed data."
+                }
+                hint={
+                  !hasActiveFilters(filters)
+                    ? "Demo: run 010_demo_seed.sql for 3 lots in Ingleburn, Campbelltown, and Leumeah."
+                    : undefined
+                }
+                action={
+                  hasActiveFilters(filters) ? (
+                    <button
+                      type="button"
+                      className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                      onClick={() => setFilters({ status })}
+                    >
+                      Reset filters
+                    </button>
+                  ) : undefined
+                }
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="surface relative min-h-[420px] overflow-hidden sm:min-h-[520px] lg:min-h-[560px]">
         <div ref={mapContainer} className="absolute inset-0 h-full w-full" />
 
         {loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 text-sm">
-            Loading listings…
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/70 backdrop-blur-sm">
+            <p className="text-sm text-muted-foreground">Loading map…</p>
           </div>
         )}
 
         {mapError && (
-          <div className="absolute inset-x-4 top-4 z-20 rounded-md border border-destructive/30 bg-background p-3 text-sm text-destructive shadow-sm">
+          <div className="absolute inset-x-4 top-4 z-20 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {mapError}
           </div>
         )}
 
-        {showEmptyState && (
-          <div className="absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 rounded-md border bg-background/95 p-4 text-center shadow-sm">
-            <p className="font-medium">No {status === "under_offer" ? "under contract" : status} listings</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {hasActiveFilters(filters)
-                ? "Nothing matches your filters — try clearing them."
-                : "Run a Domain sync to populate listings: npm run sync:domain"}
-            </p>
-            {hasActiveFilters(filters) && (
-              <button
-                type="button"
-                className="mt-3 text-sm underline"
-                onClick={() => setFilters({ status })}
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-        )}
-
         {selected && (
-          <div className="absolute bottom-4 left-4 right-4 z-20 max-w-sm">
+          <div className="absolute bottom-4 left-4 right-4 z-20 mx-auto max-w-sm">
             <ListingCard listing={selected} onClose={() => setSelected(null)} />
           </div>
         )}

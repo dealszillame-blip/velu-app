@@ -5,13 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -26,7 +19,7 @@ export function LoginForm() {
   useEffect(() => {
     if (searchParams.get("onboarding") === "required") {
       setError(
-        "Sign in to finish setting up your profile. New accounts: use the same email you registered with."
+        "Sign in to finish setting up your profile."
       );
     }
   }, [searchParams]);
@@ -47,7 +40,6 @@ export function LoginForm() {
         return;
       }
 
-      // Hard redirect — middleware sends you to dashboard or /onboarding/complete
       window.location.assign("/");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -57,53 +49,64 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign in to Velu</CardTitle>
-        <CardDescription>
-          Connect with builders, buyers, and land agents in South West Sydney.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          {error && (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
-          )}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          New here?{" "}
-          <Link href="/register/buyer" className="font-medium underline">
-            Create an account
-          </Link>
+    <div className="w-full max-w-sm">
+      <div className="mb-8 text-center sm:text-left">
+        <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+        <p className="mt-2 text-muted-foreground">
+          Welcome back to Velu
         </p>
-      </CardContent>
-    </Card>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="label-caps">
+            Email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password" className="label-caps">
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
+        <Button
+          type="submit"
+          className="h-12 w-full rounded-full text-base"
+          disabled={loading}
+        >
+          {loading ? "Signing in…" : "Continue"}
+        </Button>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        New here?{" "}
+        <Link
+          href="/register/buyer"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
+          Create account
+        </Link>
+      </p>
+    </div>
   );
 }

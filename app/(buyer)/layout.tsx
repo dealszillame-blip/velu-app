@@ -1,8 +1,9 @@
 import { requireRole } from "@/lib/auth";
+import { MobileTabBar } from "@/components/shared/MobileTabBar";
 import { RoleNav } from "@/components/shared/RoleNav";
 
 const NAV = [
-  { href: "/buyer/map", label: "Land map" },
+  { href: "/buyer/map", label: "Map" },
   { href: "/buyer/compare", label: "Compare" },
 ];
 
@@ -16,9 +17,10 @@ export default async function BuyerLayout({
   return (
     <>
       <RoleNav role="buyer" items={NAV} userName={profile.full_name} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {children}
       </main>
+      <MobileTabBar items={NAV} />
     </>
   );
 }

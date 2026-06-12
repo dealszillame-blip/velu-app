@@ -1,15 +1,13 @@
 import { BuyerLandMap } from "@/components/maps/BuyerLandMap";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 export default function BuyerMapPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Land map</h1>
-        <p className="text-muted-foreground">
-          Browse available vacant lots across South West Sydney. Filter by
-          suburb, price, and size.
-        </p>
-      </div>
+      <PageHeader
+        title="Explore land"
+        description="Vacant lots across South West Sydney — filter by suburb, price, and size."
+      />
       <BuyerLandMap />
     </div>
   );

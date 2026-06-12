@@ -1,0 +1,362 @@
+/**
+ * Realistic vacant-land demo listings for South West Sydney.
+ * Modelled on typical Domain / realestate.com.au vacant-land listings
+ * (addresses, price bands, lot sizes) — not scraped from live sites.
+ */
+
+export type DemoListing = {
+  domainListingId: string;
+  address: string;
+  suburb: string;
+  postcode: string;
+  price: number;
+  priceDisplay: string;
+  landSizeSqm: number;
+  frontageMeters: number;
+  zoning: string;
+  longitude: number;
+  latitude: number;
+  status: "available" | "under_offer" | "sold";
+  soldDaysAgo?: number;
+};
+
+export const DEMO_LISTINGS: DemoListing[] = [
+  // —— Available ——
+  {
+    domainListingId: "DEMO-001",
+    address: "42 Banksia St",
+    suburb: "Ingleburn",
+    postcode: "2565",
+    price: 595_000,
+    priceDisplay: "$595,000",
+    landSizeSqm: 450,
+    frontageMeters: 15.5,
+    zoning: "R2",
+    longitude: 150.8629,
+    latitude: -34.0019,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-002",
+    address: "18 Macarthur Blvd",
+    suburb: "Campbelltown",
+    postcode: "2560",
+    price: 720_000,
+    priceDisplay: "$720,000",
+    landSizeSqm: 520,
+    frontageMeters: 18,
+    zoning: "R2",
+    longitude: 150.8139,
+    latitude: -34.0669,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-003",
+    address: "12 Kurrajong Ave",
+    suburb: "Campbelltown",
+    postcode: "2560",
+    price: 685_000,
+    priceDisplay: "$685,000",
+    landSizeSqm: 420,
+    frontageMeters: 14,
+    zoning: "R2",
+    longitude: 150.8082,
+    latitude: -34.0621,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-004",
+    address: "55 Pemberton St",
+    suburb: "Minto",
+    postcode: "2566",
+    price: 520_000,
+    priceDisplay: "$520,000",
+    landSizeSqm: 380,
+    frontageMeters: 12.5,
+    zoning: "R2",
+    longitude: 150.8447,
+    latitude: -34.0278,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-005",
+    address: "3 Oran Park Dr",
+    suburb: "Oran Park",
+    postcode: "2570",
+    price: 890_000,
+    priceDisplay: "$890,000",
+    landSizeSqm: 650,
+    frontageMeters: 20,
+    zoning: "R3",
+    longitude: 150.74,
+    latitude: -34.005,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-006",
+    address: "28 Narellan Rd",
+    suburb: "Narellan",
+    postcode: "2567",
+    price: 745_000,
+    priceDisplay: "$745,000",
+    landSizeSqm: 510,
+    frontageMeters: 16.5,
+    zoning: "R2",
+    longitude: 150.7408,
+    latitude: -34.0478,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-007",
+    address: "14 River Rd",
+    suburb: "Liverpool",
+    postcode: "2170",
+    price: 610_000,
+    priceDisplay: "$610,000",
+    landSizeSqm: 445,
+    frontageMeters: 15,
+    zoning: "R3",
+    longitude: 150.9256,
+    latitude: -33.9249,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-008",
+    address: "9 Gregory Hills Dr",
+    suburb: "Gregory Hills",
+    postcode: "2557",
+    price: 795_000,
+    priceDisplay: "$795,000",
+    landSizeSqm: 560,
+    frontageMeters: 17,
+    zoning: "R2",
+    longitude: 150.7689,
+    latitude: -34.0211,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-009",
+    address: "31 Camden Valley Way",
+    suburb: "Camden",
+    postcode: "2570",
+    price: 550_000,
+    priceDisplay: "$550,000",
+    landSizeSqm: 400,
+    frontageMeters: 13,
+    zoning: "RU4",
+    longitude: 150.6969,
+    latitude: -34.0544,
+    status: "available",
+  },
+  {
+    domainListingId: "DEMO-010",
+    address: "6 Eucalyptus Cl",
+    suburb: "Ingleburn",
+    postcode: "2565",
+    price: 575_000,
+    priceDisplay: "$575,000",
+    landSizeSqm: 435,
+    frontageMeters: 14.5,
+    zoning: "R2",
+    longitude: 150.858,
+    latitude: -34.008,
+    status: "available",
+  },
+  // —— Under contract ——
+  {
+    domainListingId: "DEMO-011",
+    address: "22 Rose St",
+    suburb: "Campbelltown",
+    postcode: "2560",
+    price: 640_000,
+    priceDisplay: "$640,000",
+    landSizeSqm: 465,
+    frontageMeters: 15,
+    zoning: "R2",
+    longitude: 150.8175,
+    latitude: -34.0695,
+    status: "under_offer",
+  },
+  {
+    domainListingId: "DEMO-012",
+    address: "8 Banksia Cres",
+    suburb: "Leumeah",
+    postcode: "2560",
+    price: 595_000,
+    priceDisplay: "$595,000",
+    landSizeSqm: 420,
+    frontageMeters: 14,
+    zoning: "R3",
+    longitude: 150.832,
+    latitude: -34.0485,
+    status: "under_offer",
+  },
+  // —— Sold (triggers builder leads + proposals) ——
+  {
+    domainListingId: "DEMO-013",
+    address: "7 Wattle Grove",
+    suburb: "Leumeah",
+    postcode: "2560",
+    price: 680_000,
+    priceDisplay: "$680,000",
+    landSizeSqm: 480,
+    frontageMeters: 16,
+    zoning: "R3",
+    longitude: 150.8295,
+    latitude: -34.0512,
+    status: "sold",
+    soldDaysAgo: 2,
+  },
+  {
+    domainListingId: "DEMO-014",
+    address: "45 Badgally Rd",
+    suburb: "Campbelltown",
+    postcode: "2560",
+    price: 710_000,
+    priceDisplay: "$710,000",
+    landSizeSqm: 495,
+    frontageMeters: 16.5,
+    zoning: "R3",
+    longitude: 150.821,
+    latitude: -34.071,
+    status: "sold",
+    soldDaysAgo: 5,
+  },
+  {
+    domainListingId: "DEMO-015",
+    address: "16 Appin Rd",
+    suburb: "Minto",
+    postcode: "2566",
+    price: 530_000,
+    priceDisplay: "$530,000",
+    landSizeSqm: 390,
+    frontageMeters: 12,
+    zoning: "R2",
+    longitude: 150.849,
+    latitude: -34.031,
+    status: "sold",
+    soldDaysAgo: 8,
+  },
+];
+
+export type DemoUser = {
+  email: string;
+  password: string;
+  role: "buyer" | "builder";
+  fullName: string;
+  companyName?: string;
+  phone?: string;
+  licenseNumber?: string;
+  anchorAddress: string;
+  anchorLng: number;
+  anchorLat: number;
+  serviceRadiusKm: number;
+};
+
+export const DEMO_USERS: DemoUser[] = [
+  {
+    email: "demo.buyer@velu.dev",
+    password: "VeluDemo123!",
+    role: "buyer",
+    fullName: "Alex Morgan",
+    phone: "0412 345 678",
+    anchorAddress: "Leumeah NSW 2560",
+    anchorLng: 150.8295,
+    anchorLat: -34.0512,
+    serviceRadiusKm: 25,
+  },
+  {
+    email: "demo.buyer2@velu.dev",
+    password: "VeluDemo123!",
+    role: "buyer",
+    fullName: "Sam Chen",
+    phone: "0423 456 789",
+    anchorAddress: "Campbelltown NSW 2560",
+    anchorLng: 150.8139,
+    anchorLat: -34.0669,
+    serviceRadiusKm: 25,
+  },
+  {
+    email: "demo.builder@velu.dev",
+    password: "VeluDemo123!",
+    role: "builder",
+    fullName: "James Whitfield",
+    companyName: "Apex Homes Pty Ltd",
+    phone: "0434 567 890",
+    licenseNumber: "NSW-BLD-28491",
+    anchorAddress: "Campbelltown NSW 2560",
+    anchorLng: 150.8139,
+    anchorLat: -34.0669,
+    serviceRadiusKm: 30,
+  },
+  {
+    email: "demo.builder2@velu.dev",
+    password: "VeluDemo123!",
+    role: "builder",
+    fullName: "Maria Santos",
+    companyName: "Meridian Building Co",
+    phone: "0445 678 901",
+    licenseNumber: "NSW-BLD-31756",
+    anchorAddress: "Liverpool NSW 2170",
+    anchorLng: 150.9256,
+    anchorLat: -33.9249,
+    serviceRadiusKm: 25,
+  },
+  {
+    email: "demo.builder3@velu.dev",
+    password: "VeluDemo123!",
+    role: "builder",
+    fullName: "David Nguyen",
+    companyName: "SouthWest Living",
+    phone: "0456 789 012",
+    licenseNumber: "NSW-BLD-40283",
+    anchorAddress: "Camden NSW 2570",
+    anchorLng: 150.6969,
+    anchorLat: -34.0544,
+    serviceRadiusKm: 35,
+  },
+];
+
+export const DEMO_PROPOSALS = [
+  {
+    listingDomainId: "DEMO-013",
+    builderEmail: "demo.builder@velu.dev",
+    packageName: "Modern 4-Bed Package",
+    basePrice: 485_000,
+    estimatedBuildWeeks: 28,
+    inclusions:
+      "Stone benchtops, ducted AC, 900mm appliances, landscaping allowance",
+    notes: "Fixed-price HIA contract. 10-year structural warranty.",
+    status: "pending" as const,
+  },
+  {
+    listingDomainId: "DEMO-013",
+    builderEmail: "demo.builder2@velu.dev",
+    packageName: "Family 5-Bed Package",
+    basePrice: 512_000,
+    estimatedBuildWeeks: 32,
+    inclusions: "Double garage, alfresco, premium fixtures, solar-ready",
+    notes: "Includes site costs. Council DA assistance included.",
+    status: "viewed" as const,
+  },
+  {
+    listingDomainId: "DEMO-014",
+    builderEmail: "demo.builder@velu.dev",
+    packageName: "The Campbell 220",
+    basePrice: 468_000,
+    estimatedBuildWeeks: 26,
+    inclusions: "Engineered stone, split-system AC, Colorbond roof",
+    notes: "Turnkey package — ready to build on exchange.",
+    status: "pending" as const,
+  },
+  {
+    listingDomainId: "DEMO-014",
+    builderEmail: "demo.builder3@velu.dev",
+    packageName: "Premium 4-Bed + Study",
+    basePrice: 495_000,
+    estimatedBuildWeeks: 30,
+    inclusions: "Butler's pantry, tiled alfresco, smart home pre-wire",
+    notes: "Fixed price to lock-up stage included.",
+    status: "pending" as const,
+  },
+];

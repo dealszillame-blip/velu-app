@@ -55,6 +55,9 @@ copy .env.example .env.local
 | 6 | `006_realtime.sql` | Realtime for lead feed |
 | 7 | `007_listing_rpc.sql` | Listing create + map query (Week 2) |
 | 8 | `008_domain_sync.sql` | Domain API sync columns + upsert RPC |
+| 8b | `008b_fix_get_listings_for_map.sql` | Only if 008 errors with 42P13 on `get_listings_for_map` |
+| 9 | `009_week3_core_loop.sql` | Sold leads RPC + proposal onboarding gate |
+| 10 | `010_demo_seed.sql` | Optional demo listings (after user signup) |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 

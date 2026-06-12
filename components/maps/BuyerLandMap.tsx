@@ -8,7 +8,7 @@ export const BuyerLandMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-[480px] items-center justify-center rounded-lg border bg-muted/30 text-sm text-muted-foreground">
+      <div className="surface flex min-h-[480px] items-center justify-center text-sm text-muted-foreground">
         Loading map…
       </div>
     ),

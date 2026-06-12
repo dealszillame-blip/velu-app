@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const ROLE_HOME: Record<string, string> = {
   buyer: "/buyer/map",
@@ -14,11 +15,20 @@ const AUTH_PREFIXES = ["/login", "/register", "/verify"];
 const ONBOARDING_PREFIXES = ["/onboarding"];
 
 export async function updateSession(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const env = getSupabaseEnv();
+
+  // Missing Supabase config on Vercel — allow public pages instead of crashing.
+  if (!env) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
+  try {
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.url,
+    env.anonKey,
     {
       cookies: {
         getAll() {
@@ -40,8 +50,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const path = request.nextUrl.pathname;
 
   // API routes handle their own auth — never redirect them to HTML pages
   if (path.startsWith("/api")) {
@@ -119,4 +127,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse;
+  } catch (error) {
+    console.error("Middleware session error:", error);
+    return NextResponse.next({ request });
+  }
 }

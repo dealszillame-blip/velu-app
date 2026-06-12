@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "verify:supabase": "node --env-file=.env.local scripts/verify-supabase.mjs",
+    "seed:demo": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-demo-data.ts",
     "sync:domain": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/sync-domain-listings.ts"
   },
   "dependencies": {

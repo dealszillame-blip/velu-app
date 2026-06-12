@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SegmentControl } from "@/components/shared/SegmentControl";
 import { statusLabel, type MapFilters } from "@/lib/listings";
 import { SW_SYDNEY_SUBURBS } from "@/lib/map/config";
 import type { ListingStatus } from "@/lib/types";
@@ -42,51 +43,46 @@ export function MapFiltersPanel({
   );
 
   return (
-    <div className="space-y-4 rounded-lg border bg-background p-4">
+    <div className="surface-subtle space-y-5 p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="font-medium">Filters</h2>
-          <p className="text-sm text-muted-foreground">
-            {resultCount} listing{resultCount === 1 ? "" : "s"} shown
+          <p className="label-caps">Filters</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight">
+            {resultCount}
+            <span className="ml-1.5 text-base font-normal text-muted-foreground">
+              listing{resultCount === 1 ? "" : "s"}
+            </span>
           </p>
         </div>
         {hasFilters && onClear && (
           <button
             type="button"
             onClick={onClear}
-            className="text-xs text-muted-foreground underline"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Clear
+            Reset
           </button>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="status">Listing status</Label>
-        <Select
+        <Label className="label-caps">Status</Label>
+        <SegmentControl
+          options={STATUS_OPTIONS.map((option) => ({
+            value: option,
+            label: statusLabel(option),
+          }))}
           value={status}
-          onValueChange={(value) =>
-            onChange({
-              ...filters,
-              status: value as ListingStatus,
-            })
+          onChange={(value) =>
+            onChange({ ...filters, status: value as ListingStatus })
           }
-        >
-          <SelectTrigger id="status" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option} value={option}>
-                {statusLabel(option)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="suburb">Suburb</Label>
+        <Label htmlFor="suburb" className="label-caps">
+          Suburb
+        </Label>
         <Select
           value={filters.suburb ?? "all"}
           onValueChange={(v) =>
@@ -96,7 +92,7 @@ export function MapFiltersPanel({
             })
           }
         >
-          <SelectTrigger id="suburb" className="w-full">
+          <SelectTrigger id="suburb" className="h-11 w-full rounded-xl border-0 bg-muted">
             <SelectValue placeholder="All suburbs" />
           </SelectTrigger>
           <SelectContent>
@@ -112,11 +108,13 @@ export function MapFiltersPanel({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <Label htmlFor="priceMin">Min price</Label>
+          <Label htmlFor="priceMin" className="label-caps">
+            Min price
+          </Label>
           <Input
             id="priceMin"
             type="number"
-            placeholder="400000"
+            placeholder="400k"
             value={filters.priceMin ?? ""}
             onChange={(e) =>
               onChange({
@@ -127,11 +125,13 @@ export function MapFiltersPanel({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="priceMax">Max price</Label>
+          <Label htmlFor="priceMax" className="label-caps">
+            Max price
+          </Label>
           <Input
             id="priceMax"
             type="number"
-            placeholder="900000"
+            placeholder="900k"
             value={filters.priceMax ?? ""}
             onChange={(e) =>
               onChange({
@@ -145,7 +145,9 @@ export function MapFiltersPanel({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <Label htmlFor="sizeMin">Min size (m²)</Label>
+          <Label htmlFor="sizeMin" className="label-caps">
+            Min m²
+          </Label>
           <Input
             id="sizeMin"
             type="number"
@@ -160,7 +162,9 @@ export function MapFiltersPanel({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="sizeMax">Max size (m²)</Label>
+          <Label htmlFor="sizeMax" className="label-caps">
+            Max m²
+          </Label>
           <Input
             id="sizeMax"
             type="number"
@@ -173,6 +177,24 @@ export function MapFiltersPanel({
               })
             }
           />
+        </div>
+      </div>
+
+      <div className="border-t border-black/[0.06] pt-4">
+        <p className="label-caps mb-2">Map legend</p>
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-foreground" />
+            Available
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#86868b]" />
+            Under contract
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#d2d2d7]" />
+            Sold
+          </span>
         </div>
       </div>
     </div>
