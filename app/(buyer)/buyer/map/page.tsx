@@ -5,6 +5,7 @@ export default function BuyerMapPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="The live map"
         title="Explore land"
         description="Vacant lots across South West Sydney — filter by suburb, price, and size."
       />

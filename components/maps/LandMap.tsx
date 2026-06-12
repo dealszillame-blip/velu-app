@@ -20,10 +20,18 @@ import {
 import type { ListingStatus } from "@/lib/types";
 
 const STATUS_MARKER_COLORS: Record<ListingStatus, string> = {
-  available: "bg-foreground",
-  under_offer: "bg-[#86868b]",
-  sold: "bg-[#d2d2d7] text-foreground",
+  available: "bg-[#5aa84a]",
+  under_offer: "bg-[#dba94e] text-[#13314c]",
+  sold: "bg-[#e05b3a]",
 };
+
+function hasValidCoords(listing: MapListing): boolean {
+  return (
+    Number.isFinite(listing.latitude) &&
+    Number.isFinite(listing.longitude) &&
+    !(listing.latitude === 0 && listing.longitude === 0)
+  );
+}
 
 function buildQuery(filters: MapFilters): string {
   const params = new URLSearchParams({
@@ -72,7 +80,7 @@ function MapListingItem({
       className={cn(
         "w-full rounded-xl px-3 py-3 text-left transition-colors",
         selected
-          ? "bg-foreground text-background"
+          ? "bg-primary text-primary-foreground"
           : "hover:bg-muted/80"
       )}
     >
@@ -82,7 +90,7 @@ function MapListingItem({
           <p
             className={cn(
               "text-xs",
-              selected ? "text-background/70" : "text-muted-foreground"
+              selected ? "text-primary-foreground/75" : "text-muted-foreground"
             )}
           >
             {listing.suburb} · {listing.land_size_sqm} m²
@@ -91,7 +99,7 @@ function MapListingItem({
         <span
           className={cn(
             "shrink-0 text-sm font-semibold",
-            selected ? "text-background" : "text-foreground"
+            selected ? "text-primary-foreground" : "text-foreground"
           )}
         >
           {listingPriceLabel(listing)}
@@ -132,10 +140,12 @@ export function LandMap() {
     (map: maplibregl.Map, data: MapListing[]) => {
       clearMarkers();
 
-      data.forEach((listing) => {
+      const mappable = data.filter(hasValidCoords);
+
+      mappable.forEach((listing) => {
         const el = document.createElement("button");
         el.type = "button";
-        el.className = `rounded-full px-3 py-1.5 text-xs font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${STATUS_MARKER_COLORS[listing.status]} ${listing.status === "sold" ? "" : "text-white"}`;
+        el.className = `rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-[0_2px_8px_rgba(19,49,76,0.2)] ${STATUS_MARKER_COLORS[listing.status]}`;
         el.textContent = markerLabel(listing);
         el.setAttribute("aria-label", `${listing.address}, ${listing.suburb}`);
 
@@ -150,6 +160,20 @@ export function LandMap() {
 
         markersRef.current.push(marker);
       });
+
+      if (mappable.length === 1) {
+        map.flyTo({
+          center: [mappable[0].longitude, mappable[0].latitude],
+          zoom: 14,
+          essential: true,
+        });
+      } else if (mappable.length > 1) {
+        const bounds = new maplibregl.LngLatBounds();
+        mappable.forEach((listing) => {
+          bounds.extend([listing.longitude, listing.latitude]);
+        });
+        map.fitBounds(bounds, { padding: 72, maxZoom: 14, duration: 800 });
+      }
     },
     [clearMarkers, selectListing]
   );
@@ -230,6 +254,10 @@ export function LandMap() {
   }, [listings, mapReady, renderMarkers]);
 
   const showEmptyState = !loading && !mapError && listings.length === 0;
+  const missingCoords =
+    !loading &&
+    listings.length > 0 &&
+    listings.every((listing) => !hasValidCoords(listing));
   const status = filters.status ?? "available";
 
   return (
@@ -316,6 +344,13 @@ export function LandMap() {
         {mapError && (
           <div className="absolute inset-x-4 top-4 z-20 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {mapError}
+          </div>
+        )}
+
+        {missingCoords && (
+          <div className="absolute inset-x-4 top-4 z-20 rounded-2xl border border-[#dba94e]/30 bg-[#dba94e]/10 px-4 py-3 text-sm text-[#13314c]">
+            Listings loaded but map coordinates are missing. Re-save listings with
+            a full address or re-run the demo seed in Supabase.
           </div>
         )}
 

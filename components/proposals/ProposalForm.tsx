@@ -361,7 +361,9 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
             >
               <Select
                 value={line.category}
-                onValueChange={(v) => updateBreakdown(index, { category: v })}
+                onValueChange={(v) => {
+                  if (v) updateBreakdown(index, { category: v });
+                }}
               >
                 <SelectTrigger className="h-10 rounded-lg border-0 bg-background text-xs">
                   <SelectValue />
@@ -436,7 +438,9 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
             >
               <Select
                 value={item.category}
-                onValueChange={(v) => updateInclusion(index, { category: v })}
+                onValueChange={(v) => {
+                  if (v) updateInclusion(index, { category: v });
+                }}
               >
                 <SelectTrigger className="h-10 rounded-lg border-0 bg-background text-xs">
                   <SelectValue />

@@ -92,7 +92,7 @@ export function MapFiltersPanel({
             })
           }
         >
-          <SelectTrigger id="suburb" className="h-11 w-full rounded-xl border-0 bg-muted">
+          <SelectTrigger id="suburb" className="h-11 w-full rounded-xl">
             <SelectValue placeholder="All suburbs" />
           </SelectTrigger>
           <SelectContent>
@@ -180,19 +180,19 @@ export function MapFiltersPanel({
         </div>
       </div>
 
-      <div className="border-t border-black/[0.06] pt-4">
+      <div className="border-t border-border pt-4">
         <p className="label-caps mb-2">Map legend</p>
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-foreground" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#5aa84a]" />
             Available
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#86868b]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#dba94e]" />
             Under contract
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#d2d2d7]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#e05b3a]" />
             Sold
           </span>
         </div>
