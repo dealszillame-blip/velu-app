@@ -4,7 +4,9 @@ import { RoleNav } from "@/components/shared/RoleNav";
 
 const NAV = [
   { href: "/buyer/map", label: "Map" },
+  { href: "/buyer/my-land", label: "My land" },
   { href: "/buyer/compare", label: "Compare" },
+  { href: "/buyer/messages", label: "Messages" },
 ];
 
 export default async function BuyerLayout({

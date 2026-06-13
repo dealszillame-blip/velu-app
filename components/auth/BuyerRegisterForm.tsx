@@ -18,9 +18,13 @@ import { Label } from "@/components/ui/label";
 
 type BuyerRegisterFormProps = {
   redirectTo?: string;
+  variant?: "default" | "own-land";
 };
 
-export function BuyerRegisterForm({ redirectTo = "/buyer/map" }: BuyerRegisterFormProps) {
+export function BuyerRegisterForm({
+  redirectTo = "/buyer/map",
+  variant = "default",
+}: BuyerRegisterFormProps) {
   const router = useRouter();
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -99,9 +103,15 @@ export function BuyerRegisterForm({ redirectTo = "/buyer/map" }: BuyerRegisterFo
   return (
     <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader>
-        <CardTitle>Register as a buyer</CardTitle>
+        <CardTitle>
+          {variant === "own-land"
+            ? "Register to find builders"
+            : "Register as a buyer"}
+        </CardTitle>
         <CardDescription>
-          Search vacant land and compare builder proposals.
+          {variant === "own-land"
+            ? "Create an account, register your block, and receive build proposals from verified builders."
+            : "Search vacant land and compare builder proposals."}
         </CardDescription>
       </CardHeader>
       <CardContent>

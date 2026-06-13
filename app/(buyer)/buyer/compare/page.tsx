@@ -12,13 +12,22 @@ export default function BuyerComparePage() {
         title="Proposals"
         description="Compare builder packages and choose your build partner."
         action={
-          <Link
-            href="/buyer/map"
-            className={cn(buttonVariants({ variant: "outline" }), "rounded-full gap-2")}
-          >
-            View map
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/buyer/my-land"
+              className={cn(buttonVariants(), "rounded-full gap-2")}
+            >
+              Register my land
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/buyer/map"
+              className={cn(buttonVariants({ variant: "outline" }), "rounded-full gap-2")}
+            >
+              View map
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         }
       />
       <ProposalComparator />

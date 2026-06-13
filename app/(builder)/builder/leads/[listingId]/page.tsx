@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ContactBuyerPanel } from "@/components/messages/ContactBuyerPanel";
 import { ProposalForm } from "@/components/proposals/ProposalForm";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { requireRole } from "@/lib/auth";
@@ -23,7 +24,7 @@ export default async function BuilderLeadDetailPage({
   const { data: listing } = await supabase
     .from("land_listings")
     .select(
-      "id, address, suburb, postcode, price, price_display, land_size_sqm, frontage_meters, zoning, status, sold_at"
+      "id, address, suburb, postcode, price, price_display, land_size_sqm, frontage_meters, zoning, status, sold_at, buyer_id"
     )
     .eq("id", listingId)
     .single();
@@ -109,6 +110,20 @@ export default async function BuilderLeadDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Contact buyer before proposal */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Discuss requirements first</CardTitle>
+          <CardDescription>
+            Ask about the block, design preferences, or timeline before submitting
+            your formal proposal.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ContactBuyerPanel listingId={listingId} buyerId={listing.buyer_id} />
+        </CardContent>
+      </Card>
 
       {/* Proposal card */}
       <div className="surface-subtle overflow-hidden">

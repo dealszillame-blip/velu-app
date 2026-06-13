@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,10 @@ type NotificationItem = {
 };
 
 export function NotificationBell() {
+  const pathname = usePathname();
+  const messagesBase = pathname.startsWith("/builder")
+    ? "/builder/messages"
+    : "/buyer/messages";
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unread, setUnread] = useState(0);
@@ -46,6 +51,9 @@ export function NotificationBell() {
     const listingId = item.metadata?.listing_id;
     if (item.type === "new_lead" && listingId) {
       return `/builder/leads/${listingId}`;
+    }
+    if (item.type === "message_received" && item.metadata?.inquiry_id) {
+      return `${messagesBase}?thread=${item.metadata.inquiry_id}`;
     }
     if (item.type === "proposal_received") {
       return "/buyer/compare";

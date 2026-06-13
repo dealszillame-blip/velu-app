@@ -11,6 +11,7 @@ import {
   Hammer,
   Scale,
 } from "lucide-react";
+import { StartInquiryButton } from "@/components/messages/StartInquiryButton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { StatStrip } from "@/components/shared/StatStrip";
@@ -40,7 +41,8 @@ const COMPARE_STEPS = [
   {
     icon: FileText,
     title: "Secure your land",
-    description: "Mark a lot as sold once you've exchanged contracts.",
+    description:
+      "Mark a lot as sold on the map, or register a block you already own under My land.",
   },
   {
     icon: Hammer,
@@ -193,25 +195,43 @@ function ProposalCard({
           </p>
         ) : null}
         {isPending && (
-          <div className="flex gap-2 pt-1">
-            <Button
-              size="sm"
-              disabled={actingId === proposal.id}
-              className="flex-1 rounded-full"
-              onClick={() => onRespond(proposal.id, "accept")}
-            >
-              Accept
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={actingId === proposal.id}
-              className="flex-1 rounded-full"
-              onClick={() => onRespond(proposal.id, "reject")}
-            >
-              Decline
-            </Button>
+          <div className="flex flex-col gap-2 pt-1">
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                disabled={actingId === proposal.id}
+                className="flex-1 rounded-full"
+                onClick={() => onRespond(proposal.id, "accept")}
+              >
+                Accept
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={actingId === proposal.id}
+                className="flex-1 rounded-full"
+                onClick={() => onRespond(proposal.id, "reject")}
+              >
+                Decline
+              </Button>
+            </div>
+            <StartInquiryButton
+              landListingId={proposal.land_listing_id}
+              counterpartyId={proposal.builder_id}
+              messagesPath="/buyer/messages"
+              label="Message builder"
+              className="w-full"
+            />
           </div>
+        )}
+        {!isPending && (
+          <StartInquiryButton
+            landListingId={proposal.land_listing_id}
+            counterpartyId={proposal.builder_id}
+            messagesPath="/buyer/messages"
+            label="Message builder"
+            className="w-full"
+          />
         )}
       </CardContent>
     </Card>
@@ -224,16 +244,28 @@ function CompareEmptyLayout() {
       <EmptyState
         icon={<Scale className="h-6 w-6" strokeWidth={1.5} />}
         title="No proposals yet"
-        description="Once builders submit packages on your sold lot, they'll appear here for side-by-side comparison."
-        hint="Demo tip: run migration 010_demo_seed.sql after registering a buyer and builder — it seeds a sold lot at 7 Wattle Grove, Leumeah."
+        description="Once builders submit packages on your land, they'll appear here for side-by-side comparison."
+        hint="Already own your block? Register it under My land. Bought via an agent? Mark the lot as sold on the map."
         action={
-          <Link
-            href="/buyer/map"
-            className={cn(buttonVariants(), "rounded-full gap-2")}
-          >
-            Explore land on map
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              href="/buyer/my-land"
+              className={cn(buttonVariants(), "rounded-full gap-2")}
+            >
+              Register my land
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/buyer/map"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full gap-2"
+              )}
+            >
+              Explore map
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         }
       />
 

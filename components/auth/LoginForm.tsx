@@ -45,7 +45,7 @@ export function LoginForm() {
         return;
       }
 
-      window.location.assign("/");
+      window.location.assign(searchParams.get("next") || "/");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

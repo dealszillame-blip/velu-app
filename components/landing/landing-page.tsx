@@ -231,12 +231,16 @@ export function LandingPage() {
             <span className="ln">You review. You decide.</span>
           </h1>
           <p className="hero-sub">
-            The verified marketplace connecting vacant land buyers with licensed
-            builders in South West Sydney — the moment a block sells.
+            Whether you&apos;re searching for vacant land or already hold a
+            block, Velu connects South West Sydney buyers with licensed builders
+            the moment you&apos;re ready to build.
           </p>
           <div className="hero-actions">
             <Link href="/register/buyer" className="btn-green">
               Find vacant land
+            </Link>
+            <Link href="/register/buyer?intent=own-land" className="btn-outline">
+              I already own land
             </Link>
             <Link href="/register/builder" className="btn-outline">
               I&apos;m a builder →
