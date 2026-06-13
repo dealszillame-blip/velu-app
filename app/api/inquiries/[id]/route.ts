@@ -67,11 +67,13 @@ export async function GET(
     .eq("id", counterpartyId)
     .single();
 
-  const listing = thread.land_listings as {
-    address: string;
-    suburb: string;
-    postcode: string;
-  } | null;
+  const listingRaw = thread.land_listings as
+    | { address: string; suburb: string; postcode: string }
+    | { address: string; suburb: string; postcode: string }[]
+    | null;
+  const listing = Array.isArray(listingRaw)
+    ? (listingRaw[0] ?? null)
+    : listingRaw;
 
   return NextResponse.json({
     thread: {
