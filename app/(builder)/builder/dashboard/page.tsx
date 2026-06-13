@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowRight, FileText, MapPin } from "lucide-react";
+import { ArrowRight, FileText, MapPin, UserCircle } from "lucide-react";
 
 export default async function BuilderDashboardPage() {
   const { user, profile } = await requireRole(["builder"]);
@@ -94,7 +94,22 @@ export default async function BuilderDashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link href="/builder/profile" className="surface-subtle group block p-5 transition-colors hover:bg-muted/50">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+              <UserCircle className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="font-medium tracking-tight group-hover:underline">
+                Build your profile
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Portfolio, Google reviews, product reviews, and photos.
+              </p>
+            </div>
+          </div>
+        </Link>
         <Link href="/builder/leads" className="surface-subtle group block p-5 transition-colors hover:bg-muted/50">
           <div className="flex items-start gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">

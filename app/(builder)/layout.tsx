@@ -4,6 +4,7 @@ import { RoleNav } from "@/components/shared/RoleNav";
 
 const NAV = [
   { href: "/builder/dashboard", label: "Home" },
+  { href: "/builder/profile", label: "Profile" },
   { href: "/builder/leads", label: "Leads" },
   { href: "/builder/proposals", label: "Proposals" },
   { href: "/builder/messages", label: "Messages" },

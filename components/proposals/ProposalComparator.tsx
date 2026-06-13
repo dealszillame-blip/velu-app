@@ -222,16 +222,36 @@ function ProposalCard({
               label="Message builder"
               className="w-full"
             />
+            <Link
+              href={`/builders/${proposal.builder_id}`}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "w-full rounded-full"
+              )}
+            >
+              View builder profile
+            </Link>
           </div>
         )}
         {!isPending && (
-          <StartInquiryButton
-            landListingId={proposal.land_listing_id}
-            counterpartyId={proposal.builder_id}
-            messagesPath="/buyer/messages"
-            label="Message builder"
-            className="w-full"
-          />
+          <div className="flex flex-col gap-2">
+            <StartInquiryButton
+              landListingId={proposal.land_listing_id}
+              counterpartyId={proposal.builder_id}
+              messagesPath="/buyer/messages"
+              label="Message builder"
+              className="w-full"
+            />
+            <Link
+              href={`/builders/${proposal.builder_id}`}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "w-full rounded-full"
+              )}
+            >
+              View builder profile
+            </Link>
+          </div>
         )}
       </CardContent>
     </Card>
