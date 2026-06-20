@@ -11,7 +11,7 @@ const ROLE_HOME: Record<string, string> = {
 };
 
 const PROTECTED_PREFIXES = ["/buyer", "/builder", "/agent", "/admin"];
-const AUTH_PREFIXES = ["/login", "/register", "/verify"];
+const AUTH_PREFIXES = ["/login", "/register", "/verify", "/auth/callback"];
 const ONBOARDING_PREFIXES = ["/onboarding"];
 
 export async function updateSession(request: NextRequest) {
@@ -67,7 +67,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("redirect", path);
+    url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
 
