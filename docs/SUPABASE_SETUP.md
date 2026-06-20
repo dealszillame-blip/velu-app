@@ -58,6 +58,16 @@ copy .env.example .env.local
 | 8b | `008b_fix_get_listings_for_map.sql` | Only if 008 errors with 42P13 on `get_listings_for_map` |
 | 9 | `009_week3_core_loop.sql` | Sold leads RPC + proposal onboarding gate |
 | 10 | `010_demo_seed.sql` | Optional demo listings (after user signup) |
+| 11 | `011_demo_seed_expanded.sql` | Expanded demo listings |
+| 12 | `012_builder_leads_seed.sql` | Demo builder leads |
+| 13 | `013_fix_domain_upsert.sql` | Fix Domain listing upsert |
+| 14 | `014_proposal_breakdown_templates.sql` | Proposal cost breakdown templates |
+| 15 | `015_buyer_owned_land.sql` | Buyer-owned land registration + RPC |
+| 16 | `016_platform_messaging.sql` | In-app messaging between buyers and builders |
+| 17 | `017_builder_public_profile.sql` | Builder public profile tables |
+| 18 | `018_buyer_owned_seed.sql` | Optional demo buyer-owned land |
+| 19 | `019_buyer_build_requirements.sql` | **Required for My land** — `buyer_profiles` table |
+| 20 | `020_nearby_builders_for_buyer.sql` | **Required for Builders in area tab** on My land |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 

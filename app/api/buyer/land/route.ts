@@ -64,7 +64,10 @@ export async function POST(request: Request) {
   });
 
   if (buyerProfileError) {
-    return NextResponse.json({ error: buyerProfileError.message }, { status: 500 });
+    const message = buyerProfileError.message.includes("buyer_profiles")
+      ? "Build requirements storage is not set up yet. Run migration 019_buyer_build_requirements.sql in Supabase."
+      : buyerProfileError.message;
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 
   const { data: listingId, error } = await supabase.rpc(

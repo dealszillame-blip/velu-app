@@ -12,6 +12,7 @@ type StartInquiryButtonProps = {
   label?: string;
   variant?: "default" | "outline";
   className?: string;
+  prefill?: string;
 };
 
 export function StartInquiryButton({
@@ -21,8 +22,16 @@ export function StartInquiryButton({
   label = "Message",
   variant = "outline",
   className,
+  prefill,
 }: StartInquiryButtonProps) {
-  const href = `${messagesPath}?listingId=${landListingId}&counterpartyId=${counterpartyId}`;
+  const params = new URLSearchParams({
+    listingId: landListingId,
+    counterpartyId,
+  });
+  if (prefill) {
+    params.set("prefill", prefill);
+  }
+  const href = `${messagesPath}?${params.toString()}`;
 
   return (
     <Link

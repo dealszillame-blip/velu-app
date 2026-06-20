@@ -37,6 +37,7 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
   const searchParams = useSearchParams();
   const composeListingId = searchParams.get("listingId");
   const composeCounterpartyId = searchParams.get("counterpartyId");
+  const composePrefill = searchParams.get("prefill");
   const selectedId = searchParams.get("thread");
 
   const [threads, setThreads] = useState<InquiryThread[]>([]);
@@ -86,6 +87,12 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
       setMessages([]);
     }
   }, [selectedId, loadThread]);
+
+  useEffect(() => {
+    if (composePrefill && composeListingId && composeCounterpartyId && !selectedId) {
+      setComposeDraft(composePrefill);
+    }
+  }, [composePrefill, composeListingId, composeCounterpartyId, selectedId]);
 
   async function sendToThread(threadId: string, message: string) {
     setSending(true);
