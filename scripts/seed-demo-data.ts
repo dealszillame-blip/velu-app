@@ -7,6 +7,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 import {
+  DEMO_BUYER_OWNED_LAND,
+  DEMO_BUYER_OWNED_PROPOSALS,
   DEMO_LISTINGS,
   DEMO_PROPOSALS,
   DEMO_USERS,
@@ -102,6 +104,101 @@ async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: s
 
   if (geoError) throw new Error(`Anchor geom failed for ${user.email}: ${geoError.message}`);
   ok(`Builder onboarded: ${user.companyName}`);
+}
+
+async function seedBuyerOwnedLand(
+  userIds: Map<string, string>
+): Promise<Map<string, string>> {
+  const ownedIds = new Map<string, string>();
+
+  for (const parcel of DEMO_BUYER_OWNED_LAND) {
+    const buyerId = userIds.get(parcel.buyerEmail);
+    if (!buyerId) {
+      warn(`Skipping buyer-owned land — no user for ${parcel.buyerEmail}`);
+      continue;
+    }
+
+    await supabase
+      .from("land_listings")
+      .delete()
+      .eq("buyer_id", buyerId)
+      .eq("source", "buyer_owned")
+      .eq("address", parcel.address);
+
+    const { data: listingId, error } = await supabase.rpc(
+      "create_buyer_owned_listing",
+      {
+        p_buyer_id: buyerId,
+        p_address: parcel.address,
+        p_suburb: parcel.suburb,
+        p_postcode: parcel.postcode,
+        p_land_size_sqm: parcel.landSizeSqm,
+        p_frontage_meters: parcel.frontageMeters,
+        p_zoning: parcel.zoning,
+        p_longitude: parcel.longitude,
+        p_latitude: parcel.latitude,
+        p_land_value: parcel.landValue,
+      }
+    );
+
+    if (error) {
+      throw new Error(`Buyer-owned ${parcel.address}: ${error.message}`);
+    }
+
+    const registeredAt =
+      parcel.registeredDaysAgo != null
+        ? new Date(Date.now() - parcel.registeredDaysAgo * 86400000).toISOString()
+        : new Date().toISOString();
+
+    await supabase
+      .from("land_listings")
+      .update({ sold_at: registeredAt, created_at: registeredAt })
+      .eq("id", listingId);
+
+    ownedIds.set(parcel.key, listingId as string);
+    ok(`Buyer-owned land: ${parcel.address}, ${parcel.suburb} (${parcel.buyerEmail})`);
+  }
+
+  return ownedIds;
+}
+
+async function seedBuyerOwnedProposals(
+  ownedIds: Map<string, string>,
+  userIds: Map<string, string>
+) {
+  for (const proposal of DEMO_BUYER_OWNED_PROPOSALS) {
+    const listingId = ownedIds.get(proposal.landKey);
+    const builderId = userIds.get(proposal.builderEmail);
+    const parcel = DEMO_BUYER_OWNED_LAND.find((p) => p.key === proposal.landKey);
+    const buyerId = parcel ? userIds.get(parcel.buyerEmail) : undefined;
+
+    if (!listingId || !builderId || !buyerId) {
+      warn(`Skipping buyer-owned proposal — ${proposal.packageName}`);
+      continue;
+    }
+
+    const { error } = await supabase.from("builder_proposals").upsert(
+      {
+        builder_id: builderId,
+        land_listing_id: listingId,
+        buyer_id: buyerId,
+        package_name: proposal.packageName,
+        base_price: proposal.basePrice,
+        estimated_build_weeks: proposal.estimatedBuildWeeks,
+        inclusions: proposal.inclusions,
+        notes: proposal.notes,
+        status: proposal.status,
+        viewed_at: proposal.status === "viewed" ? new Date().toISOString() : null,
+      },
+      { onConflict: "builder_id,land_listing_id" }
+    );
+
+    if (error) {
+      warn(`Buyer-owned proposal ${proposal.packageName}: ${error.message}`);
+    } else {
+      ok(`Buyer-owned proposal: ${proposal.packageName} → ${proposal.landKey}`);
+    }
+  }
 }
 
 async function seedListings(buyerId: string): Promise<Map<string, string>> {
@@ -214,7 +311,9 @@ async function main() {
 
   const buyerId = userIds.get("demo.buyer@velu.dev")!;
   const listingIds = await seedListings(buyerId);
+  const ownedIds = await seedBuyerOwnedLand(userIds);
   await seedProposals(listingIds, userIds, buyerId);
+  await seedBuyerOwnedProposals(ownedIds, userIds);
 
   console.log("\n── Demo login credentials (password for all: VeluDemo123!) ──\n");
   console.log("  Buyer:    demo.buyer@velu.dev");
@@ -223,9 +322,11 @@ async function main() {
   console.log("  Builder:  demo.builder2@velu.dev     (Meridian Building Co)");
   console.log("  Builder:  demo.builder3@velu.dev     (SouthWest Living)");
   console.log("\n── Test the core loop ──\n");
-  console.log("  1. Sign in as demo.buyer@velu.dev → /buyer/compare (2 proposals on Leumeah lot)");
-  console.log("  2. Sign in as demo.builder@velu.dev → /builder/leads (3 sold lots)");
-  console.log("  3. /buyer/map → 10 available + 2 under contract listings\n");
+  console.log("  1. Sign in as demo.buyer@velu.dev → /buyer/my-land (Mount Annan block)");
+  console.log("  2. Sign in as demo.buyer2@velu.dev → /buyer/my-land (2 registered blocks)");
+  console.log("  3. Sign in as demo.buyer@velu.dev → /buyer/compare (proposals on Leumeah + Mount Annan)");
+  console.log("  4. Sign in as demo.builder@velu.dev → /builder/leads (sold + buyer-owned leads)");
+  console.log("  5. /buyer/map → available listings (buyer-owned hidden from map)\n");
 }
 
 main().catch((err) => {

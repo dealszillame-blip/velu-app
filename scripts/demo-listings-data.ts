@@ -362,6 +362,90 @@ export const DEMO_USERS: DemoUser[] = [
   },
 ];
 
+export type DemoBuyerOwnedLand = {
+  key: string;
+  buyerEmail: string;
+  address: string;
+  suburb: string;
+  postcode: string;
+  landSizeSqm: number;
+  frontageMeters: number;
+  zoning: string;
+  longitude: number;
+  latitude: number;
+  landValue: number;
+  registeredDaysAgo?: number;
+};
+
+/** Buyers who registered land they already own via My land */
+export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
+  {
+    key: "alex-mount-annan",
+    buyerEmail: "demo.buyer@velu.dev",
+    address: "14 Banksia Cres",
+    suburb: "Mount Annan",
+    postcode: "2567",
+    landSizeSqm: 435,
+    frontageMeters: 14,
+    zoning: "R2",
+    longitude: 150.7642,
+    latitude: -34.0581,
+    landValue: 685_000,
+    registeredDaysAgo: 12,
+  },
+  {
+    key: "sam-oran-park",
+    buyerEmail: "demo.buyer2@velu.dev",
+    address: "8 Figtree Blvd",
+    suburb: "Oran Park",
+    postcode: "2570",
+    landSizeSqm: 520,
+    frontageMeters: 16,
+    zoning: "R2",
+    longitude: 150.7408,
+    latitude: -34.0012,
+    landValue: 745_000,
+    registeredDaysAgo: 5,
+  },
+  {
+    key: "sam-gledswood",
+    buyerEmail: "demo.buyer2@velu.dev",
+    address: "2 Acacia Dr",
+    suburb: "Gledswood Hills",
+    postcode: "2557",
+    landSizeSqm: 400,
+    frontageMeters: 12.5,
+    zoning: "R2",
+    longitude: 150.7685,
+    latitude: -34.0198,
+    landValue: 620_000,
+    registeredDaysAgo: 18,
+  },
+];
+
+export const DEMO_BUYER_OWNED_PROPOSALS = [
+  {
+    landKey: "alex-mount-annan",
+    builderEmail: "demo.builder3@velu.dev",
+    packageName: "Annandale 4-Bed",
+    basePrice: 478_000,
+    estimatedBuildWeeks: 27,
+    inclusions: "Stone benchtops, ducted AC, driveway allowance",
+    notes: "Designed for R2 lots 400–450m² in Mount Annan.",
+    status: "pending" as const,
+  },
+  {
+    landKey: "sam-oran-park",
+    builderEmail: "demo.builder2@velu.dev",
+    packageName: "Oran Park Family 5",
+    basePrice: 525_000,
+    estimatedBuildWeeks: 31,
+    inclusions: "Alfresco, double garage, premium fixtures",
+    notes: "Includes fixed site costs for Oran Park estates.",
+    status: "viewed" as const,
+  },
+];
+
 export const DEMO_PROPOSALS = [
   {
     listingDomainId: "DEMO-013",
