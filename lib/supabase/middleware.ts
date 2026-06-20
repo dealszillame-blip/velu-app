@@ -11,7 +11,7 @@ const ROLE_HOME: Record<string, string> = {
 };
 
 const PROTECTED_PREFIXES = ["/buyer", "/builder", "/agent", "/admin"];
-const AUTH_PREFIXES = ["/login", "/register", "/verify", "/auth/callback"];
+const AUTH_PREFIXES = ["/login", "/register", "/verify", "/forgot-password", "/auth/callback"];
 const ONBOARDING_PREFIXES = ["/onboarding"];
 
 export async function updateSession(request: NextRequest) {

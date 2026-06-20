@@ -90,7 +90,45 @@ This lets you sign up and land on dashboards immediately without checking email.
 1. **Authentication → URL Configuration**
 2. Set:
    - **Site URL:** `http://localhost:3000`
-   - **Redirect URLs:** add `http://localhost:3000/**`
+   - **Redirect URLs:** add `http://localhost:3000/**` and `http://localhost:3000/auth/callback`
+
+For production, also add `https://velu-app-sigma.vercel.app/auth/callback`.
+
+### Email sign-in link (default — works without custom SMTP)
+
+Velu’s **Email link** tab on `/login` uses Supabase’s default magic-link email. No template changes needed.
+
+1. User enters email → receives “Your sign-in link” email
+2. Clicks **Sign in** → lands on `/auth/callback` → redirected into the app
+
+Ensure **Authentication → URL Configuration → Redirect URLs** includes `/auth/callback` (see above).
+
+### Optional: 6-digit email codes (requires custom SMTP)
+
+Supabase only lets you **edit email templates after enabling custom SMTP**. Until then, the default template sends a link, not a code.
+
+To switch to numeric OTP codes later:
+
+1. **Project Settings → Authentication → SMTP Settings** → enable custom SMTP (e.g. [Resend](https://resend.com), SendGrid, or Amazon SES)
+2. **Authentication → Email Templates → Magic Link** → replace `{{ .ConfirmationURL }}` with `{{ .Token }}`
+3. Users can then enter the code under “Have a 6-digit code instead?” on the login page
+
+Suggested OTP body:
+
+```html
+<h2>Your Velu sign-in code</h2>
+<p>Enter this 6-digit code on the login page. It expires in 1 hour.</p>
+<p style="font-size: 24px; letter-spacing: 0.2em; font-weight: bold;">{{ .Token }}</p>
+```
+
+### Password reset
+
+Forgot password uses Supabase’s default **Reset password** email template (also works without custom SMTP).
+
+1. User goes to `/forgot-password` → receives reset email
+2. Clicks link → `/auth/callback?next=/reset-password` → sets new password
+
+No extra template setup required for reset links.
 
 ---
 
