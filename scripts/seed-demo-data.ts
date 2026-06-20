@@ -106,6 +106,41 @@ async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: s
   ok(`Builder onboarded: ${user.companyName}`);
 }
 
+async function seedBuyerRequirements(userIds: Map<string, string>) {
+  const samples: Record<string, object> = {
+    "demo.buyer@velu.dev": {
+      storeys: "ground_plus_one",
+      granny_flat: "no",
+      bedrooms: 4,
+      bathrooms: 2,
+      car_spaces: 2,
+      additional_notes: "Open-plan living, study nook, covered alfresco.",
+    },
+    "demo.buyer2@velu.dev": {
+      storeys: "ground_only",
+      granny_flat: "yes",
+      bedrooms: 5,
+      bathrooms: 3,
+      car_spaces: 2,
+      additional_notes: "Single-level living, granny flat for parents.",
+    },
+  };
+
+  for (const [email, requirements] of Object.entries(samples)) {
+    const buyerId = userIds.get(email);
+    if (!buyerId) continue;
+
+    const { error } = await supabase.from("buyer_profiles").upsert({
+      id: buyerId,
+      build_requirements: requirements,
+      requirements_completed_at: new Date().toISOString(),
+    });
+
+    if (error) warn(`Buyer requirements ${email}: ${error.message}`);
+    else ok(`Build requirements: ${email}`);
+  }
+}
+
 async function seedBuyerOwnedLand(
   userIds: Map<string, string>
 ): Promise<Map<string, string>> {
@@ -312,6 +347,7 @@ async function main() {
   const buyerId = userIds.get("demo.buyer@velu.dev")!;
   const listingIds = await seedListings(buyerId);
   const ownedIds = await seedBuyerOwnedLand(userIds);
+  await seedBuyerRequirements(userIds);
   await seedProposals(listingIds, userIds, buyerId);
   await seedBuyerOwnedProposals(ownedIds, userIds);
 

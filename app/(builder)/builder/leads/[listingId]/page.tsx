@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactBuyerPanel } from "@/components/messages/ContactBuyerPanel";
+import { LeadBuyerRequirements } from "@/components/builder/LeadBuyerRequirements";
 import { ProposalForm } from "@/components/proposals/ProposalForm";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { requireRole } from "@/lib/auth";
@@ -110,6 +111,11 @@ export default async function BuilderLeadDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Buyer requirements */}
+      {listing.buyer_id ? (
+        <LeadBuyerRequirements buyerId={listing.buyer_id} />
+      ) : null}
 
       {/* Contact buyer before proposal */}
       <Card>

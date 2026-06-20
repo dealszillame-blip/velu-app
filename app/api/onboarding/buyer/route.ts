@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { buildRequirementsSchema } from "@/lib/buyer-requirements";
 import { createClient } from "@/lib/supabase/server";
 
-const schema = z.object({
+const onboardingSchema = z.object({
   full_name: z.string().min(2),
   phone_number: z.string().optional(),
+  build_requirements: buildRequirementsSchema,
 });
 
 export async function POST(request: Request) {
@@ -17,20 +19,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = schema.safeParse(await request.json());
+  const body = onboardingSchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const { error } = await supabase.from("profiles").upsert({
+  const { error: profileError } = await supabase.from("profiles").upsert({
     id: user.id,
     role: "buyer",
     full_name: body.data.full_name,
     phone_number: body.data.phone_number ?? null,
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (profileError) {
+    return NextResponse.json({ error: profileError.message }, { status: 500 });
+  }
+
+  const { error: buyerProfileError } = await supabase.from("buyer_profiles").upsert({
+    id: user.id,
+    build_requirements: body.data.build_requirements,
+    requirements_completed_at: new Date().toISOString(),
+  });
+
+  if (buyerProfileError) {
+    return NextResponse.json({ error: buyerProfileError.message }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true, redirect: "/buyer/map" });

@@ -22,6 +22,11 @@ import {
 } from "@/components/ui/select";
 import type { UserRole } from "@/lib/types";
 import { ROLE_HOME } from "@/lib/types";
+import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
+import {
+  defaultBuildRequirements,
+  type BuyerBuildRequirements,
+} from "@/lib/buyer-requirements";
 
 type RoleChoice = Extract<UserRole, "buyer" | "builder" | "agent">;
 
@@ -38,6 +43,8 @@ export function CompleteProfileForm() {
   const [anchorAddress, setAnchorAddress] = useState("");
   const [serviceRadius, setServiceRadius] = useState("25");
   const [agencyLicence, setAgencyLicence] = useState("");
+  const [buildRequirements, setBuildRequirements] =
+    useState<BuyerBuildRequirements>(defaultBuildRequirements());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -89,6 +96,7 @@ export function CompleteProfileForm() {
     let body: Record<string, unknown> = {
       full_name: fullName,
       phone_number: phone || null,
+      build_requirements: buildRequirements,
     };
 
     if (role === "agent") {
@@ -205,6 +213,17 @@ export function CompleteProfileForm() {
                 id="agencyLicence"
                 value={agencyLicence}
                 onChange={(e) => setAgencyLicence(e.target.value)}
+              />
+            </div>
+          )}
+
+          {role === "buyer" && (
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <p className="mb-3 text-sm font-medium">Build requirements</p>
+              <BuyerBuildRequirementsFields
+                value={buildRequirements}
+                onChange={setBuildRequirements}
+                idPrefix="complete"
               />
             </div>
           )}
