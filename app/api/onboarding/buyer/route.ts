@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 const onboardingSchema = z.object({
   full_name: z.string().min(2),
   phone_number: z.string().optional(),
-  build_requirements: buildRequirementsSchema,
+  build_requirements: buildRequirementsSchema.optional(),
 });
 
 export async function POST(request: Request) {
@@ -35,14 +35,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: profileError.message }, { status: 500 });
   }
 
-  const { error: buyerProfileError } = await supabase.from("buyer_profiles").upsert({
-    id: user.id,
-    build_requirements: body.data.build_requirements,
-    requirements_completed_at: new Date().toISOString(),
-  });
+  if (body.data.build_requirements) {
+    const { error: buyerProfileError } = await supabase
+      .from("buyer_profiles")
+      .upsert({
+        id: user.id,
+        build_requirements: body.data.build_requirements,
+        requirements_completed_at: new Date().toISOString(),
+      });
 
-  if (buyerProfileError) {
-    return NextResponse.json({ error: buyerProfileError.message }, { status: 500 });
+    if (buyerProfileError) {
+      return NextResponse.json(
+        { error: buyerProfileError.message },
+        { status: 500 }
+      );
+    }
   }
 
   return NextResponse.json({ ok: true, redirect: "/buyer/map" });

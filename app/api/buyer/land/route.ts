@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
 import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
+import { buildRequirementsSchema } from "@/lib/buyer-requirements";
 import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
@@ -10,6 +11,7 @@ const schema = z.object({
   frontage_meters: z.number().positive(),
   zoning: z.string().min(2).max(10),
   land_value: z.number().min(0).optional(),
+  build_requirements: buildRequirementsSchema,
 });
 
 export async function POST(request: Request) {
@@ -53,6 +55,16 @@ export async function POST(request: Request) {
       { error: "Address must include a valid NSW postcode." },
       { status: 422 }
     );
+  }
+
+  const { error: buyerProfileError } = await supabase.from("buyer_profiles").upsert({
+    id: user.id,
+    build_requirements: body.data.build_requirements,
+    requirements_completed_at: new Date().toISOString(),
+  });
+
+  if (buyerProfileError) {
+    return NextResponse.json({ error: buyerProfileError.message }, { status: 500 });
   }
 
   const { data: listingId, error } = await supabase.rpc(

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -16,10 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defaultBuildRequirements,
-  type BuyerBuildRequirements,
-} from "@/lib/buyer-requirements";
 
 type BuyerRegisterFormProps = {
   redirectTo?: string;
@@ -32,25 +27,16 @@ export function BuyerRegisterForm({
 }: BuyerRegisterFormProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [buildRequirements, setBuildRequirements] =
-    useState<BuyerBuildRequirements>(defaultBuildRequirements);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (step === 1) {
-      setStep(2);
-      setError(null);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
@@ -84,7 +70,6 @@ export function BuyerRegisterForm({
       body: JSON.stringify({
         full_name: fullName,
         phone_number: phone,
-        build_requirements: buildRequirements,
       }),
     });
 
@@ -106,7 +91,7 @@ export function BuyerRegisterForm({
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
             We sent a verification link to {email}. After confirming, sign in
-            and complete your build requirements.
+            to continue.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -127,80 +112,54 @@ export function BuyerRegisterForm({
             : "Register as a buyer"}
         </CardTitle>
         <CardDescription>
-          {step === 1
-            ? variant === "own-land"
-              ? "Step 1 of 2 — your account details"
-              : "Step 1 of 2 — create your account"
-            : "Step 2 of 2 — your basic build requirements"}
+          {variant === "own-land"
+            ? "Create your account, then register your land on the next page."
+            : "Create your account to browse land and compare builder proposals."}
         </CardDescription>
-        <div className="flex gap-2 pt-2">
-          <span
-            className={cn(
-              "h-1 flex-1 rounded-full",
-              step >= 1 ? "bg-primary" : "bg-muted"
-            )}
-          />
-          <span
-            className={cn(
-              "h-1 flex-1 rounded-full",
-              step >= 2 ? "bg-primary" : "bg-muted"
-            )}
-          />
-        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {step === 1 ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full name</Label>
-                <Input
-                  id="fullName"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            <BuyerBuildRequirementsFields
-              value={buildRequirements}
-              onChange={setBuildRequirements}
-              idPrefix="register"
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full name</Label>
+            <Input
+              id="fullName"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
-          )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
           {error && (
             <p className="text-sm text-destructive" role="alert">
@@ -208,25 +167,9 @@ export function BuyerRegisterForm({
             </p>
           )}
 
-          <div className="flex gap-2">
-            {step === 2 && (
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => setStep(1)}
-              >
-                Back
-              </Button>
-            )}
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading
-                ? "Creating account…"
-                : step === 1
-                  ? "Continue"
-                  : "Create buyer account"}
-            </Button>
-          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating account…" : "Create buyer account"}
+          </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           <Link href="/register/builder" className="text-link">

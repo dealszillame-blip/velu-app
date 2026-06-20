@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,9 +22,19 @@ export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [retryIn, setRetryIn] = useState(0);
+
+  useEffect(() => {
+    if (retryIn <= 0) return;
+    const timer = setInterval(() => {
+      setRetryIn((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [retryIn]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (retryIn > 0) return;
     setError(null);
     setLoading(true);
 
@@ -35,12 +46,16 @@ export function ForgotPasswordForm() {
     );
 
     if (resetError) {
-      setError(resetError.message);
+      setError(getAuthErrorMessage(resetError.message));
+      if (resetError.message.toLowerCase().includes("rate limit")) {
+        setRetryIn(60);
+      }
       setLoading(false);
       return;
     }
 
     setSent(true);
+    setRetryIn(60);
     setLoading(false);
   }
 
@@ -92,9 +107,13 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               className="h-12 w-full rounded-full text-base"
-              disabled={loading}
+              disabled={loading || retryIn > 0}
             >
-              {loading ? "Sending link…" : "Send reset link"}
+              {loading
+                ? "Sending link…"
+                : retryIn > 0
+                  ? `Try again in ${retryIn}s`
+                  : "Send reset link"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Remember your password?{" "}

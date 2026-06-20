@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl, getPostLoginPath } from "@/lib/auth-redirect";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -80,10 +81,10 @@ export function LoginForm() {
     });
 
     if (otpError) {
-      const message = otpError.message.toLowerCase().includes("signups not allowed")
-        ? "No account found for this email. Create an account first."
-        : otpError.message;
-      setError(message);
+      setError(getAuthErrorMessage(otpError.message));
+      if (otpError.message.toLowerCase().includes("rate limit")) {
+        setResendIn(60);
+      }
       setLoading(false);
       return;
     }
