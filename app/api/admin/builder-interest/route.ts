@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/guard";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const auth = await requireAdminApi();
   if ("error" in auth) return auth.error;

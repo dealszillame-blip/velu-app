@@ -10,7 +10,7 @@ export function AdminBuilderInterestManager() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/admin/builder-interest");
+    const res = await fetch("/api/admin/builder-interest", { cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(data.error ?? "Failed to load submissions.");

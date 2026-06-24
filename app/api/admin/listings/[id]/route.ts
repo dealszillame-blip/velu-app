@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi } from "@/lib/admin/guard";
 
+export const dynamic = "force-dynamic";
+
 const patchSchema = z.object({
   address: z.string().min(3).optional(),
   suburb: z.string().min(2).optional(),

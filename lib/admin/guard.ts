@@ -22,6 +22,18 @@ export async function requireAdminApi() {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
-  const admin = await createServiceClient();
-  return { user, admin };
+  try {
+    const admin = await createServiceClient();
+    return { user, admin };
+  } catch {
+    return {
+      error: NextResponse.json(
+        {
+          error:
+            "Admin API is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your environment (Vercel → Settings → Environment Variables).",
+        },
+        { status: 503 }
+      ),
+    };
+  }
 }

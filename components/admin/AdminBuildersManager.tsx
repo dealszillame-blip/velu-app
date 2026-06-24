@@ -23,7 +23,7 @@ export function AdminBuildersManager() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/builders")
+    fetch("/api/admin/builders", { cache: "no-store" })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Failed to load builders.");

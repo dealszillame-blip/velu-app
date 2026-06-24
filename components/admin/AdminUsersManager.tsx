@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 
 type AdminUser = {
   id: string;
+  email: string;
   role: string;
   full_name: string;
   phone_number: string | null;
   company_name: string | null;
   created_at: string;
+  has_profile?: boolean;
 };
 
 export function AdminUsersManager() {
@@ -18,7 +20,7 @@ export function AdminUsersManager() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/admin/users");
+    const res = await fetch("/api/admin/users", { cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(data.error ?? "Failed to load users.");
@@ -39,13 +41,18 @@ export function AdminUsersManager() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role }),
+      cache: "no-store",
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       alert(data.error ?? "Update failed.");
       return;
     }
-    setUsers((rows) => rows.map((row) => (row.id === id ? { ...row, role } : row)));
+    setUsers((rows) =>
+      rows.map((row) =>
+        row.id === id ? { ...row, role, has_profile: true } : row
+      )
+    );
   }
 
   return (
@@ -54,11 +61,16 @@ export function AdminUsersManager() {
         <p className="p-6 text-sm text-muted-foreground">Loading…</p>
       ) : error ? (
         <p className="p-6 text-sm text-destructive">{error}</p>
+      ) : users.length === 0 ? (
+        <p className="p-6 text-sm text-muted-foreground">
+          No users found in Supabase Auth.
+        </p>
       ) : (
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[860px] text-left text-sm">
           <thead>
             <tr className="border-b text-muted-foreground">
               <th className="px-4 py-3 font-medium">Name</th>
+              <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Company</th>
               <th className="px-4 py-3 font-medium">Phone</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -67,7 +79,13 @@ export function AdminUsersManager() {
           <tbody>
             {users.map((user) => (
               <tr key={user.id} className="border-b border-black/[0.04]">
-                <td className="px-4 py-3">{user.full_name}</td>
+                <td className="px-4 py-3">
+                  {user.full_name}
+                  {!user.has_profile && (
+                    <span className="ml-2 text-xs text-amber-600">No profile</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">{user.email || "—"}</td>
                 <td className="px-4 py-3">{user.company_name ?? "—"}</td>
                 <td className="px-4 py-3">{user.phone_number ?? "—"}</td>
                 <td className="px-4 py-3">

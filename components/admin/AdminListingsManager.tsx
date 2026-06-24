@@ -30,7 +30,7 @@ export function AdminListingsManager() {
 
   async function load() {
     setLoading(true);
-    const res = await fetch("/api/admin/listings");
+    const res = await fetch("/api/admin/listings", { cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(data.error ?? "Failed to load listings.");

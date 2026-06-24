@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi } from "@/lib/admin/guard";
 
+export const dynamic = "force-dynamic";
+
 const patchSchema = z.object({
   status: z.enum(["new", "contacted", "invited", "archived"]),
 });
