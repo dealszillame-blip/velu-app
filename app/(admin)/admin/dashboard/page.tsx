@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { countAdminUsers } from "@/lib/admin/users";
 import {
   Card,
   CardContent,
@@ -14,9 +15,9 @@ export default async function AdminDashboardPage() {
   await requireRole(["admin"]);
   const admin = await createServiceClient();
 
-  const [listings, authUsers, builders, interest] = await Promise.all([
+  const [listings, userCount, builders, interest] = await Promise.all([
     admin.from("land_listings").select("id", { count: "exact", head: true }),
-    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    countAdminUsers(admin),
     admin.from("builder_profiles").select("id", { count: "exact", head: true }),
     admin
       .from("builder_prelaunch_interest")
@@ -25,11 +26,7 @@ export default async function AdminDashboardPage() {
 
   const stats = [
     { label: "Listings", count: listings.count ?? 0, href: "/admin/listings" },
-    {
-      label: "Users",
-      count: authUsers.data?.users?.length ?? 0,
-      href: "/admin/users",
-    },
+    { label: "Users", count: userCount, href: "/admin/users" },
     { label: "Builders", count: builders.count ?? 0, href: "/admin/builders" },
     {
       label: "Builder interest",

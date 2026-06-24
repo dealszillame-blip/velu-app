@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { validateServiceRoleKey } from "@/lib/supabase/validate-service-key";
 
 export async function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -9,6 +10,8 @@ export async function createServiceClient() {
   if (!url || !key) {
     throw new Error("Missing Supabase service role configuration.");
   }
+
+  validateServiceRoleKey(key);
 
   return createSupabaseClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },

@@ -25,15 +25,13 @@ export async function requireAdminApi() {
   try {
     const admin = await createServiceClient();
     return { user, admin };
-  } catch {
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Admin API is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your environment (Vercel → Settings → Environment Variables).";
     return {
-      error: NextResponse.json(
-        {
-          error:
-            "Admin API is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your environment (Vercel → Settings → Environment Variables).",
-        },
-        { status: 503 }
-      ),
+      error: NextResponse.json({ error: message }, { status: 503 }),
     };
   }
 }

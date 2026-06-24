@@ -97,6 +97,19 @@ if (!hasServiceKey) {
 
   ok(`Feature flags loaded (${flags.length} rows)`);
 
+  const { error: listUsersError } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1,
+  });
+
+  if (listUsersError) {
+    fail(
+      `auth.admin.listUsers failed: ${listUsersError.message} — check SUPABASE_SERVICE_ROLE_KEY is the service_role secret, not the anon key`
+    );
+  }
+
+  ok("Auth admin listUsers callable (service role)");
+
   const { error: rpcError } = await admin.rpc("get_builders_near_listing", {
     p_listing_id: "00000000-0000-0000-0000-000000000000",
   });

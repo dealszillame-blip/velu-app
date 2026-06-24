@@ -60,7 +60,7 @@ export function AdminUsersManager() {
       {loading ? (
         <p className="p-6 text-sm text-muted-foreground">Loading…</p>
       ) : error ? (
-        <p className="p-6 text-sm text-destructive">{error}</p>
+        <p className="p-6 text-sm leading-relaxed text-destructive">{error}</p>
       ) : users.length === 0 ? (
         <p className="p-6 text-sm text-muted-foreground">
           No users found in Supabase Auth.

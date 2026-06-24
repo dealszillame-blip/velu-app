@@ -178,6 +178,19 @@ Admin sections: **Listings**, **Users**, **Builders**, **Builder interest** (pre
 
 Public builder pre-launch form: **`/builders/join`**
 
+#### Vercel (production admin)
+
+The admin portal needs the **service_role** secret on the server — not the anon key.
+
+1. Supabase → **Project Settings → API** → copy **`service_role` `secret`**
+2. Vercel → your project → **Settings → Environment Variables**
+3. Add or update **`SUPABASE_SERVICE_ROLE_KEY`** with that value (Production + Preview)
+4. **Redeploy** the app
+
+If Users shows **“User not allowed”**, the env var is usually missing or set to the anon key by mistake.
+
+Optional migration **`022_admin_auth_users.sql`** adds a SQL fallback for listing auth users.
+
 ---
 
 ## Step 5 — Enable PostGIS (if migration failed on extension)
