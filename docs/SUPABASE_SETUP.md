@@ -68,6 +68,7 @@ copy .env.example .env.local
 | 18 | `018_buyer_owned_seed.sql` | Optional demo buyer-owned land |
 | 19 | `019_buyer_build_requirements.sql` | **Required for My land** — `buyer_profiles` table |
 | 20 | `020_nearby_builders_for_buyer.sql` | **Required for Builders in area tab** on My land |
+| 21 | `021_builder_prelaunch_and_admin.sql` | Builder pre-launch interest form table |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -139,6 +140,43 @@ Forgot password uses Supabase’s default **Reset password** email template (als
 2. Clicks link → `/auth/callback?next=/reset-password` → sets new password
 
 No extra template setup required for reset links.
+
+### Admin portal
+
+Velu includes a built-in admin CMS at **`/admin/dashboard`** (separate from buyer/builder apps).
+
+#### Option A — SQL (promote existing account)
+
+1. Sign up on Velu with the email you want as admin (or use an existing account)
+2. Open **`scripts/sql/create-admin.sql`**, change the email address
+3. Run the script in **Supabase → SQL Editor**
+4. Sign in and open `/admin/dashboard`
+
+Quick one-liner (replace email):
+
+```sql
+UPDATE public.profiles
+SET role = 'admin'
+WHERE id = (
+  SELECT id FROM auth.users WHERE lower(email) = lower('you@example.com') LIMIT 1
+);
+```
+
+#### Option B — CLI (create or promote)
+
+From `velu-app` with `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`:
+
+```powershell
+# Promote existing account
+npm run create:admin -- --email you@example.com
+
+# Create new admin with password
+npm run create:admin -- --email you@example.com --password "YourSecurePass123!"
+```
+
+Admin sections: **Listings**, **Users**, **Builders**, **Builder interest** (pre-launch EOI form submissions).
+
+Public builder pre-launch form: **`/builders/join`**
 
 ---
 

@@ -11,6 +11,7 @@
     "seed:demo": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-demo-data.ts",
     "seed:buyer-land": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-buyer-owned-land.ts",
     "seed:leads": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-builder-leads.ts",
+    "create:admin": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/create-admin-user.ts",
     "sync:domain": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/sync-domain-listings.ts"
   },
   "dependencies": {

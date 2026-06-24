@@ -242,6 +242,9 @@ export function LandingPage() {
             <Link href="/register/buyer?intent=own-land" className="btn-outline">
               I already own land
             </Link>
+            <Link href="/builders/join" className="btn-outline">
+              Register builder interest →
+            </Link>
             <Link href="/register/builder" className="btn-outline">
               I&apos;m a builder →
             </Link>
@@ -830,6 +833,9 @@ export function LandingPage() {
             <div className="cta-actions">
               <Link href="/register/buyer" className="btn-green">
                 Find vacant land
+              </Link>
+              <Link href="/builders/join" className="btn-outline">
+                Register builder interest
               </Link>
               <Link href="/register/builder" className="btn-outline">
                 Join as a builder
