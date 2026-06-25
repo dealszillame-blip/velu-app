@@ -10,7 +10,29 @@ const ROLE_HOME: Record<string, string> = {
   pending_agent: "/agent/listings",
 };
 
-const PROTECTED_PREFIXES = ["/buyer", "/builder", "/agent", "/admin"];
+/** Public routes that share a prefix with a protected app area (e.g. /builders vs /builder). */
+const PUBLIC_PREFIXES = ["/builders"];
+
+function isPublicPath(path: string): boolean {
+  return PUBLIC_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+  );
+}
+
+function isProtectedPath(path: string): boolean {
+  if (isPublicPath(path)) {
+    return false;
+  }
+
+  return (
+    path === "/builder" ||
+    path.startsWith("/builder/") ||
+    path.startsWith("/buyer") ||
+    path.startsWith("/agent") ||
+    path.startsWith("/admin")
+  );
+}
+
 const AUTH_PREFIXES = ["/login", "/register", "/verify", "/forgot-password", "/auth/callback"];
 const ONBOARDING_PREFIXES = ["/onboarding"];
 
@@ -56,9 +78,7 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-    path.startsWith(prefix)
-  );
+  const isProtected = isProtectedPath(path);
   const isAuthRoute = AUTH_PREFIXES.some((prefix) => path.startsWith(prefix));
   const isOnboardingRoute = ONBOARDING_PREFIXES.some((prefix) =>
     path.startsWith(prefix)
@@ -119,7 +139,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (!role && !isOnboardingRoute && !isAuthRoute && path !== "/") {
+    if (!role && !isOnboardingRoute && !isAuthRoute && !isPublicPath(path) && path !== "/") {
       const url = request.nextUrl.clone();
       url.pathname = "/onboarding/complete";
       return NextResponse.redirect(url);
