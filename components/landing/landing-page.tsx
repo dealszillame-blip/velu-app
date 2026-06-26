@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { VeluLogo } from "@/components/shared/VeluLogo";
 import "./landing.css";
 
 const TICKER_ITEMS = [
@@ -556,14 +555,17 @@ export function LandingPage() {
             </Reveal>
             <Reveal delay={1}>
               <h2 className="section-title">
-                Know the moment land sells nearby.
+                Be the first builder they see — the moment their land settles.
               </h2>
             </Reveal>
             <Reveal delay={2}>
               <p className="section-body">
-                When a block matching your designs and service area sells,
-                you&apos;re notified in seconds — not days. Only onboarded,
-                verified builders receive leads on Velu.
+                Velu connects verified builders with land buyers at the exact
+                moment of settlement. When a buyer registers their new block,
+                you&apos;re notified in real time and your verified profile and
+                current packages go straight to them. No more waiting for
+                walk-ins — reach motivated clients the day they&apos;re ready to
+                build.
               </p>
             </Reveal>
             <div className="map-features-list">
