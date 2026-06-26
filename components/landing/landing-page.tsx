@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { VeluLogo } from "@/components/shared/VeluLogo";
 import "./landing.css";
 
 const TICKER_ITEMS = [
