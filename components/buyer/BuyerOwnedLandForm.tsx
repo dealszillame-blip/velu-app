@@ -68,7 +68,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   useEffect(() => {
     let isMounted = true;
 
-    setSiteReportsLoading(true);
     fetch("/api/buyer/site-reports")
       .then(async (res) => {
         const data = await res.json().catch(() => []);
