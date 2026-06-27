@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, FileText } from "lucide-react";
 import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
+import { SiteReportAddonSelector } from "@/components/buyer/SiteReportAddonSelector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,8 +26,10 @@ import {
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
 import { ZONING_OPTIONS } from "@/lib/map/config";
-import type { SiteReportDefinition } from "@/lib/site-reports";
-import { cn } from "@/lib/utils";
+import {
+  DEFAULT_SITE_REPORT_DEFINITIONS,
+  type SiteReportDefinition,
+} from "@/lib/site-reports";
 
 type BuyerOwnedLandFormProps = {
   onSuccess?: () => void;
@@ -44,7 +46,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     useState<BuyerBuildRequirements>(defaultBuildRequirements());
   const [siteReportDefinitions, setSiteReportDefinitions] = useState<
     SiteReportDefinition[]
-  >([]);
+  >(DEFAULT_SITE_REPORT_DEFINITIONS);
   const [siteReportsLoading, setSiteReportsLoading] = useState(true);
   const [siteReportsError, setSiteReportsError] = useState<string | null>(null);
   const [selectedSiteReportKeys, setSelectedSiteReportKeys] = useState<
@@ -76,7 +78,9 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
           throw new Error(data.error ?? "Failed to load add-on services.");
         }
 
-        return Array.isArray(data) ? data : [];
+        return Array.isArray(data) && data.length > 0
+          ? data
+          : DEFAULT_SITE_REPORT_DEFINITIONS;
       })
       .then((data) => {
         if (!isMounted) return;
@@ -85,6 +89,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
       })
       .catch((err: Error) => {
         if (!isMounted) return;
+        setSiteReportDefinitions(DEFAULT_SITE_REPORT_DEFINITIONS);
         setSiteReportsError(err.message);
       })
       .finally(() => {
@@ -242,100 +247,16 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
             />
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5">
-            <div className="mb-4">
-              <p className="mb-1 text-sm font-medium">Add-on Services</p>
-              <p className="text-sm text-muted-foreground">
-                Optionally request paid site reports for this land. Pricing will
-                be provided after your request, and our team will follow up with
-                a quote.
-              </p>
-            </div>
-
-            {siteReportsLoading ? (
-              <p className="rounded-xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
-                Loading add-on services…
-              </p>
-            ) : siteReportsError ? (
-              <p className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                {siteReportsError}
-              </p>
-            ) : siteReportDefinitions.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {siteReportDefinitions.map((report) => {
-                  const selected = selectedSiteReportKeys.includes(report.key);
-
-                  return (
-                    <div
-                      key={report.key}
-                      className={cn(
-                        "flex flex-col justify-between rounded-xl border bg-background/80 p-4 transition",
-                        selected
-                          ? "border-primary shadow-sm"
-                          : "border-border hover:border-primary/40"
-                      )}
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2">
-                          <FileText className="mt-0.5 h-4 w-4 text-primary" />
-                          <div>
-                            <p className="font-medium">{report.name}</p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {report.description}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant={selected ? "default" : "outline"}
-                        size="sm"
-                        className="mt-4 w-fit"
-                        onClick={() => toggleSiteReport(report.key)}
-                        aria-pressed={selected}
-                      >
-                        {selected ? (
-                          <>
-                            <CheckCircle2 className="h-4 w-4" />
-                            Selected
-                          </>
-                        ) : (
-                          "Request"
-                        )}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="rounded-xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
-                No add-on services are available right now.
-              </p>
-            )}
-
-            <div className="mt-4 space-y-2">
-              <Label htmlFor="site-report-notes">
-                Notes for site reports (optional)
-              </Label>
-              <textarea
-                id="site-report-notes"
-                rows={3}
-                value={siteReportNotes}
-                disabled={selectedSiteReportKeys.length === 0}
-                maxLength={1000}
-                placeholder="Tell us about access constraints, preferred timing, or other details for the reports."
-                onChange={(e) => setSiteReportNotes(e.target.value)}
-                className={cn(
-                  "flex w-full resize-none rounded-xl border-0 bg-background/80 px-3 py-2.5 text-sm",
-                  "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  "disabled:cursor-not-allowed disabled:opacity-50"
-                )}
-              />
-              <p className="text-xs text-muted-foreground">
-                Select at least one report to include notes with your request.
-              </p>
-            </div>
-          </div>
+          <SiteReportAddonSelector
+            idPrefix="owned-land"
+            definitions={siteReportDefinitions}
+            loading={siteReportsLoading}
+            error={siteReportsError}
+            selectedKeys={selectedSiteReportKeys}
+            onToggle={toggleSiteReport}
+            notes={siteReportNotes}
+            onNotesChange={setSiteReportNotes}
+          />
 
           {error && (
             <p className="text-sm text-destructive" role="alert">

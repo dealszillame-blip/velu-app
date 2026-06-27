@@ -15,6 +15,49 @@ export interface SiteReportDefinition {
   sort_order: number;
 }
 
+export const SITE_REPORTS_MIGRATION_HINT =
+  "Run migration 023_site_report_addons.sql in Supabase.";
+
+export const DEFAULT_SITE_REPORT_DEFINITIONS: SiteReportDefinition[] = [
+  {
+    key: "soil_report",
+    name: "Soil Report",
+    description:
+      "Geotechnical soil classification for slab and foundation design, including AS 2870 site classification.",
+    price: null,
+    pricing_rules: {
+      pricing_model: "manual_quote",
+      future_parameters: ["land_size_sqm", "suburb", "postcode", "soil_zone"],
+    },
+    sort_order: 10,
+  },
+  {
+    key: "site_survey",
+    name: "Site Survey",
+    description:
+      "Contour and feature survey capturing levels, boundaries, services, and site features for design and approvals.",
+    price: null,
+    pricing_rules: {
+      pricing_model: "manual_quote",
+      future_parameters: [
+        "land_size_sqm",
+        "suburb",
+        "postcode",
+        "site_access",
+      ],
+    },
+    sort_order: 20,
+  },
+];
+
+export function isSiteReportsSchemaError(message: string) {
+  return (
+    message.includes("site_report_definitions") ||
+    message.includes("site_report_requests") ||
+    message.includes("site_report_request_status")
+  );
+}
+
 export interface SiteReportPricingLand {
   id: string;
   suburb: string;

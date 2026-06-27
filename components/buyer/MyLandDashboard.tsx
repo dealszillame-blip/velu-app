@@ -44,7 +44,11 @@ export function MyLandDashboard() {
           </div>
           <div className="grid gap-4">
             {parcels.map((parcel) => (
-              <MyLandParcelCard key={parcel.id} parcel={parcel} />
+              <MyLandParcelCard
+                key={parcel.id}
+                parcel={parcel}
+                onReportsUpdated={load}
+              />
             ))}
           </div>
         </div>

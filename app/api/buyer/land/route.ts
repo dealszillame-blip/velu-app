@@ -3,12 +3,11 @@ import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
 import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
 import { buildRequirementsSchema } from "@/lib/buyer-requirements";
+import { isSiteReportsSchemaError } from "@/lib/site-reports";
 import {
-  calculateReportPrice,
-  type SiteReportDefinition,
-  type SiteReportPricingLand,
-  type SiteReportRequestStatus,
-} from "@/lib/site-reports";
+  createSiteReportRequests,
+  mapSiteReportRequests,
+} from "@/lib/site-reports/server";
 import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
@@ -22,25 +21,58 @@ const schema = z.object({
   site_report_notes: z.string().max(1000).optional(),
 });
 
-type SiteReportRequestRow = {
-  id: string;
-  report_definition_key: string;
-  status: SiteReportRequestStatus;
-  buyer_notes: string | null;
-  quoted_price: number | null;
-  requested_at: string;
-  created_at: string;
-  updated_at: string;
-  site_report_definitions:
-    | (SiteReportDefinition & { is_active?: boolean })
-    | (SiteReportDefinition & { is_active?: boolean })[]
-    | null;
-};
+const LISTING_SELECT = `
+  id,
+  address,
+  suburb,
+  postcode,
+  land_size_sqm,
+  frontage_meters,
+  zoning,
+  price,
+  price_display,
+  status,
+  source,
+  sold_at,
+  created_at,
+  builder_proposals (count)
+`;
 
-function normalizeDefinition(
-  definition: SiteReportRequestRow["site_report_definitions"]
-) {
-  return Array.isArray(definition) ? definition[0] : definition;
+const LISTING_SELECT_WITH_REPORTS = `
+  ${LISTING_SELECT},
+  site_report_requests (
+    id,
+    report_definition_key,
+    status,
+    buyer_notes,
+    quoted_price,
+    requested_at,
+    created_at,
+    updated_at,
+    site_report_definitions (
+      key,
+      name,
+      description,
+      price,
+      pricing_rules,
+      sort_order
+    )
+  )
+`;
+
+function mapListingRow(row: Record<string, unknown>) {
+  const proposals = row.builder_proposals as { count: number }[] | null;
+  const siteReportRequests = row.site_report_requests as Parameters<
+    typeof mapSiteReportRequests
+  >[0];
+
+  return {
+    ...row,
+    builder_proposals: undefined,
+    site_report_requests: undefined,
+    proposal_count: proposals?.[0]?.count ?? 0,
+    site_reports: mapSiteReportRequests(siteReportRequests),
+  };
 }
 
 export async function POST(request: Request) {
@@ -99,38 +131,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const requestedReportKeys = Array.from(
-    new Set(body.data.site_report_keys ?? [])
-  );
-  const siteReportNotes = body.data.site_report_notes?.trim() || null;
-  let requestedReportDefinitions: SiteReportDefinition[] = [];
-
-  if (requestedReportKeys.length > 0) {
-    const { data: definitions, error: definitionsError } = await supabase
-      .from("site_report_definitions")
-      .select("key, name, description, price, pricing_rules, sort_order")
-      .in("key", requestedReportKeys)
-      .eq("is_active", true);
-
-    if (definitionsError) {
-      const message = definitionsError.message.includes(
-        "site_report_definitions"
-      )
-        ? "Site report add-ons are not set up yet. Run migration 023_site_report_addons.sql in Supabase."
-        : definitionsError.message;
-      return NextResponse.json({ error: message }, { status: 500 });
-    }
-
-    requestedReportDefinitions = (definitions ?? []) as SiteReportDefinition[];
-
-    if (requestedReportDefinitions.length !== requestedReportKeys.length) {
-      return NextResponse.json(
-        { error: "One or more selected site reports are unavailable." },
-        { status: 400 }
-      );
-    }
-  }
-
   const { data: listingId, error } = await supabase.rpc(
     "create_buyer_owned_listing",
     {
@@ -162,37 +162,27 @@ export async function POST(request: Request) {
     .eq("id", listingId)
     .single();
 
-  if (listing && requestedReportDefinitions.length > 0) {
-    const landForPricing: SiteReportPricingLand = {
-      id: listing.id,
-      suburb: listing.suburb,
-      postcode: listing.postcode,
-      land_size_sqm: Number(listing.land_size_sqm),
-      frontage_meters: Number(listing.frontage_meters),
-      zoning: listing.zoning,
-    };
-    const reportRows = requestedReportDefinitions.map((report) => ({
-      report_definition_key: report.key,
-      land_listing_id: listing.id,
-      buyer_id: user.id,
-      status: "requested" as const,
-      buyer_notes: siteReportNotes,
-      quoted_price: calculateReportPrice(report, landForPricing),
-      pricing_snapshot: {
-        report_key: report.key,
-        report_price: report.price,
-        pricing_rules: report.pricing_rules,
-      },
-    }));
-
-    const { error: reportError } = await supabase
-      .from("site_report_requests")
-      .insert(reportRows);
-
-    if (reportError) {
-      const message = reportError.message.includes("site_report_requests")
-        ? "Site report requests could not be saved. Run migration 023_site_report_addons.sql in Supabase."
-        : reportError.message;
+  if (listing && (body.data.site_report_keys?.length ?? 0) > 0) {
+    try {
+      await createSiteReportRequests({
+        supabase,
+        buyerId: user.id,
+        listing: {
+          id: listing.id,
+          suburb: listing.suburb,
+          postcode: listing.postcode,
+          land_size_sqm: Number(listing.land_size_sqm),
+          frontage_meters: Number(listing.frontage_meters),
+          zoning: listing.zoning,
+        },
+        reportKeys: body.data.site_report_keys ?? [],
+        buyerNotes: body.data.site_report_notes,
+      });
+    } catch (reportError) {
+      const message =
+        reportError instanceof Error
+          ? reportError.message
+          : "Site report requests could not be saved.";
       return NextResponse.json({ error: message }, { status: 500 });
     }
   }
@@ -230,83 +220,42 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data: listings, error } = await supabase
+  const withReports = await supabase
     .from("land_listings")
-    .select(
-      `
-      id,
-      address,
-      suburb,
-      postcode,
-      land_size_sqm,
-      frontage_meters,
-      zoning,
-      price,
-      price_display,
-      status,
-      source,
-      sold_at,
-      created_at,
-      builder_proposals (count),
-      site_report_requests (
-        id,
-        report_definition_key,
-        status,
-        buyer_notes,
-        quoted_price,
-        requested_at,
-        created_at,
-        updated_at,
-        site_report_definitions (
-          key,
-          name,
-          description,
-          price,
-          pricing_rules,
-          sort_order
-        )
-      )
-    `
-    )
+    .select(LISTING_SELECT_WITH_REPORTS)
     .eq("buyer_id", user.id)
     .eq("source", "buyer_owned")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!withReports.error) {
+    return NextResponse.json((withReports.data ?? []).map(mapListingRow));
   }
 
-  const rows = (listings ?? []).map((row) => {
-    const proposals = row.builder_proposals as { count: number }[] | null;
-    const siteReportRequests =
-      (row.site_report_requests as SiteReportRequestRow[] | null) ?? [];
-    return {
-      ...row,
-      builder_proposals: undefined,
-      site_report_requests: undefined,
-      proposal_count: proposals?.[0]?.count ?? 0,
-      site_reports: siteReportRequests
-        .map((request) => {
-          const definition = normalizeDefinition(
-            request.site_report_definitions
-          );
+  if (!isSiteReportsSchemaError(withReports.error.message)) {
+    return NextResponse.json(
+      { error: withReports.error.message },
+      { status: 500 }
+    );
+  }
 
-          return {
-            id: request.id,
-            report_definition_key: request.report_definition_key,
-            report_name: definition?.name ?? request.report_definition_key,
-            report_description: definition?.description ?? "",
-            status: request.status,
-            buyer_notes: request.buyer_notes,
-            quoted_price: request.quoted_price,
-            requested_at: request.requested_at,
-            created_at: request.created_at,
-            updated_at: request.updated_at,
-          };
-        })
-        .sort((a, b) => a.report_name.localeCompare(b.report_name)),
-    };
-  });
+  const withoutReports = await supabase
+    .from("land_listings")
+    .select(LISTING_SELECT)
+    .eq("buyer_id", user.id)
+    .eq("source", "buyer_owned")
+    .order("created_at", { ascending: false });
 
-  return NextResponse.json(rows);
+  if (withoutReports.error) {
+    return NextResponse.json(
+      { error: withoutReports.error.message },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(
+    (withoutReports.data ?? []).map((row) => ({
+      ...mapListingRow(row),
+      site_reports: [],
+    }))
+  );
 }
