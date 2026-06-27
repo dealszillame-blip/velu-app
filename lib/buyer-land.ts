@@ -1,3 +1,5 @@
+import type { BuyerSiteReportRequest } from "@/lib/site-reports";
+
 export interface BuyerOwnedLand {
   id: string;
   address: string;
@@ -13,6 +15,7 @@ export interface BuyerOwnedLand {
   sold_at: string | null;
   created_at: string;
   proposal_count?: number;
+  site_reports?: BuyerSiteReportRequest[];
 }
 
 export interface RegisterOwnedLandInput {

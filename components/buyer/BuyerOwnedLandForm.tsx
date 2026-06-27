@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
+import { SiteReportAddonSelector } from "@/components/buyer/SiteReportAddonSelector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,6 +26,10 @@ import {
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
 import { ZONING_OPTIONS } from "@/lib/map/config";
+import {
+  DEFAULT_SITE_REPORT_DEFINITIONS,
+  type SiteReportDefinition,
+} from "@/lib/site-reports";
 
 type BuyerOwnedLandFormProps = {
   onSuccess?: () => void;
@@ -39,6 +44,15 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [landValue, setLandValue] = useState("");
   const [buildRequirements, setBuildRequirements] =
     useState<BuyerBuildRequirements>(defaultBuildRequirements());
+  const [siteReportDefinitions, setSiteReportDefinitions] = useState<
+    SiteReportDefinition[]
+  >(DEFAULT_SITE_REPORT_DEFINITIONS);
+  const [siteReportsLoading, setSiteReportsLoading] = useState(true);
+  const [siteReportsError, setSiteReportsError] = useState<string | null>(null);
+  const [selectedSiteReportKeys, setSelectedSiteReportKeys] = useState<
+    string[]
+  >([]);
+  const [siteReportNotes, setSiteReportNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,6 +66,49 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
       })
       .catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/buyer/site-reports")
+      .then(async (res) => {
+        const data = await res.json().catch(() => []);
+
+        if (!res.ok) {
+          throw new Error(data.error ?? "Failed to load add-on services.");
+        }
+
+        return Array.isArray(data) && data.length > 0
+          ? data
+          : DEFAULT_SITE_REPORT_DEFINITIONS;
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        setSiteReportDefinitions(data);
+        setSiteReportsError(null);
+      })
+      .catch((err: Error) => {
+        if (!isMounted) return;
+        setSiteReportDefinitions(DEFAULT_SITE_REPORT_DEFINITIONS);
+        setSiteReportsError(err.message);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setSiteReportsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  function toggleSiteReport(reportKey: string) {
+    setSelectedSiteReportKeys((current) =>
+      current.includes(reportKey)
+        ? current.filter((key) => key !== reportKey)
+        : [...current, reportKey]
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,6 +125,11 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
         zoning,
         land_value: landValue ? Number(landValue) : undefined,
         build_requirements: buildRequirements,
+        site_report_keys: selectedSiteReportKeys,
+        site_report_notes:
+          selectedSiteReportKeys.length > 0
+            ? siteReportNotes.trim() || undefined
+            : undefined,
       }),
     });
 
@@ -83,6 +145,8 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setLandSize("");
     setFrontage("");
     setLandValue("");
+    setSelectedSiteReportKeys([]);
+    setSiteReportNotes("");
     setLoading(false);
     onSuccess?.();
     router.push("/buyer/compare");
@@ -182,6 +246,17 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
               idPrefix="owned-land"
             />
           </div>
+
+          <SiteReportAddonSelector
+            idPrefix="owned-land"
+            definitions={siteReportDefinitions}
+            loading={siteReportsLoading}
+            error={siteReportsError}
+            selectedKeys={selectedSiteReportKeys}
+            onToggle={toggleSiteReport}
+            notes={siteReportNotes}
+            onNotesChange={setSiteReportNotes}
+          />
 
           {error && (
             <p className="text-sm text-destructive" role="alert">

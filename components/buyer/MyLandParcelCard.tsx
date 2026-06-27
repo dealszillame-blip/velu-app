@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
+import { ExistingLandSiteReports } from "@/components/buyer/ExistingLandSiteReports";
 import { NearbyBuildersPanel } from "@/components/buyer/NearbyBuildersPanel";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Badge } from "@/components/ui/badge";
@@ -17,14 +18,19 @@ import {
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
 import { cn } from "@/lib/utils";
 
-type ParcelTab = "overview" | "builders";
+type ParcelTab = "overview" | "builders" | "reports";
 
 type MyLandParcelCardProps = {
   parcel: BuyerOwnedLand;
+  onReportsUpdated?: () => void;
 };
 
-export function MyLandParcelCard({ parcel }: MyLandParcelCardProps) {
+export function MyLandParcelCard({
+  parcel,
+  onReportsUpdated,
+}: MyLandParcelCardProps) {
   const [tab, setTab] = useState<ParcelTab>("overview");
+  const siteReports = parcel.site_reports ?? [];
 
   return (
     <Card>
@@ -49,6 +55,7 @@ export function MyLandParcelCard({ parcel }: MyLandParcelCardProps) {
           className="mt-4"
           options={[
             { value: "overview", label: "Overview" },
+            { value: "reports", label: "Site reports" },
             { value: "builders", label: "Builders in area" },
           ]}
           value={tab}
@@ -74,6 +81,12 @@ export function MyLandParcelCard({ parcel }: MyLandParcelCardProps) {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+        ) : tab === "reports" ? (
+          <ExistingLandSiteReports
+            listingId={parcel.id}
+            siteReports={siteReports}
+            onUpdated={onReportsUpdated}
+          />
         ) : (
           <NearbyBuildersPanel parcel={parcel} />
         )}
