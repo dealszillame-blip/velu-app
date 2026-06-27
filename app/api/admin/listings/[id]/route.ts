@@ -13,6 +13,7 @@ const patchSchema = z.object({
   frontage_meters: z.number().positive().optional(),
   zoning: z.string().min(2).max(10).optional(),
   status: z.enum(["available", "under_offer", "sold"]).optional(),
+  agent_id: z.string().uuid().nullable().optional(),
 });
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -43,6 +44,21 @@ export async function PATCH(request: Request, context: RouteContext) {
   const body = patchSchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  if (body.data.agent_id) {
+    const { data: agent } = await auth.admin
+      .from("profiles")
+      .select("role")
+      .eq("id", body.data.agent_id)
+      .single();
+
+    if (!agent || (agent.role !== "agent" && agent.role !== "pending_agent")) {
+      return NextResponse.json(
+        { error: "Selected user is not an agent." },
+        { status: 400 }
+      );
+    }
   }
 
   const { data, error } = await auth.admin

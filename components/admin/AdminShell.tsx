@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { VeluLogo } from "@/components/shared/VeluLogo";
 import { AdminNav } from "@/components/admin/AdminNav";
 
@@ -8,6 +12,15 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ children, userName }: AdminShellProps) {
+  const router = useRouter();
+  const supabase = createClient();
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="border-b border-border bg-background">
@@ -23,6 +36,13 @@ export function AdminShell({ children, userName }: AdminShellProps) {
             <Link href="/" className="text-link">
               View site
             </Link>
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </header>

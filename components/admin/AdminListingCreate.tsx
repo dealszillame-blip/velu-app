@@ -13,50 +13,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type AdminListingEditorProps = {
-  listingId: string;
-};
+type AgentOption = { id: string; full_name: string; email: string };
 
-export function AdminListingEditor({ listingId }: AdminListingEditorProps) {
+export function AdminListingCreate() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState<AgentOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
+    agent_id: "",
     address: "",
-    suburb: "",
-    postcode: "",
     price: "",
     land_size_sqm: "",
     frontage_meters: "",
-    zoning: "",
+    zoning: "R2",
     status: "available",
-    agent_id: "",
   });
-  const [agents, setAgents] = useState<
-    { id: string; full_name: string; email: string }[]
-  >([]);
 
   useEffect(() => {
-    fetch(`/api/admin/listings/${listingId}`)
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Failed to load listing.");
-        setForm({
-          address: data.address ?? "",
-          suburb: data.suburb ?? "",
-          postcode: data.postcode ?? "",
-          price: String(data.price ?? ""),
-          land_size_sqm: String(data.land_size_sqm ?? ""),
-          frontage_meters: String(data.frontage_meters ?? ""),
-          zoning: data.zoning ?? "",
-          status: data.status ?? "available",
-          agent_id: data.agent_id ?? "",
-        });
-      })
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-
     fetch("/api/admin/users")
       .then(async (res) => {
         const data = await res.json();
@@ -73,75 +47,71 @@ export function AdminListingEditor({ listingId }: AdminListingEditorProps) {
         );
       })
       .catch(() => {});
-  }, [listingId]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
 
-    const res = await fetch(`/api/admin/listings/${listingId}`, {
-      method: "PATCH",
+    const res = await fetch("/api/admin/listings", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        agent_id: form.agent_id || null,
         address: form.address,
-        suburb: form.suburb,
-        postcode: form.postcode,
         price: Number(form.price),
         land_size_sqm: Number(form.land_size_sqm),
         frontage_meters: Number(form.frontage_meters),
         zoning: form.zoning,
         status: form.status,
-        agent_id: form.agent_id || null,
       }),
     });
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(data.error ?? "Save failed.");
+      setError(data.error ?? "Create failed.");
       setSaving(false);
       return;
     }
 
-    router.push("/admin/listings");
+    router.push(`/admin/listings/${data.id}`);
     router.refresh();
-  }
-
-  if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading listing…</p>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit listing</CardTitle>
+        <CardTitle>Create listing</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="grid max-w-2xl gap-4 sm:grid-cols-2">
+        <form
+          onSubmit={handleSubmit}
+          className="grid max-w-2xl gap-4 sm:grid-cols-2"
+        >
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="agent_id">Assign agent (optional)</Label>
+            <select
+              id="agent_id"
+              value={form.agent_id}
+              onChange={(e) => setForm({ ...form, agent_id: e.target.value })}
+              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
+            >
+              <option value="">No agent assigned</option>
+              {agents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.full_name} ({agent.email})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="address">Full address</Label>
             <Input
               id="address"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="suburb">Suburb</Label>
-            <Input
-              id="suburb"
-              value={form.suburb}
-              onChange={(e) => setForm({ ...form, suburb: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="postcode">Postcode</Label>
-            <Input
-              id="postcode"
-              value={form.postcode}
-              onChange={(e) => setForm({ ...form, postcode: e.target.value })}
+              placeholder="123 Example St, Suburb NSW 2000"
               required
             />
           </div>
@@ -201,22 +171,6 @@ export function AdminListingEditor({ listingId }: AdminListingEditorProps) {
               <option value="sold">Sold</option>
             </select>
           </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="agent_id">Assigned agent</Label>
-            <select
-              id="agent_id"
-              value={form.agent_id}
-              onChange={(e) => setForm({ ...form, agent_id: e.target.value })}
-              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
-            >
-              <option value="">No agent</option>
-              {agents.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.full_name} ({agent.email})
-                </option>
-              ))}
-            </select>
-          </div>
           {error && (
             <p className="text-sm text-destructive sm:col-span-2" role="alert">
               {error}
@@ -224,9 +178,12 @@ export function AdminListingEditor({ listingId }: AdminListingEditorProps) {
           )}
           <div className="flex gap-2 sm:col-span-2">
             <Button type="submit" disabled={saving}>
-              {saving ? "Saving…" : "Save changes"}
+              {saving ? "Creating…" : "Create listing"}
             </Button>
-            <Link href="/admin/listings" className="inline-flex items-center text-sm text-link">
+            <Link
+              href="/admin/listings"
+              className="inline-flex items-center text-sm text-link"
+            >
               Cancel
             </Link>
           </div>

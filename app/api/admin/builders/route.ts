@@ -10,7 +10,7 @@ export async function GET() {
   const { data: builderRows, error: builderError } = await auth.admin
     .from("builder_profiles")
     .select(
-      "id, is_onboarded, profile_published, anchor_address, service_radius_km, license_number, google_rating"
+      "id, is_onboarded, profile_published, anchor_address, service_radius_km, license_number, google_rating, onboarding_status"
     )
     .order("created_at", { ascending: false })
     .limit(200);

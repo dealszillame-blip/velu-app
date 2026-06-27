@@ -6,7 +6,7 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold">Users</h1>
         <p className="text-muted-foreground">
-          View platform users and update their roles.
+          View platform users, edit profiles, and update roles.
         </p>
       </div>
       <AdminUsersManager />

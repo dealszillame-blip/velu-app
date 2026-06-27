@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { AdminTableToolbar } from "@/components/admin/AdminTableToolbar";
+import { Badge } from "@/components/ui/badge";
 
 type AdminUser = {
   id: string;
@@ -13,10 +17,15 @@ type AdminUser = {
   has_profile?: boolean;
 };
 
+const ROLES = ["all", "buyer", "builder", "agent", "pending_agent", "admin"] as const;
+
 export function AdminUsersManager() {
+  const router = useRouter();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<(typeof ROLES)[number]>("all");
 
   async function load() {
     setLoading(true);
@@ -36,6 +45,20 @@ export function AdminUsersManager() {
     load();
   }, []);
 
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return users.filter((user) => {
+      if (roleFilter !== "all" && user.role !== roleFilter) return false;
+      if (!q) return true;
+      return (
+        user.full_name.toLowerCase().includes(q) ||
+        user.email.toLowerCase().includes(q) ||
+        (user.company_name?.toLowerCase().includes(q) ?? false) ||
+        (user.phone_number?.toLowerCase().includes(q) ?? false)
+      );
+    });
+  }, [users, search, roleFilter]);
+
   async function updateRole(id: string, role: string) {
     const res = await fetch(`/api/admin/users/${id}`, {
       method: "PATCH",
@@ -53,20 +76,42 @@ export function AdminUsersManager() {
         row.id === id ? { ...row, role, has_profile: true } : row
       )
     );
+    router.refresh();
   }
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border bg-background">
+      <div className="p-4">
+        <AdminTableToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search name, email, company…"
+        >
+          <select
+            value={roleFilter}
+            onChange={(e) =>
+              setRoleFilter(e.target.value as (typeof ROLES)[number])
+            }
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          >
+            {ROLES.map((role) => (
+              <option key={role} value={role}>
+                {role === "all" ? "All roles" : role}
+              </option>
+            ))}
+          </select>
+        </AdminTableToolbar>
+      </div>
       {loading ? (
         <p className="p-6 text-sm text-muted-foreground">Loading…</p>
       ) : error ? (
         <p className="p-6 text-sm leading-relaxed text-destructive">{error}</p>
-      ) : users.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <p className="p-6 text-sm text-muted-foreground">
-          No users found in Supabase Auth.
+          No users match your filters.
         </p>
       ) : (
-        <table className="w-full min-w-[860px] text-left text-sm">
+        <table className="w-full min-w-[900px] text-left text-sm">
           <thead>
             <tr className="border-b text-muted-foreground">
               <th className="px-4 py-3 font-medium">Name</th>
@@ -74,15 +119,18 @@ export function AdminUsersManager() {
               <th className="px-4 py-3 font-medium">Company</th>
               <th className="px-4 py-3 font-medium">Phone</th>
               <th className="px-4 py-3 font-medium">Role</th>
+              <th className="px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filtered.map((user) => (
               <tr key={user.id} className="border-b border-black/[0.04]">
                 <td className="px-4 py-3">
                   {user.full_name}
                   {!user.has_profile && (
-                    <span className="ml-2 text-xs text-amber-600">No profile</span>
+                    <Badge variant="outline" className="ml-2 text-amber-600">
+                      No profile
+                    </Badge>
                   )}
                 </td>
                 <td className="px-4 py-3">{user.email || "—"}</td>
@@ -100,6 +148,11 @@ export function AdminUsersManager() {
                     <option value="pending_agent">pending_agent</option>
                     <option value="admin">admin</option>
                   </select>
+                </td>
+                <td className="px-4 py-3">
+                  <Link href={`/admin/users/${user.id}`} className="text-link">
+                    Edit
+                  </Link>
                 </td>
               </tr>
             ))}
