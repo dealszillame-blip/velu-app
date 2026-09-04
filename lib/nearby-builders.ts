@@ -6,6 +6,15 @@ export type NearbyBuilderPortfolioItem = {
   image_url: string | null;
 };
 
+export type NearbyBuilderNotice = {
+  id: string;
+  title: string;
+  body: string;
+  severity: "info" | "warning" | "action";
+  issued_at: string | null;
+  source: string;
+};
+
 export type NearbyBuilder = {
   id: string;
   full_name: string;
@@ -17,6 +26,10 @@ export type NearbyBuilder = {
   anchor_address: string | null;
   service_radius_km: number;
   profile_published: boolean;
+  license_number?: string | null;
+  insurance_verified?: boolean;
+  years_in_business?: number | null;
+  notices?: NearbyBuilderNotice[];
   distance_km: number;
   portfolio: NearbyBuilderPortfolioItem[];
 };

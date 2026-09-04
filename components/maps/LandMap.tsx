@@ -7,8 +7,9 @@ import { MapPin } from "lucide-react";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { MapFiltersPanel } from "@/components/maps/MapFilters";
-import type { MapFilters, MapListing } from "@/lib/listings";
-import { listingPriceLabel, statusLabel } from "@/lib/listings";
+import { listingPriceLabel, statusLabel, type MapFilters, type MapListing } from "@/lib/listings";
+import { displayMapBuilderName, type MapBuilder } from "@/lib/builder-map";
+import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -113,9 +114,12 @@ export function LandMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
+  const [layer, setLayer] = useState<"land" | "builders">("land");
   const [filters, setFilters] = useState<MapFilters>({ status: "available" });
   const [listings, setListings] = useState<MapListing[]>([]);
+  const [builders, setBuilders] = useState<MapBuilder[]>([]);
   const [selected, setSelected] = useState<MapListing | null>(null);
+  const [selectedBuilder, setSelectedBuilder] = useState<MapBuilder | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -126,6 +130,7 @@ export function LandMap() {
   }, []);
 
   const selectListing = useCallback((listing: MapListing) => {
+    setSelectedBuilder(null);
     setSelected(listing);
     if (mapRef.current) {
       mapRef.current.flyTo({
@@ -178,6 +183,54 @@ export function LandMap() {
     [clearMarkers, selectListing]
   );
 
+  const selectBuilder = useCallback((builder: MapBuilder) => {
+    setSelected(null);
+    setSelectedBuilder(builder);
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: [builder.longitude, builder.latitude],
+        zoom: 13,
+        essential: true,
+      });
+    }
+  }, []);
+
+  const renderBuilderMarkers = useCallback(
+    (map: maplibregl.Map, data: MapBuilder[]) => {
+      clearMarkers();
+      const mappable = data.filter(
+        (builder) =>
+          Number.isFinite(builder.latitude) &&
+          Number.isFinite(builder.longitude)
+      );
+
+      mappable.forEach((builder) => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className =
+          "rounded-full bg-[#13314c] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_2px_8px_rgba(19,49,76,0.2)]";
+        el.textContent = displayMapBuilderName(builder).slice(0, 18);
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectBuilder(builder);
+        });
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([builder.longitude, builder.latitude])
+          .addTo(map);
+        markersRef.current.push(marker);
+      });
+
+      if (mappable.length > 1) {
+        const bounds = new maplibregl.LngLatBounds();
+        mappable.forEach((builder) => {
+          bounds.extend([builder.longitude, builder.latitude]);
+        });
+        map.fitBounds(bounds, { padding: 72, maxZoom: 13, duration: 800 });
+      }
+    },
+    [clearMarkers, selectBuilder]
+  );
+
   const loadListings = useCallback(async () => {
     setLoading(true);
     try {
@@ -207,9 +260,33 @@ export function LandMap() {
     }
   }, [filters]);
 
+  const loadBuilders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/builders/map");
+      const data = await res.json();
+      if (!res.ok) {
+        setMapError(data.error ?? "Failed to load builders.");
+        setBuilders([]);
+        return;
+      }
+      setMapError(null);
+      setBuilders(Array.isArray(data) ? data : []);
+    } catch {
+      setMapError("Could not reach the builders map API.");
+      setBuilders([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    loadListings();
-  }, [loadListings]);
+    if (layer === "land") {
+      loadListings();
+    } else {
+      loadBuilders();
+    }
+  }, [layer, loadListings, loadBuilders]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -235,7 +312,10 @@ export function LandMap() {
       );
     });
 
-    map.on("click", () => setSelected(null));
+    map.on("click", () => {
+      setSelected(null);
+      setSelectedBuilder(null);
+    });
 
     mapRef.current = map;
 
@@ -248,13 +328,20 @@ export function LandMap() {
   }, [clearMarkers]);
 
   useEffect(() => {
-    if (mapRef.current && mapReady) {
+    if (!mapRef.current || !mapReady) return;
+    if (layer === "builders") {
+      renderBuilderMarkers(mapRef.current, builders);
+    } else {
       renderMarkers(mapRef.current, listings);
     }
-  }, [listings, mapReady, renderMarkers]);
+  }, [layer, listings, builders, mapReady, renderMarkers, renderBuilderMarkers]);
 
-  const showEmptyState = !loading && !mapError && listings.length === 0;
+  const showEmptyState =
+    !loading &&
+    !mapError &&
+    (layer === "land" ? listings.length === 0 : builders.length === 0);
   const missingCoords =
+    layer === "land" &&
     !loading &&
     listings.length > 0 &&
     listings.every((listing) => !hasValidCoords(listing));
@@ -263,6 +350,16 @@ export function LandMap() {
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
       <div className="space-y-4">
+        <SegmentControl
+          options={[
+            { value: "land", label: "Land" },
+            { value: "builders", label: "Builders" },
+          ]}
+          value={layer}
+          onChange={setLayer}
+        />
+        {layer === "land" ? (
+        <>
         <MapFiltersPanel
           filters={filters}
           onChange={setFilters}
@@ -330,6 +427,56 @@ export function LandMap() {
             </div>
           )}
         </div>
+        </>
+        ) : (
+        <div className="surface-subtle overflow-hidden">
+          <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-3">
+            <p className="label-caps">Builders</p>
+            {!loading && (
+              <Badge variant="outline" className="rounded-full text-xs">
+                {builders.length}
+              </Badge>
+            )}
+          </div>
+          {loading && (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              Loading builders…
+            </p>
+          )}
+          {!loading && builders.length > 0 && (
+            <div className="max-h-[400px] space-y-1 overflow-y-auto p-2">
+              {builders.map((builder) => (
+                <button
+                  key={builder.id}
+                  type="button"
+                  onClick={() => selectBuilder(builder)}
+                  className={cn(
+                    "w-full rounded-xl px-3 py-3 text-left",
+                    selectedBuilder?.id === builder.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted/80"
+                  )}
+                >
+                  <p className="truncate text-sm font-medium">
+                    {displayMapBuilderName(builder)}
+                  </p>
+                  <p className="text-xs opacity-80">
+                    {builder.license_number ?? "Licence pending"}
+                    {builder.years_in_business != null
+                      ? ` · ${builder.years_in_business}+ yrs`
+                      : ""}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+          {showEmptyState && (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              No builders with a service location yet.
+            </p>
+          )}
+        </div>
+        )}
       </div>
 
       <div className="surface relative min-h-[420px] overflow-hidden sm:min-h-[520px] lg:min-h-[560px]">
@@ -354,9 +501,26 @@ export function LandMap() {
           </div>
         )}
 
-        {selected && (
+        {selected && layer === "land" && (
           <div className="absolute bottom-4 left-4 right-4 z-20 mx-auto max-w-sm">
             <ListingCard listing={selected} onClose={() => setSelected(null)} />
+          </div>
+        )}
+        {selectedBuilder && layer === "builders" && (
+          <div className="absolute bottom-4 left-4 right-4 z-20 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 shadow-lg">
+            <p className="font-medium">{displayMapBuilderName(selectedBuilder)}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Licence {selectedBuilder.license_number ?? "not listed"}
+              {selectedBuilder.years_in_business != null
+                ? ` · ${selectedBuilder.years_in_business}+ years`
+                : ""}
+            </p>
+            <a
+              href={`/builders/${selectedBuilder.id}`}
+              className="mt-3 inline-block text-sm font-medium text-primary"
+            >
+              View profile
+            </a>
           </div>
         )}
       </div>

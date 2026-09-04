@@ -38,6 +38,8 @@ export interface GalleryImage {
   sort_order?: number;
 }
 
+import type { BuilderComplianceNotice } from "@/lib/builder-map";
+
 export interface BuilderPublicProfile {
   id: string;
   full_name: string;
@@ -57,6 +59,7 @@ export interface BuilderPublicProfile {
   profile_published: boolean;
   license_number: string;
   insurance_verified: boolean;
+  notices?: BuilderComplianceNotice[];
   portfolio: PortfolioProject[];
   google_reviews: GoogleReviewHighlight[];
   product_reviews: ProductReview[];

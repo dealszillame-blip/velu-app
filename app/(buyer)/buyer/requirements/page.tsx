@@ -7,7 +7,7 @@ export default function BuyerRequirementsPage() {
       <PageHeader
         eyebrow="Your brief"
         title="Build requirements"
-        description="Storeys, granny flat, bedrooms, bathrooms — shared with builders when you register land or receive proposals."
+        description="House type, settlement, land measurements, bedrooms and bathrooms — shared with builders when you register land or receive proposals."
       />
       <BuyerRequirementsEditor />
     </div>

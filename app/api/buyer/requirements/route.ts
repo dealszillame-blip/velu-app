@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { buildRequirementsSchema } from "@/lib/buyer-requirements";
-import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
+import {
+  buildRequirementsSchema,
+  normalizeBuildRequirements,
+} from "@/lib/buyer-requirements";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -24,7 +26,9 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    build_requirements: data?.build_requirements ?? null,
+    build_requirements: data?.build_requirements
+      ? normalizeBuildRequirements(data.build_requirements)
+      : null,
     requirements_completed_at: data?.requirements_completed_at ?? null,
   });
 }
@@ -65,6 +69,6 @@ export async function PUT(request: Request) {
   }
 
   return NextResponse.json({
-    build_requirements: body.data as BuyerBuildRequirements,
+    build_requirements: normalizeBuildRequirements(body.data),
   });
 }

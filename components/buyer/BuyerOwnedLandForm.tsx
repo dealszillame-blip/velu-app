@@ -124,7 +124,11 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
         frontage_meters: Number(frontage),
         zoning,
         land_value: landValue ? Number(landValue) : undefined,
-        build_requirements: buildRequirements,
+        build_requirements: {
+          ...buildRequirements,
+          land_size_sqm: Number(landSize) || buildRequirements.land_size_sqm,
+          frontage_meters: Number(frontage) || buildRequirements.frontage_meters,
+        },
         site_report_keys: selectedSiteReportKeys,
         site_report_notes:
           selectedSiteReportKeys.length > 0

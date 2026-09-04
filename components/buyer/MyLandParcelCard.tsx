@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
+import { ArchitectHirePanel } from "@/components/buyer/ArchitectHirePanel";
 import { ExistingLandSiteReports } from "@/components/buyer/ExistingLandSiteReports";
 import { NearbyBuildersPanel } from "@/components/buyer/NearbyBuildersPanel";
+import { WorkspacePanel } from "@/components/buyer/WorkspacePanel";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,7 +20,7 @@ import {
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
 import { cn } from "@/lib/utils";
 
-type ParcelTab = "overview" | "builders" | "reports";
+type ParcelTab = "overview" | "builders" | "reports" | "architects" | "workspace";
 
 type MyLandParcelCardProps = {
   parcel: BuyerOwnedLand;
@@ -56,7 +58,9 @@ export function MyLandParcelCard({
           options={[
             { value: "overview", label: "Overview" },
             { value: "reports", label: "Site reports" },
-            { value: "builders", label: "Builders in area" },
+            { value: "builders", label: "Builders" },
+            { value: "architects", label: "Architects" },
+            { value: "workspace", label: "Workspace" },
           ]}
           value={tab}
           onChange={setTab}
@@ -87,6 +91,10 @@ export function MyLandParcelCard({
             siteReports={siteReports}
             onUpdated={onReportsUpdated}
           />
+        ) : tab === "architects" ? (
+          <ArchitectHirePanel listingId={parcel.id} />
+        ) : tab === "workspace" ? (
+          <WorkspacePanel />
         ) : (
           <NearbyBuildersPanel parcel={parcel} />
         )}
