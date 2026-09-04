@@ -12,7 +12,7 @@ Setup is automated by `.cursor/environment.json`:
 
 - `install` → `scripts/cloud-agent-install.sh`: installs Docker + the Supabase CLI, configures the Docker daemon for nested VMs, runs `npm ci`, and pre-pulls the local Supabase images.
 - `start` → `scripts/cloud-agent-start.sh`: starts the Docker daemon, runs `supabase start`, applies the SQL in `migrations/mvp/` (via `scripts/local-db-bootstrap.sh`), and writes `.env.local` (via `scripts/write-local-env.sh`).
-- `terminals`: `npm run dev` → http://localhost:3000.
+- `terminals`: `bash scripts/cloud-agent-start.sh && npm run dev` → http://localhost:3000. The `start` script is re-invoked here (idempotent) so the dev server always has a live backend even if the per-boot `start` step did not run.
 
 To bring the stack up manually, run `bash scripts/cloud-agent-start.sh` then `npm run dev`. Verify with `npm run verify:supabase`. Register a buyer at `/register/buyer` to reach `/buyer/map`.
 

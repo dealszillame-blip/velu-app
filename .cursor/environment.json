@@ -5,8 +5,8 @@
   "terminals": [
     {
       "name": "dev",
-      "command": "npm run dev",
-      "description": "Next.js dev server on http://localhost:3000"
+      "command": "bash scripts/cloud-agent-start.sh && npm run dev",
+      "description": "Ensures the local Supabase backend is up (idempotent), then runs the Next.js dev server on http://localhost:3000"
     }
   ],
   "ports": [
