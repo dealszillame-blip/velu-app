@@ -33,9 +33,7 @@ export function AuthShell({
               <>
                 You bring the land.
                 <br />
-                <span className="text-[color:var(--velu-green-bright)]">
-                  We connect you.
-                </span>
+                <span className="text-white">We connect you.</span>
               </>
             )}
           </h1>

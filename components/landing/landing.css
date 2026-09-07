@@ -1,21 +1,22 @@
 .landing {
-  --navy: #13314c;
-  --navy-mid: #1d3a58;
-  --navy-deep: #0b1f33;
-  --navy-hero: #0a1c2e;
-  --green: #509242;
-  --green-bright: #5aa84a;
-  --green-dim: rgba(80, 146, 66, 0.1);
-  --green-dim2: rgba(80, 146, 66, 0.18);
-  --blue-dim: rgba(29, 58, 88, 0.07);
+  --navy: #09090b;
+  --navy-mid: #18181b;
+  --navy-deep: #000000;
+  --navy-hero: #000000;
+  --green: #09090b;
+  --green-bright: #26262a;
+  --green-dim: rgba(9, 9, 11, 0.06);
+  --green-dim2: rgba(9, 9, 11, 0.12);
+  --success: #16a34a;
+  --blue-dim: rgba(9, 9, 11, 0.05);
   --white: #fff;
-  --off: #f6f8fa;
-  --text: #13314c;
-  --text-mid: #4a5d72;
-  --text-light: #8295a8;
-  --border: rgba(19, 49, 76, 0.1);
-  --border-strong: rgba(19, 49, 76, 0.16);
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --off: #fafafa;
+  --text: #09090b;
+  --text-mid: #71717b;
+  --text-light: #a1a1aa;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
   background: var(--white);
@@ -32,17 +33,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 48px;
-  height: 60px;
-  transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
-  border-bottom: 1px solid transparent;
+  margin: 8px 16px 0;
+  padding: 0 22px 0 20px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: background 0.3s var(--ease), border-color 0.3s var(--ease),
+    box-shadow 0.3s var(--ease);
 }
 
 .landing nav.scrolled {
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-color: var(--border);
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.12);
 }
 
 .landing .nav-brand {
@@ -97,26 +102,36 @@
 }
 
 .landing .nav-cta {
-  background: var(--green);
-  color: #fff;
+  background: var(--white);
+  color: #000;
   border: none;
-  padding: 9px 22px;
+  padding: 9px 18px;
   border-radius: 40px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s, transform 0.1s, color 0.2s;
 }
 
 .landing .nav-cta:hover {
-  background: var(--green-bright);
+  background: color-mix(in srgb, #fff 90%, transparent);
   transform: scale(0.98);
+}
+
+.landing nav.scrolled .nav-cta {
+  background: #000;
+  color: #fff;
+}
+
+.landing nav.scrolled .nav-cta:hover {
+  background: #26262a;
 }
 
 .landing .hero {
   min-height: 100vh;
-  background: linear-gradient(175deg, var(--navy-hero) 0%, var(--navy-deep) 55%, #0d2438 100%);
+  background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -132,7 +147,7 @@
   width: 900px;
   height: 900px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(80, 146, 66, 0.12) 0%, transparent 62%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 62%);
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -165,12 +180,12 @@
 }
 
 .landing .hero h1 {
-  font-size: clamp(30px, 4.6vw, 58px);
-  font-weight: 600;
+  font-size: clamp(36px, 6vw, 84px);
+  font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.15;
+  line-height: 1.05;
   color: var(--white);
-  max-width: 880px;
+  max-width: 920px;
   margin-bottom: 24px;
 }
 
@@ -180,7 +195,7 @@
 
 .landing .hero h1 em {
   font-style: normal;
-  color: var(--green-bright);
+  color: var(--white);
 }
 
 .landing .hero-sub {
@@ -201,8 +216,8 @@
 }
 
 .landing .btn-green {
-  background: var(--green);
-  color: #fff;
+  background: var(--white);
+  color: #000;
   border: none;
   padding: 15px 34px;
   border-radius: 40px;
@@ -215,7 +230,7 @@
 }
 
 .landing .btn-green:hover {
-  background: var(--green-bright);
+  background: color-mix(in srgb, #fff 90%, transparent);
   transform: scale(0.97);
 }
 
@@ -267,7 +282,7 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: rgba(80, 146, 66, 0.14);
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -328,7 +343,7 @@
 }
 
 .landing .td-green {
-  background: var(--green-bright);
+  background: var(--success);
 }
 
 .landing .td-red {
@@ -352,18 +367,19 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--green);
+  color: var(--text-mid);
   margin-bottom: 20px;
 }
 
 .landing .label-line {
   width: 24px;
   height: 2px;
-  background: var(--green);
+  background: var(--text);
   border-radius: 2px;
 }
 
@@ -440,12 +456,13 @@
 }
 
 .landing .pc-role {
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 12px;
-  color: var(--green);
+  color: var(--text-mid);
 }
 
 .landing .pc-title {
@@ -591,7 +608,7 @@
 }
 
 .landing .dot-green {
-  background: var(--green-bright);
+  background: var(--success);
 }
 
 .landing .dot-amber {
@@ -665,7 +682,7 @@
 }
 
 .landing .pin-available {
-  background: var(--green-bright);
+  background: var(--success);
 }
 
 .landing .pin-sold {
@@ -681,7 +698,7 @@
   position: absolute;
   inset: -7px;
   border-radius: 50%;
-  border: 2px solid var(--green-bright);
+  border: 2px solid var(--success);
   opacity: 0;
   animation: landing-pinpulse 2.2s ease-out infinite;
 }
@@ -742,8 +759,8 @@
   position: absolute;
   top: 18px;
   right: 18px;
-  background: rgba(80, 146, 66, 0.16);
-  border: 1px solid rgba(90, 168, 74, 0.35);
+  background: rgba(22, 163, 74, 0.16);
+  border: 1px solid rgba(22, 163, 74, 0.35);
   border-radius: 24px;
   padding: 6px 14px;
   display: flex;
@@ -751,14 +768,14 @@
   gap: 8px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--green-bright);
+  color: var(--success);
 }
 
 .landing .live-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--green-bright);
+  background: var(--success);
   animation: landing-livepulse 1.6s ease-in-out infinite;
 }
 
@@ -801,12 +818,12 @@
 
 .landing .cc:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 48px rgba(19, 49, 76, 0.1);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.1);
 }
 
 .landing .cc.featured {
   border: 2px solid var(--green);
-  box-shadow: 0 16px 44px rgba(80, 146, 66, 0.12);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.12);
 }
 
 .landing .cc-pop {
@@ -991,7 +1008,7 @@
   border-radius: 18px;
   border: 1px solid var(--border);
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(19, 49, 76, 0.08);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
 }
 
 .landing .bv-header {
@@ -1064,7 +1081,7 @@
 
 .landing .bv-alert {
   background: var(--green-dim);
-  border: 1px solid rgba(80, 146, 66, 0.25);
+  border: 1px solid rgba(9, 9, 11, 0.25);
   border-radius: 12px;
   padding: 15px 17px;
   margin-top: 18px;
@@ -1231,14 +1248,14 @@
 
 .landing .trust-card:hover {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(80, 146, 66, 0.3);
+  border-color: rgba(9, 9, 11, 0.3);
 }
 
 .landing .trust-icon {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(80, 146, 66, 0.13);
+  background: rgba(9, 9, 11, 0.13);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1282,7 +1299,7 @@
 }
 
 .landing .stat:hover {
-  border-color: rgba(80, 146, 66, 0.4);
+  border-color: rgba(9, 9, 11, 0.4);
   transform: translateY(-3px);
 }
 
@@ -1319,7 +1336,7 @@
   width: 700px;
   height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(80, 146, 66, 0.13) 0%, transparent 62%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 62%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -1351,7 +1368,7 @@
 
 .landing .cta-h em {
   font-style: normal;
-  color: var(--green-bright);
+  color: var(--white);
 }
 
 .landing .cta-sub {
@@ -1456,7 +1473,8 @@
 
 @media (max-width: 920px) {
   .landing nav {
-    padding: 0 22px;
+    margin: 8px 12px 0;
+    padding: 0 12px 0 14px;
   }
 
   .landing .nav-links {

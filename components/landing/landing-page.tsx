@@ -32,7 +32,7 @@ const PROPOSALS = [
   {
     featured: false,
     initials: "MH",
-    color: "#1d3a58",
+    color: "#18181b",
     name: "Meridian Homes",
     design: "The Kingsford 24 · Single storey",
     price: "$372,000",
@@ -53,7 +53,7 @@ const PROPOSALS = [
   {
     featured: true,
     initials: "SC",
-    color: "#509242",
+    color: "#09090b",
     name: "Southern Cross Builders",
     design: "The Hawkesbury 25 · Single storey",
     price: "$385,000",
@@ -75,7 +75,7 @@ const PROPOSALS = [
   {
     featured: false,
     initials: "BW",
-    color: "#4a5d72",
+    color: "#71717b",
     name: "Bellwood Constructions",
     design: "The Camden 28 · Double storey",
     price: "$448,000",
