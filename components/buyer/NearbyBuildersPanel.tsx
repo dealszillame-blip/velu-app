@@ -86,6 +86,32 @@ function NearbyBuilderCard({
                   </span>
                 </div>
               )}
+              <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                {builder.license_number ? (
+                  <Badge variant="outline" className="rounded-full">
+                    Licence {builder.license_number}
+                  </Badge>
+                ) : null}
+                {builder.years_in_business != null ? (
+                  <Badge variant="outline" className="rounded-full">
+                    {builder.years_in_business}+ yrs
+                  </Badge>
+                ) : null}
+                {builder.insurance_verified ? (
+                  <Badge variant="outline" className="rounded-full">
+                    Insurance verified
+                  </Badge>
+                ) : null}
+              </div>
+              {(builder.notices ?? []).length > 0 ? (
+                <p className="mt-2 text-xs text-amber-700">
+                  {builder.notices![0].title}
+                </p>
+              ) : builder.license_number ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  No licence notices on file.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>

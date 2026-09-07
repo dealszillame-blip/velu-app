@@ -12,7 +12,11 @@ import {
   Scale,
 } from "lucide-react";
 import { StartInquiryButton } from "@/components/messages/StartInquiryButton";
+import { TenderAnalysisPanel } from "@/components/buyer/TenderAnalysisPanel";
+import { PublishedPackagesPanel } from "@/components/buyer/PublishedPackagesPanel";
+import { ComingSoonRealEstate } from "@/components/buyer/ComingSoonRealEstate";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SegmentControl } from "@/components/shared/SegmentControl";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { StatStrip } from "@/components/shared/StatStrip";
 import {
@@ -336,6 +340,9 @@ export function ProposalComparator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [tab, setTab] = useState<
+    "compare" | "analysis" | "packages" | "estates"
+  >("compare");
 
   const load = useCallback(async () => {
     const res = await fetch("/api/proposals");
@@ -407,7 +414,29 @@ export function ProposalComparator() {
         />
       );
     }
-    return <CompareEmptyLayout />;
+    return (
+      <div className="space-y-6">
+        <SegmentControl
+          options={[
+            { value: "compare", label: "Compare" },
+            { value: "analysis", label: "Tender report" },
+            { value: "packages", label: "Published designs" },
+            { value: "estates", label: "Upcoming" },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+        {tab === "compare" ? (
+          <CompareEmptyLayout />
+        ) : tab === "analysis" ? (
+          <TenderAnalysisPanel />
+        ) : tab === "packages" ? (
+          <PublishedPackagesPanel />
+        ) : (
+          <ComingSoonRealEstate />
+        )}
+      </div>
+    );
   }
 
   const pending = proposals.filter((p) =>
@@ -420,6 +449,25 @@ export function ProposalComparator() {
 
   return (
     <div className="space-y-8">
+      <SegmentControl
+        options={[
+          { value: "compare", label: "Compare" },
+          { value: "analysis", label: "Tender report" },
+          { value: "packages", label: "Published designs" },
+          { value: "estates", label: "Upcoming" },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+
+      {tab === "analysis" ? (
+        <TenderAnalysisPanel />
+      ) : tab === "packages" ? (
+        <PublishedPackagesPanel />
+      ) : tab === "estates" ? (
+        <ComingSoonRealEstate />
+      ) : (
+        <>
       <StatStrip
         items={[
           { label: "Total proposals", value: proposals.length },
@@ -498,6 +546,8 @@ export function ProposalComparator() {
             ))}
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

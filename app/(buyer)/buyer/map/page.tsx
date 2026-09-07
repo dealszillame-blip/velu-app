@@ -7,7 +7,7 @@ export default function BuyerMapPage() {
       <PageHeader
         eyebrow="The live map"
         title="Explore land"
-        description="Vacant lots across South West Sydney — filter by suburb, price, and size."
+        description="Vacant lots and licensed builders across South West Sydney. Switch layers to see land or builders in the area."
       />
       <BuyerLandMap />
     </div>

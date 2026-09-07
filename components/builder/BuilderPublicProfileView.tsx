@@ -156,11 +156,34 @@ export function BuilderPublicProfileView({
               </p>
             </div>
             <div className="surface-subtle p-4">
-              <p className="label-caps mb-1">Portfolio</p>
+              <p className="label-caps mb-1">Licence</p>
               <p className="text-2xl font-semibold">
-                {profile.portfolio.length} projects
+                {profile.license_number || "—"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {profile.insurance_verified
+                  ? "Insurance verified"
+                  : "Insurance not verified"}
               </p>
             </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
+            <p className="label-caps mb-2">Licence notices</p>
+            {(profile.notices ?? []).length > 0 ? (
+              <ul className="space-y-2 text-sm">
+                {(profile.notices ?? []).map((notice) => (
+                  <li key={notice.id}>
+                    <p className="font-medium">{notice.title}</p>
+                    <p className="text-muted-foreground">{notice.body}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No Fair Trading or licence notices on file for this builder.
+              </p>
+            )}
           </div>
 
           {profile.bio && (

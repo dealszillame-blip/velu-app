@@ -23,6 +23,18 @@ export async function GET(
 
   const profile = data as BuilderPublicProfile;
 
+  const { data: notices } = await supabase
+    .from("builder_compliance_notices")
+    .select("id, title, body, severity, issued_at, source")
+    .eq("builder_id", id)
+    .eq("is_active", true)
+    .order("issued_at", { ascending: false });
+
+  const profileWithNotices = {
+    ...profile,
+    notices: notices ?? [],
+  };
+
   if (!profile.profile_published) {
     const {
       data: { user },
@@ -33,5 +45,5 @@ export async function GET(
     }
   }
 
-  return NextResponse.json(profile);
+  return NextResponse.json(profileWithNotices);
 }
