@@ -4,6 +4,13 @@
  * (addresses, price bands, lot sizes) — not scraped from live sites.
  */
 
+import { DEMO_COMPARISON_TEMPLATES } from "../lib/demo-proposals";
+import type {
+  HomeSpecs,
+  InclusionItem,
+  PriceBreakdownLine,
+} from "../lib/proposal-breakdown";
+
 export type DemoListing = {
   domainListingId: string;
   address: string;
@@ -423,7 +430,46 @@ export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
   },
 ];
 
-export const DEMO_BUYER_OWNED_PROPOSALS = [
+export type DemoOwnedProposal = {
+  landKey: string;
+  builderEmail: string;
+  packageName: string;
+  basePrice: number;
+  estimatedBuildWeeks: number;
+  inclusions: string;
+  notes: string;
+  status: "pending" | "viewed";
+  homeSpecs?: HomeSpecs;
+  priceBreakdown?: PriceBreakdownLine[];
+  inclusionItems?: InclusionItem[];
+};
+
+function ownedProposalFromTemplate(
+  landKey: string,
+  builderEmail: string,
+  templateKey: string,
+  status: DemoOwnedProposal["status"] = "pending"
+): DemoOwnedProposal {
+  const template = DEMO_COMPARISON_TEMPLATES.find((row) => row.key === templateKey);
+  if (!template) {
+    throw new Error(`Unknown demo proposal template: ${templateKey}`);
+  }
+  return {
+    landKey,
+    builderEmail,
+    packageName: template.package_name,
+    basePrice: template.base_price,
+    estimatedBuildWeeks: template.estimated_build_weeks,
+    inclusions: template.inclusions,
+    notes: template.notes,
+    status,
+    homeSpecs: template.home_specs,
+    priceBreakdown: template.price_breakdown,
+    inclusionItems: template.inclusion_items,
+  };
+}
+
+export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
   {
     landKey: "alex-mount-annan",
     builderEmail: "demo.builder3@velu.dev",
@@ -432,7 +478,28 @@ export const DEMO_BUYER_OWNED_PROPOSALS = [
     estimatedBuildWeeks: 27,
     inclusions: "Stone benchtops, ducted AC, driveway allowance",
     notes: "Designed for R2 lots 400–450m² in Mount Annan.",
-    status: "pending" as const,
+    status: "pending",
+    homeSpecs: {
+      bedrooms: 4,
+      bathrooms: 2,
+      car_spaces: 2,
+      living_area_sqm: 178,
+      storeys: 1,
+    },
+    priceBreakdown: [
+      { category: "site", label: "Site costs & connections", amount: 38000 },
+      { category: "base", label: "Base build to lock-up", amount: 268000 },
+      { category: "kitchen", label: "Kitchen package", amount: 26000 },
+      { category: "bathroom", label: "Bathroom package", amount: 24000 },
+      { category: "electrical", label: "Electrical & ducted AC", amount: 22000 },
+      { category: "driveway", label: "Driveway allowance", amount: 16000 },
+      { category: "contingency", label: "Contingency allowance", amount: 20000 },
+    ],
+    inclusionItems: [
+      { category: "kitchen", item: "Stone benchtops", detail: "40mm engineered stone", included: true },
+      { category: "electrical", item: "Ducted air conditioning", detail: "2 zones", included: true },
+      { category: "external", item: "Driveway allowance", detail: "Exposed aggregate", included: true },
+    ],
   },
   {
     landKey: "sam-oran-park",
@@ -442,8 +509,50 @@ export const DEMO_BUYER_OWNED_PROPOSALS = [
     estimatedBuildWeeks: 31,
     inclusions: "Alfresco, double garage, premium fixtures",
     notes: "Includes fixed site costs for Oran Park estates.",
-    status: "viewed" as const,
+    status: "viewed",
+    homeSpecs: {
+      bedrooms: 5,
+      bathrooms: 2.5,
+      car_spaces: 2,
+      living_area_sqm: 228,
+      storeys: 1,
+    },
+    priceBreakdown: [
+      { category: "site", label: "Site costs & connections", amount: 45000 },
+      { category: "base", label: "Base build to lock-up", amount: 286000 },
+      { category: "kitchen", label: "Kitchen package", amount: 30000 },
+      { category: "bathroom", label: "Bathroom package", amount: 28000 },
+      { category: "electrical", label: "Electrical & fixtures", amount: 24000 },
+      { category: "external", label: "Alfresco + garage", amount: 72000 },
+      { category: "contingency", label: "Contingency allowance", amount: 40000 },
+    ],
+    inclusionItems: [
+      { category: "external", item: "Alfresco", detail: "Tiled outdoor living", included: true },
+      { category: "external", item: "Double garage", detail: "Remote doors", included: true },
+      { category: "kitchen", item: "Premium fixtures", detail: "Mixer taps and stone-look laminate", included: true },
+    ],
   },
+  ownedProposalFromTemplate(
+    "sam-oran-park",
+    "demo.builder@velu.dev",
+    "value_single_studio"
+  ),
+  ownedProposalFromTemplate(
+    "sam-oran-park",
+    "demo.builder3@velu.dev",
+    "family_five_premium"
+  ),
+  ownedProposalFromTemplate(
+    "alex-mount-annan",
+    "demo.builder@velu.dev",
+    "double_storey_value"
+  ),
+  ownedProposalFromTemplate(
+    "alex-mount-annan",
+    "demo.builder2@velu.dev",
+    "family_five_premium",
+    "viewed"
+  ),
 ];
 
 export const DEMO_PROPOSALS = [

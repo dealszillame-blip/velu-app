@@ -15,6 +15,7 @@ import { StartInquiryButton } from "@/components/messages/StartInquiryButton";
 import { TenderAnalysisPanel } from "@/components/buyer/TenderAnalysisPanel";
 import { PublishedPackagesPanel } from "@/components/buyer/PublishedPackagesPanel";
 import { ComingSoonRealEstate } from "@/components/buyer/ComingSoonRealEstate";
+import { AiRecommendationPanel } from "@/components/buyer/AiRecommendationPanel";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
@@ -40,6 +41,16 @@ import {
   proposalStatusLabel,
   type ProposalRow,
 } from "@/lib/proposals";
+
+const COMPARE_TABS = [
+  { value: "compare", label: "Compare" },
+  { value: "recommend", label: "Recommend" },
+  { value: "analysis", label: "Tender report" },
+  { value: "packages", label: "Published designs" },
+  { value: "estates", label: "Upcoming" },
+] as const;
+
+type CompareTab = (typeof COMPARE_TABS)[number]["value"];
 
 const COMPARE_STEPS = [
   {
@@ -262,33 +273,62 @@ function ProposalCard({
   );
 }
 
-function CompareEmptyLayout() {
+function CompareEmptyLayout({
+  onLoadDemo,
+  demoLoading,
+  demoMessage,
+}: {
+  onLoadDemo: () => void;
+  demoLoading: boolean;
+  demoMessage: string | null;
+}) {
   return (
     <div className="space-y-8">
       <EmptyState
         icon={<Scale className="h-6 w-6" strokeWidth={1.5} />}
         title="No proposals yet"
-        description="Once builders submit packages on your land, they'll appear here for side-by-side comparison."
+        description="Once builders submit packages on your land, they'll appear here for side-by-side comparison. You can also load demonstration packages to try the compare table and recommendation tool."
         hint="Already own your block? Register it under My land. Bought via an agent? Mark the lot as sold on the map."
         action={
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              href="/buyer/my-land"
-              className={cn(buttonVariants(), "rounded-full gap-2")}
-            >
-              Register my land
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/buyer/map"
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "rounded-full gap-2"
-              )}
-            >
-              Explore map
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button
+                className="rounded-full"
+                onClick={onLoadDemo}
+                disabled={demoLoading}
+              >
+                {demoLoading ? "Loading demo packages…" : "Load demonstration packages"}
+              </Button>
+              <Link
+                href="/buyer/my-land"
+                className={cn(buttonVariants({ variant: "outline" }), "rounded-full gap-2")}
+              >
+                Register my land
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/buyer/map"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "rounded-full gap-2"
+                )}
+              >
+                Explore map
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            {demoMessage ? (
+              <p
+                className={cn(
+                  "max-w-md text-sm",
+                  demoMessage.startsWith("Loaded")
+                    ? "text-muted-foreground"
+                    : "text-destructive"
+                )}
+              >
+                {demoMessage}
+              </p>
+            ) : null}
           </div>
         }
       />
@@ -340,25 +380,60 @@ export function ProposalComparator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
-  const [tab, setTab] = useState<
-    "compare" | "analysis" | "packages" | "estates"
-  >("compare");
+  const [tab, setTab] = useState<CompareTab>("compare");
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoMessage, setDemoMessage] = useState<string | null>(null);
+  const [recommendKey, setRecommendKey] = useState(0);
 
-  const load = useCallback(async () => {
-    const res = await fetch("/api/proposals");
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Failed to load proposals");
+  const applyProposalPayload = useCallback((data: unknown, ok: boolean) => {
+    if (!ok) {
+      const message =
+        data && typeof data === "object" && data !== null && "error" in data
+          ? String((data as { error?: string }).error ?? "Failed to load proposals")
+          : "Failed to load proposals";
+      setError(message);
       setProposals([]);
       return;
     }
     setError(null);
     setProposals(Array.isArray(data) ? data : []);
+    setRecommendKey((key) => key + 1);
   }, []);
 
+  const load = useCallback(async () => {
+    const res = await fetch("/api/proposals");
+    const data = await res.json();
+    applyProposalPayload(data, res.ok);
+  }, [applyProposalPayload]);
+
+  async function loadDemoPackages() {
+    setDemoLoading(true);
+    setDemoMessage(null);
+    const res = await fetch("/api/buyer/demo-proposals", { method: "POST" });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setDemoMessage(json.error ?? "Could not load demonstration packages.");
+      setDemoLoading(false);
+      return;
+    }
+    const count = typeof json.inserted === "number" ? json.inserted : 0;
+    setDemoMessage(
+      count > 0
+        ? `Loaded ${count} demonstration package${count === 1 ? "" : "s"}.`
+        : (json.message ?? "No extra demonstration packages were added.")
+    );
+    setDemoLoading(false);
+    await load();
+  }
+
   useEffect(() => {
-    load().finally(() => setLoading(false));
-  }, [load]);
+    fetch("/api/proposals")
+      .then(async (res) => {
+        const data = await res.json();
+        applyProposalPayload(data, res.ok);
+      })
+      .finally(() => setLoading(false));
+  }, [applyProposalPayload]);
 
   async function respond(id: string, action: "accept" | "reject") {
     setActingId(id);
@@ -417,17 +492,22 @@ export function ProposalComparator() {
     return (
       <div className="space-y-6">
         <SegmentControl
-          options={[
-            { value: "compare", label: "Compare" },
-            { value: "analysis", label: "Tender report" },
-            { value: "packages", label: "Published designs" },
-            { value: "estates", label: "Upcoming" },
-          ]}
+          options={[...COMPARE_TABS]}
           value={tab}
           onChange={setTab}
         />
         {tab === "compare" ? (
-          <CompareEmptyLayout />
+          <CompareEmptyLayout
+            onLoadDemo={() => void loadDemoPackages()}
+            demoLoading={demoLoading}
+            demoMessage={demoMessage}
+          />
+        ) : tab === "recommend" ? (
+          <AiRecommendationPanel
+            key={`recommend-empty-${recommendKey}`}
+            onLoadDemo={() => void loadDemoPackages()}
+            demoLoading={demoLoading}
+          />
         ) : tab === "analysis" ? (
           <TenderAnalysisPanel />
         ) : tab === "packages" ? (
@@ -450,17 +530,18 @@ export function ProposalComparator() {
   return (
     <div className="space-y-8">
       <SegmentControl
-        options={[
-          { value: "compare", label: "Compare" },
-          { value: "analysis", label: "Tender report" },
-          { value: "packages", label: "Published designs" },
-          { value: "estates", label: "Upcoming" },
-        ]}
+        options={[...COMPARE_TABS]}
         value={tab}
         onChange={setTab}
       />
 
-      {tab === "analysis" ? (
+      {tab === "recommend" ? (
+        <AiRecommendationPanel
+          key={`recommend-${recommendKey}`}
+          onLoadDemo={() => void loadDemoPackages()}
+          demoLoading={demoLoading}
+        />
+      ) : tab === "analysis" ? (
         <TenderAnalysisPanel />
       ) : tab === "packages" ? (
         <PublishedPackagesPanel />
@@ -502,6 +583,14 @@ export function ProposalComparator() {
             </Badge>
           </div>
 
+          {pending.length >= 2 ? (
+            <AiRecommendationPanel
+              key={`recommend-compact-${recommendKey}`}
+              variant="compact"
+              onSeeFull={() => setTab("recommend")}
+            />
+          ) : null}
+
           {pending.length >= 2 && (
             <div className="mb-6">
               <ProposalComparisonGrid proposals={pending} />
@@ -522,8 +611,28 @@ export function ProposalComparator() {
                 <Hammer className="mb-3 h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
                 <p className="font-medium tracking-tight">Waiting for more proposals</p>
                 <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-                  Other builders may still submit packages. Compare at least two before deciding.
+                  Other builders may still submit packages. Compare at least two before deciding, or load demonstration packages.
                 </p>
+                <Button
+                  variant="outline"
+                  className="mt-4 rounded-full"
+                  onClick={() => void loadDemoPackages()}
+                  disabled={demoLoading}
+                >
+                  {demoLoading ? "Loading demo packages…" : "Load demonstration packages"}
+                </Button>
+                {demoMessage ? (
+                  <p
+                    className={cn(
+                      "mt-3 max-w-xs text-sm",
+                      demoMessage.startsWith("Loaded")
+                        ? "text-muted-foreground"
+                        : "text-destructive"
+                    )}
+                  >
+                    {demoMessage}
+                  </p>
+                ) : null}
               </Card>
             )}
           </div>
