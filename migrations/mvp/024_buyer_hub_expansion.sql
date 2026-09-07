@@ -72,6 +72,12 @@ ALTER TABLE public.architect_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.builder_compliance_notices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.builder_published_packages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "architect_directory: read active" ON public.architect_directory;
+DROP POLICY IF EXISTS "architect_requests: read own" ON public.architect_requests;
+DROP POLICY IF EXISTS "architect_requests: insert own" ON public.architect_requests;
+DROP POLICY IF EXISTS "builder_compliance_notices: read authenticated" ON public.builder_compliance_notices;
+DROP POLICY IF EXISTS "builder_published_packages: read active" ON public.builder_published_packages;
+
 CREATE POLICY "architect_directory: read active"
   ON public.architect_directory FOR SELECT
   USING (auth.uid() IS NOT NULL AND is_active = TRUE);

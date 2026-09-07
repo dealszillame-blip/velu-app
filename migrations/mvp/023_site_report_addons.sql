@@ -1,13 +1,17 @@
 -- Velu MVP — optional site report add-ons for buyer-owned land onboarding
 
-CREATE TYPE site_report_request_status AS ENUM (
-  'requested',
-  'quoted',
-  'accepted',
-  'in_progress',
-  'delivered',
-  'cancelled'
-);
+DO $$ BEGIN
+  CREATE TYPE site_report_request_status AS ENUM (
+    'requested',
+    'quoted',
+    'accepted',
+    'in_progress',
+    'delivered',
+    'cancelled'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.site_report_definitions (
   key           TEXT PRIMARY KEY CHECK (key ~ '^[a-z0-9_]+$'),
@@ -53,6 +57,12 @@ CREATE INDEX IF NOT EXISTS site_report_requests_status_idx
   ON public.site_report_requests(status);
 
 ALTER TABLE public.site_report_definitions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "site_report_definitions: read active" ON public.site_report_definitions;
+DROP POLICY IF EXISTS "site_report_definitions: admin manage" ON public.site_report_definitions;
+DROP POLICY IF EXISTS "site_report_requests: read own" ON public.site_report_requests;
+DROP POLICY IF EXISTS "site_report_requests: insert own requested" ON public.site_report_requests;
+DROP POLICY IF EXISTS "site_report_requests: admin manage" ON public.site_report_requests;
 
 CREATE POLICY "site_report_definitions: read active"
   ON public.site_report_definitions FOR SELECT
