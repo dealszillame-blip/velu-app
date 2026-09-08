@@ -156,6 +156,9 @@ async function main() {
         inclusions: proposal.inclusions,
         notes: proposal.notes,
         status: proposal.status,
+        home_specs: proposal.homeSpecs ?? null,
+        price_breakdown: proposal.priceBreakdown ?? null,
+        inclusion_items: proposal.inclusionItems ?? null,
         viewed_at: proposal.status === "viewed" ? new Date().toISOString() : null,
       },
       { onConflict: "builder_id,land_listing_id" }

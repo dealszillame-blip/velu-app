@@ -10,7 +10,7 @@ export default function BuyerComparePage() {
     <div className="space-y-8">
       <PageHeader
         title="Proposals"
-        description="Compare builder packages and choose your build partner."
+        description="Compare builder packages, get an AI-assisted recommendation, and choose your build partner."
         action={
           <div className="flex flex-wrap gap-2">
             <Link
