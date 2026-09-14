@@ -4,6 +4,8 @@ Verified vacant-land marketplace for South West Sydney — buyers, builders, and
 
 Built from `Velu_MVP_PRD_v2.md` (Week 1 foundation).
 
+**Architecture blueprint:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — roles, sitemap, journeys, data model, and APIs.
+
 ## Stack
 
 - **Next.js 16** (App Router) + TypeScript + Tailwind + shadcn/ui
