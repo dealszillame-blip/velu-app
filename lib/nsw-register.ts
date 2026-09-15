@@ -71,7 +71,10 @@ export function verifyNswUrl(licenceNumber: string): string {
   return `https://verify.licence.nsw.gov.au/results?searchTerm=${encodeURIComponent(licenceNumber)}&filter=search&status=all`;
 }
 
-function mapResult(row: Record<string, unknown>): NswRegisterBuilder | null {
+function mapRegisterRow(
+  row: Record<string, unknown>,
+  requireSydney: boolean
+): NswRegisterBuilder | null {
   const licence_number = String(row.licenceNumber ?? "").trim();
   const licensee = String(row.licensee ?? "").trim();
   if (!licence_number || !licensee) return null;
@@ -102,7 +105,7 @@ function mapResult(row: Record<string, unknown>): NswRegisterBuilder | null {
     verify_url: verifyNswUrl(licence_number),
   };
 
-  if (!isGreaterSydneyBuilder(mapped)) return null;
+  if (requireSydney && !isGreaterSydneyBuilder(mapped)) return null;
   return mapped;
 }
 
@@ -137,8 +140,10 @@ export const DEFAULT_NSW_SEARCH_TERMS = [
 export async function searchNswBuilders(
   search: string,
   pageNumber = 0,
-  pageSize = 50
+  pageSize = 50,
+  options?: { statuses?: string[]; requireSydney?: boolean }
 ): Promise<{ builders: NswRegisterBuilder[]; totalRecords: number; totalPages: number }> {
+  const requireSydney = options?.requireSydney ?? true;
   const res = await fetch(NSW_TRADES_ADV_QUERY, {
     method: "POST",
     headers: {
@@ -150,7 +155,7 @@ export async function searchNswBuilders(
       licenceGroup: "Trades",
       pageNumber,
       pageSize,
-      status: ["Current"],
+      status: options?.statuses ?? ["Current"],
       licenceClasses: [NSW_BUILDER_CLASS],
       search,
     }),
@@ -162,7 +167,7 @@ export async function searchNswBuilders(
 
   const json = (await res.json()) as AdvResult;
   const builders = (json.results ?? [])
-    .map(mapResult)
+    .map((row) => mapRegisterRow(row, requireSydney))
     .filter((row): row is NswRegisterBuilder => Boolean(row));
 
   return {
@@ -170,6 +175,53 @@ export async function searchNswBuilders(
     totalRecords: json.pagingInfo?.totalRecords ?? builders.length,
     totalPages: json.pagingInfo?.totalPages ?? 1,
   };
+}
+
+const LICENCE_DETAILS_STATUSES = [
+  "Current",
+  "Expired",
+  "Cancelled",
+  "Suspended",
+  "Surrendered",
+];
+
+export async function fetchNswLicenceDetails(
+  licenceId: string
+): Promise<NswRegisterBuilder | null> {
+  const url = `https://verify.licence.nsw.gov.au/publicregisterapi/api/v1/licence/search/details/${encodeURIComponent("Contractor Licence")}/${encodeURIComponent(licenceId)}`;
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "Velu/1.0 (NSW public register collector)",
+    },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`Verify NSW details failed (${res.status})`);
+  }
+  const json = (await res.json()) as { componentData?: Record<string, unknown> };
+  if (!json.componentData) return null;
+  return mapRegisterRow(json.componentData, false);
+}
+
+export async function lookupNswLicence(
+  licenceNumber: string,
+  licenceId?: string | null
+): Promise<NswRegisterBuilder | null> {
+  if (licenceId) {
+    const details = await fetchNswLicenceDetails(licenceId);
+    if (details) return details;
+  }
+
+  const { builders } = await searchNswBuilders(licenceNumber, 0, 10, {
+    statuses: LICENCE_DETAILS_STATUSES,
+    requireSydney: false,
+  });
+  return (
+    builders.find((row) => row.licence_number === licenceNumber) ??
+    builders[0] ??
+    null
+  );
 }
 
 export async function collectNswBuildersForTerms(

@@ -10,22 +10,47 @@ export default function AdminDataPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [registerCount, setRegisterCount] = useState<number | null>(null);
+  const [currentCount, setCurrentCount] = useState<number | null>(null);
   const [googleReady, setGoogleReady] = useState(false);
+  const [lastLicenceCheck, setLastLicenceCheck] = useState<string | null>(null);
+  const [lastGoogleSync, setLastGoogleSync] = useState<string | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
+
+  function applyStats(data: {
+    count?: number;
+    current_count?: number;
+    google_places_configured?: boolean;
+    last_licence_check_at?: string | null;
+    last_google_sync_at?: string | null;
+  }) {
+    setRegisterCount(data.count ?? 0);
+    setCurrentCount(
+      typeof data.current_count === "number" ? data.current_count : null
+    );
+    setGoogleReady(Boolean(data.google_places_configured));
+    setLastLicenceCheck(data.last_licence_check_at ?? null);
+    setLastGoogleSync(data.last_google_sync_at ?? null);
+  }
+
+  async function loadStats() {
+    const res = await fetch("/api/admin/nsw-builders");
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return;
+    applyStats(data);
+  }
 
   useEffect(() => {
     fetch("/api/admin/nsw-builders")
       .then(async (res) => {
         const data = await res.json().catch(() => ({}));
-        if (res.ok) {
-          setRegisterCount(data.count ?? 0);
-          setGoogleReady(Boolean(data.google_places_configured));
-        }
+        if (res.ok) applyStats(data);
       })
       .catch(() => undefined);
   }, []);
 
-  async function syncRegister(source: "snapshot" | "live" | "google") {
+  async function syncRegister(
+    source: "snapshot" | "live" | "google" | "weekly"
+  ) {
     setSyncing(source);
     setError(null);
     setResult(null);
@@ -41,9 +66,7 @@ export default function AdminDataPage() {
       return;
     }
     setResult(JSON.stringify(data, null, 2));
-    if (typeof data.upserted === "number") {
-      setRegisterCount(data.unique ?? data.upserted);
-    }
+    await loadStats().catch(() => undefined);
   }
 
   async function submit() {
@@ -89,8 +112,26 @@ export default function AdminDataPage() {
         <p className="text-sm text-muted-foreground">
           {registerCount == null
             ? "Checking directory…"
-            : `${registerCount.toLocaleString()} licensed builders in the directory.`}{" "}
+            : `${registerCount.toLocaleString()} licensed builders in the directory${
+                currentCount != null
+                  ? ` (${currentCount.toLocaleString()} current)`
+                  : ""
+              }.`}{" "}
           Google Places is {googleReady ? "configured" : "not configured — add GOOGLE_PLACES_API_KEY"}.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          A Sunday job rechecks licences on Verify NSW and refreshes Google
+          reviews (Vercel Cron at 20:00 UTC plus GitHub Action). Nearby only
+          shows licences still marked Current.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Last licence check:{" "}
+          {lastLicenceCheck
+            ? new Date(lastLicenceCheck).toLocaleString()
+            : "not yet"}
+          . Last Google review sync:{" "}
+          {lastGoogleSync ? new Date(lastGoogleSync).toLocaleString() : "not yet"}
+          .
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -115,6 +156,14 @@ export default function AdminDataPage() {
             onClick={() => void syncRegister("google")}
           >
             {syncing === "google" ? "Matching…" : "Match Google reviews"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={Boolean(syncing)}
+            onClick={() => void syncRegister("weekly")}
+          >
+            {syncing === "weekly" ? "Updating…" : "Run weekly update now"}
           </Button>
         </div>
       </div>

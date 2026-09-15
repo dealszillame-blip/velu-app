@@ -1,17 +1,49 @@
 /**
- * Load the Verify NSW Greater Sydney builder snapshot into nsw_licensed_builders.
- * Usage: npm run sync:nsw-builders
+ * Load the Verify NSW Greater Sydney builder snapshot, or run the weekly
+ * licence + Google review update.
  *
- * Requires SUPABASE_SERVICE_ROLE_KEY. Optional GOOGLE_PLACES_API_KEY to attach ratings.
+ * Usage:
+ *   npm run sync:nsw-builders
+ *   npm run sync:nsw-builders:weekly
+ *
+ * Requires SUPABASE_SERVICE_ROLE_KEY. Optional GOOGLE_PLACES_API_KEY.
  */
 
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import {
+  asLicensedBuilderRow,
   enrichLicensedBuildersWithGoogle,
+  LICENSED_BUILDER_COLUMNS,
   loadNswBuilderSnapshot,
   upsertLicensedBuilders,
 } from "../lib/nsw-builders-store";
-import type { LicensedBuilderRow } from "../lib/licensed-builders";
+import { runWeeklyBuilderUpdate } from "../lib/nsw-builders-weekly";
+
+function loadLocalEnv() {
+  for (const file of [".env.local", ".env"]) {
+    const path = resolve(process.cwd(), file);
+    if (!existsSync(path)) continue;
+    for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq <= 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      let value = trimmed.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      if (process.env[key] === undefined) process.env[key] = value;
+    }
+  }
+}
+
+loadLocalEnv();
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -26,6 +58,12 @@ const supabase = createClient(url, serviceKey, {
 });
 
 async function main() {
+  if (process.argv.includes("--weekly")) {
+    const result = await runWeeklyBuilderUpdate(supabase, { mode: "full" });
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+
   const builders = loadNswBuilderSnapshot();
   console.log(`Snapshot: ${builders.length} Greater Sydney contractor-builder licences`);
   const written = await upsertLicensedBuilders(supabase, builders);
@@ -34,9 +72,7 @@ async function main() {
   if (process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY) {
     const { data, error } = await supabase
       .from("nsw_licensed_builders")
-      .select(
-        "id, licence_number, licensee, suburb, postcode, state, latitude, longitude, status, expires_on, verify_url, google_rating, google_review_count, google_maps_url, website_url, last_property_sold_address, last_property_sold_at, avg_delay_weeks"
-      )
+      .select(LICENSED_BUILDER_COLUMNS)
       .is("google_rating", null)
       .not("latitude", "is", null)
       .limit(40);
@@ -46,11 +82,11 @@ async function main() {
       return;
     }
 
-    const rows = (data ?? []).map((row) => ({
-      ...row,
-      expires: row.expires_on,
-    })) as LicensedBuilderRow[];
-    const updated = await enrichLicensedBuildersWithGoogle(supabase, rows, 40);
+    const updated = await enrichLicensedBuildersWithGoogle(
+      supabase,
+      (data ?? []).map(asLicensedBuilderRow),
+      40
+    );
     console.log(`Google Places matched ${updated} builders`);
   } else {
     console.log("Set GOOGLE_PLACES_API_KEY to attach Google ratings/review counts.");

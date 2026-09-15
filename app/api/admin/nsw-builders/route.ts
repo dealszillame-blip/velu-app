@@ -2,40 +2,45 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/guard";
 import { googlePlacesConfigured } from "@/lib/google-places";
 import {
+  asLicensedBuilderRow,
   enrichLicensedBuildersWithGoogle,
+  LICENSED_BUILDER_COLUMNS,
   loadNswBuilderSnapshot,
   upsertLicensedBuilders,
 } from "@/lib/nsw-builders-store";
 import {
+  getNswBuilderDirectoryStats,
+  runWeeklyBuilderUpdate,
+} from "@/lib/nsw-builders-weekly";
+import {
   collectNswBuildersForTerms,
   DEFAULT_NSW_SEARCH_TERMS,
 } from "@/lib/nsw-register";
-import type { LicensedBuilderRow } from "@/lib/licensed-builders";
+
+export const maxDuration = 60;
+
+function directoryError(message: string) {
+  return NextResponse.json(
+    {
+      error: message.includes("nsw_licensed_builders")
+        ? "Run migration 027_nsw_builder_directory.sql in Supabase."
+        : message,
+    },
+    { status: 500 }
+  );
+}
 
 export async function GET() {
   const auth = await requireAdminApi();
   if ("error" in auth) return auth.error;
 
-  const { count, error } = await auth.admin
-    .from("nsw_licensed_builders")
-    .select("id", { count: "exact", head: true });
-
-  if (error) {
-    return NextResponse.json(
-      {
-        error: error.message.includes("nsw_licensed_builders")
-          ? "Run migration 027_nsw_builder_directory.sql in Supabase."
-          : error.message,
-      },
-      { status: 500 }
-    );
+  try {
+    const stats = await getNswBuilderDirectoryStats(auth.admin);
+    return NextResponse.json(stats);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load directory";
+    return directoryError(message);
   }
-
-  return NextResponse.json({
-    count: count ?? 0,
-    google_places_configured: googlePlacesConfigured(),
-    snapshot_available: true,
-  });
 }
 
 export async function POST(request: Request) {
@@ -43,31 +48,33 @@ export async function POST(request: Request) {
   if ("error" in auth) return auth.error;
 
   const body = (await request.json().catch(() => ({}))) as {
-    source?: "snapshot" | "live" | "google";
+    source?: "snapshot" | "live" | "google" | "weekly";
   };
   const source = body.source ?? "snapshot";
 
   try {
+    if (source === "weekly") {
+      const result = await runWeeklyBuilderUpdate(auth.admin, { mode: "admin" });
+      return NextResponse.json(result);
+    }
+
     if (source === "google") {
       const { data, error } = await auth.admin
         .from("nsw_licensed_builders")
-        .select(
-          "id, licence_number, licensee, suburb, postcode, state, latitude, longitude, status, expires_on, verify_url, google_rating, google_review_count, google_maps_url, website_url, last_property_sold_address, last_property_sold_at, avg_delay_weeks"
-        )
+        .select(LICENSED_BUILDER_COLUMNS)
         .is("google_rating", null)
         .not("latitude", "is", null)
         .limit(40);
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return directoryError(error.message);
       }
 
-      const rows = (data ?? []).map((row) => ({
-        ...row,
-        expires: row.expires_on,
-      })) as LicensedBuilderRow[];
-
-      const updated = await enrichLicensedBuildersWithGoogle(auth.admin, rows, 40);
+      const updated = await enrichLicensedBuildersWithGoogle(
+        auth.admin,
+        (data ?? []).map(asLicensedBuilderRow),
+        40
+      );
       return NextResponse.json({
         ok: true,
         source,
@@ -93,6 +100,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Sync failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return directoryError(message);
   }
 }

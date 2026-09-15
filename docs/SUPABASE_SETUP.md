@@ -74,7 +74,7 @@ copy .env.example .env.local
 | 24 | `024_buyer_hub_expansion.sql` | Architects, nearby builders, published packages |
 | 25 | `025_demo_comparison_proposals.sql` | Demo comparison packages |
 | 26 | `026_sydney_builder_hub.sql` | **Required** — verified builder criteria, extra add-ons, report-provider portal, tender knowledge base |
-| 27 | `027_nsw_builder_directory.sql` | **Required** — NSW Fair Trading licensed-builder directory (not onboarded users). Then `npm run sync:nsw-builders` |
+| 27 | `027_nsw_builder_directory.sql` | **Required** — NSW Fair Trading licensed-builder directory (not onboarded users). Then `npm run sync:nsw-builders`. Weekly licence + Google review refresh: `npm run sync:nsw-builders:weekly` (or Vercel Cron / GitHub Action) |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
