@@ -13,6 +13,10 @@ import {
   DEMO_PROPOSALS,
   DEMO_USERS,
 } from "./demo-listings-data";
+import {
+  loadNswBuilderSnapshot,
+  upsertLicensedBuilders,
+} from "../lib/nsw-builders-store";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -80,10 +84,11 @@ async function ensureProfile(user: (typeof DEMO_USERS)[number], userId: string) 
 async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: string) {
   if (user.role !== "builder" || !user.licenseNumber) return;
 
+  const isDhursan = user.email === "demo.dhursan@velu.dev";
   const { error } = await supabase.from("builder_profiles").upsert({
     id: userId,
     license_number: user.licenseNumber,
-    is_license_valid: true,
+    license_expiry: isDhursan ? "2029-06-17" : null,
     insurance_verified: true,
     service_radius_km: user.serviceRadiusKm,
     anchor_address: user.anchorAddress,
@@ -91,6 +96,23 @@ async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: s
     is_onboarded: true,
     onboarding_status: "onboarded",
     onboarded_at: new Date().toISOString(),
+    builder_type: user.builderType ?? "bulk",
+    google_rating: user.googleRating ?? null,
+    google_review_count: user.googleReviewCount ?? null,
+    is_license_valid: true,
+    license_verified_at: new Date().toISOString(),
+    license_verify_url: isDhursan
+      ? "https://verify.licence.nsw.gov.au/results?searchTerm=dhursan&filter=search&status=all"
+      : "https://verify.licence.nsw.gov.au/home/Trades",
+    last_property_sold_address: user.lastSoldAddress ?? null,
+    last_property_sold_at: new Date().toISOString().slice(0, 10),
+    avg_delay_weeks: isDhursan ? 0 : 1.5,
+    profile_published: true,
+    years_in_business: isDhursan ? 7 : 12,
+    website_url: isDhursan ? "https://dhursanconstruction.com.au" : null,
+    headline: isDhursan
+      ? "House & land and new homes across South West Sydney. NSW licences 369795C and 341107C."
+      : null,
   });
 
   if (error) throw new Error(`Builder profile failed for ${user.email}: ${error.message}`);
@@ -104,6 +126,40 @@ async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: s
 
   if (geoError) throw new Error(`Anchor geom failed for ${user.email}: ${geoError.message}`);
   ok(`Builder onboarded: ${user.companyName}`);
+
+  if (isDhursan) {
+    const { data: existingNotice } = await supabase
+      .from("builder_compliance_notices")
+      .select("id")
+      .eq("builder_id", userId)
+      .ilike("title", "Fair Trading penalty%")
+      .maybeSingle();
+
+    if (!existingNotice) {
+      const { error: noticeError } = await supabase.from("builder_compliance_notices").insert({
+        builder_id: userId,
+        title: "Fair Trading penalty notice (licence 341107C)",
+        body: "A penalty notice is recorded against contractor licence 341107C in 2025. Confirm current status on Verify NSW before you sign.",
+        source: "nsw_fair_trading",
+        severity: "warning",
+        issued_at: "2025-01-15",
+        is_active: true,
+      });
+      if (noticeError) warn(`Dhursan notice: ${noticeError.message}`);
+    }
+  }
+}
+
+async function ensureProviderProfile(user: (typeof DEMO_USERS)[number], userId: string) {
+  if (user.role !== "report_provider") return;
+
+  const { error } = await supabase.from("report_provider_profiles").upsert({
+    id: userId,
+    report_keys: user.reportKeys ?? ["soil_report", "site_survey"],
+  });
+
+  if (error) warn(`Provider profile ${user.email}: ${error.message}`);
+  else ok(`Report provider: ${user.companyName ?? user.fullName}`);
 }
 
 async function seedBuyerRequirements(userIds: Map<string, string>) {
@@ -118,10 +174,13 @@ async function seedBuyerRequirements(userIds: Map<string, string>) {
     },
     "demo.buyer2@velu.dev": {
       storeys: "ground_only",
+      house_type: "single_storey",
       granny_flat: "yes",
       bedrooms: 5,
       bathrooms: 3,
       car_spaces: 2,
+      construction_grade: "medium",
+      preferred_builder_types: ["bulk", "semi_custom"],
       additional_notes: "Single-level living, granny flat for parents.",
     },
   };
@@ -239,6 +298,59 @@ async function seedBuyerOwnedProposals(
   }
 }
 
+async function seedSiteReportRequests(
+  ownedIds: Map<string, string>,
+  userIds: Map<string, string>
+) {
+  const listingId = ownedIds.get("sam-oran-park");
+  const buyerId = userIds.get("demo.buyer2@velu.dev");
+  const soilId = userIds.get("demo.soil@velu.dev");
+  const surveyId = userIds.get("demo.survey@velu.dev");
+
+  if (!listingId || !buyerId) {
+    warn("Skipping site report seed — missing Oran Park listing or buyer");
+    return;
+  }
+
+  const rows = [
+    { key: "soil_report", provider: soilId, status: "quoted", price: 1850 },
+    { key: "site_survey", provider: surveyId, status: "in_progress", price: 2200 },
+    { key: "legal_check", provider: soilId, status: "requested", price: null },
+    { key: "third_party_inspection", provider: surveyId, status: "requested", price: null },
+    { key: "bal_report", provider: soilId, status: "requested", price: null },
+    { key: "acoustic_report", provider: surveyId, status: "requested", price: null },
+  ];
+
+  for (const row of rows) {
+    const { error } = await supabase.from("site_report_requests").upsert(
+      {
+        report_definition_key: row.key,
+        land_listing_id: listingId,
+        buyer_id: buyerId,
+        status: row.status,
+        assigned_provider_id: row.provider ?? null,
+        quoted_price: row.price,
+        buyer_notes: "Demo request for the Oran Park block.",
+      },
+      { onConflict: "land_listing_id,report_definition_key" }
+    );
+
+    if (error) warn(`Site report ${row.key}: ${error.message}`);
+    else ok(`Site report: ${row.key} → sam-oran-park`);
+  }
+}
+
+async function seedNswLicensedBuilders() {
+  try {
+    const builders = loadNswBuilderSnapshot();
+    const written = await upsertLicensedBuilders(supabase, builders);
+    ok(`NSW register directory: ${written} Greater Sydney contractor-builder licences`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    warn(`NSW register directory: ${message}`);
+  }
+}
+
 async function seedListings(buyerId: string): Promise<Map<string, string>> {
   const listingIds = new Map<string, string>();
 
@@ -345,6 +457,7 @@ async function main() {
     userIds.set(user.email, id);
     await ensureProfile(user, id);
     await ensureBuilderProfile(user, id);
+    await ensureProviderProfile(user, id);
   }
 
   const buyerId = userIds.get("demo.buyer@velu.dev")!;
@@ -353,6 +466,8 @@ async function main() {
   await seedBuyerRequirements(userIds);
   await seedProposals(listingIds, userIds, buyerId);
   await seedBuyerOwnedProposals(ownedIds, userIds);
+  await seedSiteReportRequests(ownedIds, userIds);
+  await seedNswLicensedBuilders();
 
   console.log("\n── Demo login credentials (password for all: VeluDemo123!) ──\n");
   console.log("  Buyer:    demo.buyer@velu.dev");
@@ -360,6 +475,9 @@ async function main() {
   console.log("  Builder:  demo.builder@velu.dev      (Apex Homes)");
   console.log("  Builder:  demo.builder2@velu.dev     (Meridian Building Co)");
   console.log("  Builder:  demo.builder3@velu.dev     (SouthWest Living)");
+  console.log("  Builder:  demo.dhursan@velu.dev      (Dhursan Homes · NSW 369795C)");
+  console.log("  Provider: demo.soil@velu.dev         (soil / BAL / legal)");
+  console.log("  Provider: demo.survey@velu.dev       (survey / acoustic / inspection)");
   console.log("\n── Test the core loop ──\n");
   console.log("  1. Sign in as demo.buyer@velu.dev → /buyer/my-land (Mount Annan block)");
   console.log("  2. Sign in as demo.buyer2@velu.dev → /buyer/my-land (2 registered blocks)");

@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, ClipboardList } from "lucide-react";
 import type { TenderAnalysisReport, TenderFinding } from "@/lib/tender-analysis";
+import type { KnowledgeCompareReport } from "@/lib/tender-knowledge";
 import { cn } from "@/lib/utils";
+import { formatProposalPrice } from "@/lib/proposals";
+
+type TenderAnalysisPayload = TenderAnalysisReport & {
+  knowledge_compare?: KnowledgeCompareReport;
+  legal_check?: { status: string; detail: string };
+};
 
 const SEVERITY_STYLES: Record<TenderFinding["severity"], string> = {
   gap: "border-amber-200 bg-amber-50 text-amber-800",
@@ -12,7 +19,7 @@ const SEVERITY_STYLES: Record<TenderFinding["severity"], string> = {
 };
 
 export function TenderAnalysisPanel() {
-  const [report, setReport] = useState<TenderAnalysisReport | null>(null);
+  const [report, setReport] = useState<TenderAnalysisPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,6 +66,54 @@ export function TenderAnalysisPanel() {
           </ul>
         ) : null}
       </div>
+
+      {report.legal_check ? (
+        <div
+          className={cn(
+            "rounded-xl border p-4",
+            report.legal_check.status === "requested"
+              ? "border-emerald-200 bg-emerald-50"
+              : "border-amber-200 bg-amber-50"
+          )}
+        >
+          <p className="text-sm font-medium">Legal check</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {report.legal_check.detail}
+          </p>
+        </div>
+      ) : null}
+
+      {report.knowledge_compare ? (
+        <div className="rounded-xl border border-border p-4">
+          <p className="text-sm font-medium">
+            Knowledge-base compare
+            <span className="ml-2 text-xs font-normal uppercase tracking-wide text-muted-foreground">
+              {report.knowledge_compare.method === "llm" ? "LLM" : "Stored tenders"}
+            </span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {report.knowledge_compare.summary}
+          </p>
+          <div className="mt-3 space-y-2">
+            {report.knowledge_compare.matches.map((row) => (
+              <div key={row.proposal_id} className="rounded-lg border border-border px-3 py-2">
+                <p className="text-sm font-medium">
+                  {row.builder_name} · {row.package_name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatProposalPrice(row.current_price)} vs {row.benchmark_name}{" "}
+                  {row.benchmark_price
+                    ? formatProposalPrice(row.benchmark_price)
+                    : "—"}{" "}
+                  ({row.price_delta_pct > 0 ? "+" : ""}
+                  {row.price_delta_pct}%)
+                </p>
+                <p className="mt-1 text-sm">{row.headline}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {report.proposal_reports.length === 0 ? (
         <p className="text-sm text-muted-foreground">

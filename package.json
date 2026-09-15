@@ -9,6 +9,8 @@
     "lint": "eslint",
     "verify:supabase": "node --env-file=.env.local scripts/verify-supabase.mjs",
     "seed:demo": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-demo-data.ts",
+    "sync:nsw-builders": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/sync-nsw-builders.ts",
+    "sync:nsw-builders:weekly": "node ./node_modules/tsx/dist/cli.mjs scripts/sync-nsw-builders.ts --weekly",
     "seed:buyer-land": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-buyer-owned-land.ts",
     "seed:leads": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/seed-builder-leads.ts",
     "create:admin": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/create-admin-user.ts",

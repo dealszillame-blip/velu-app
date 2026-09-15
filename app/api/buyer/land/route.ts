@@ -14,10 +14,10 @@ const schema = z.object({
   address: z.string().min(5),
   land_size_sqm: z.number().positive(),
   frontage_meters: z.number().positive(),
-  zoning: z.string().min(2).max(10),
+  zoning: z.string().min(2).max(10).optional(),
   land_value: z.number().min(0).optional(),
   build_requirements: buildRequirementsSchema,
-  site_report_keys: z.array(z.string().min(1).max(64)).max(10).optional(),
+  site_report_keys: z.array(z.string().min(1).max(64)).max(12).optional(),
   site_report_notes: z.string().max(1000).optional(),
 });
 
@@ -49,6 +49,8 @@ const LISTING_SELECT_WITH_REPORTS = `
     requested_at,
     created_at,
     updated_at,
+    deliverable_url,
+    provider_notes,
     site_report_definitions (
       key,
       name,
@@ -143,7 +145,7 @@ export async function POST(request: Request) {
       p_postcode: geocoded.postcode.slice(0, 4),
       p_land_size_sqm: body.data.land_size_sqm,
       p_frontage_meters: body.data.frontage_meters,
-      p_zoning: body.data.zoning.toUpperCase(),
+      p_zoning: (body.data.zoning ?? "R2").toUpperCase(),
       p_longitude: geocoded.longitude,
       p_latitude: geocoded.latitude,
       p_land_value: body.data.land_value ?? 0,

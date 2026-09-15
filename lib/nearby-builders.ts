@@ -27,11 +27,20 @@ export type NearbyBuilder = {
   service_radius_km: number;
   profile_published: boolean;
   license_number?: string | null;
+  is_license_valid?: boolean;
+  license_verified_at?: string | null;
+  license_verify_url?: string | null;
   insurance_verified?: boolean;
   years_in_business?: number | null;
+  builder_type?: string | null;
+  last_property_sold_address?: string | null;
+  last_property_sold_at?: string | null;
+  avg_delay_weeks?: number | null;
   notices?: NearbyBuilderNotice[];
   distance_km: number;
   portfolio: NearbyBuilderPortfolioItem[];
+  source?: "onboarded" | "nsw_register";
+  google_maps_url?: string | null;
 };
 
 export function displayNearbyBuilderName(builder: NearbyBuilder): string {

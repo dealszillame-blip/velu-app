@@ -105,5 +105,21 @@ export async function ensureProfile(
     return { role: "builder", created: true };
   }
 
+  if (role === "report_provider") {
+    const { error } = await supabase.from("profiles").insert({
+      id: user.id,
+      role: "report_provider",
+      full_name: meta.full_name,
+      company_name: meta.company_name ?? null,
+      phone_number: meta.phone_number ?? null,
+    });
+    if (error) throw error;
+    await supabase.from("report_provider_profiles").upsert({
+      id: user.id,
+      report_keys: ["soil_report", "site_survey", "third_party_inspection", "bal_report", "acoustic_report", "legal_check"],
+    });
+    return { role: "report_provider", created: true };
+  }
+
   throw new Error("ONBOARDING_INCOMPLETE");
 }

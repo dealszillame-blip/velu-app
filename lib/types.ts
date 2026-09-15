@@ -3,7 +3,8 @@ export type UserRole =
   | "builder"
   | "agent"
   | "admin"
-  | "pending_agent";
+  | "pending_agent"
+  | "report_provider";
 
 export type ListingStatus = "available" | "under_offer" | "sold";
 
@@ -55,6 +56,7 @@ export const ROLE_HOME: Record<UserRole, string> = {
   agent: "/agent/listings",
   admin: "/admin/dashboard",
   pending_agent: "/agent/listings",
+  report_provider: "/provider/reports",
 };
 
 export const MILESTONE_LABELS: Record<ConstructionMilestone, string> = {

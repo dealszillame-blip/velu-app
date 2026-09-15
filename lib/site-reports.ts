@@ -16,7 +16,7 @@ export interface SiteReportDefinition {
 }
 
 export const SITE_REPORTS_MIGRATION_HINT =
-  "Run migration 023_site_report_addons.sql in Supabase.";
+  "Run migrations 023_site_report_addons.sql and 026_sydney_builder_hub.sql in Supabase.";
 
 export const DEFAULT_SITE_REPORT_DEFINITIONS: SiteReportDefinition[] = [
   {
@@ -48,6 +48,42 @@ export const DEFAULT_SITE_REPORT_DEFINITIONS: SiteReportDefinition[] = [
     },
     sort_order: 20,
   },
+  {
+    key: "third_party_inspection",
+    name: "3rd party inspection",
+    description:
+      "Independent inspection of the build at nominated stages (slab, frame, lock-up, completion).",
+    price: null,
+    pricing_rules: { pricing_model: "manual_quote" },
+    sort_order: 30,
+  },
+  {
+    key: "bal_report",
+    name: "BAL report",
+    description:
+      "Bushfire Attack Level assessment for BAL-rated construction and planning conditions.",
+    price: null,
+    pricing_rules: { pricing_model: "manual_quote" },
+    sort_order: 40,
+  },
+  {
+    key: "acoustic_report",
+    name: "Acoustic report",
+    description:
+      "Noise assessment for lots near roads, rail or flight paths, including glazing recommendations.",
+    price: null,
+    pricing_rules: { pricing_model: "manual_quote" },
+    sort_order: 50,
+  },
+  {
+    key: "legal_check",
+    name: "Legal check",
+    description:
+      "Contract and title review of the land and HIA/Master Builders package before you accept.",
+    price: null,
+    pricing_rules: { pricing_model: "manual_quote" },
+    sort_order: 60,
+  },
 ];
 
 export function isSiteReportsSchemaError(message: string) {
@@ -75,6 +111,9 @@ export interface BuyerSiteReportRequest {
   status: SiteReportRequestStatus;
   buyer_notes: string | null;
   quoted_price: number | null;
+  assigned_provider_id?: string | null;
+  deliverable_url?: string | null;
+  provider_notes?: string | null;
   requested_at: string;
   created_at: string;
   updated_at: string;

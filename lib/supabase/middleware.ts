@@ -8,6 +8,7 @@ const ROLE_HOME: Record<string, string> = {
   agent: "/agent/listings",
   admin: "/admin/dashboard",
   pending_agent: "/agent/listings",
+  report_provider: "/provider/reports",
 };
 
 /** Public routes that share a prefix with a protected app area (e.g. /builders vs /builder). */
@@ -29,7 +30,8 @@ function isProtectedPath(path: string): boolean {
     path.startsWith("/builder/") ||
     path.startsWith("/buyer") ||
     path.startsWith("/agent") ||
-    path.startsWith("/admin")
+    path.startsWith("/admin") ||
+    path.startsWith("/provider")
   );
 }
 
@@ -125,7 +127,12 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (role && isProtected) {
-      const expectedPrefix = `/${role === "pending_agent" ? "agent" : role}`;
+      const expectedPrefix =
+        role === "pending_agent"
+          ? "/agent"
+          : role === "report_provider"
+            ? "/provider"
+            : `/${role}`;
       if (!path.startsWith(expectedPrefix) && role !== "admin") {
         const url = request.nextUrl.clone();
         url.pathname = ROLE_HOME[role] ?? "/buyer/map";

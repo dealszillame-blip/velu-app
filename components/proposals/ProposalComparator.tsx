@@ -16,6 +16,7 @@ import { TenderAnalysisPanel } from "@/components/buyer/TenderAnalysisPanel";
 import { PublishedPackagesPanel } from "@/components/buyer/PublishedPackagesPanel";
 import { ComingSoonRealEstate } from "@/components/buyer/ComingSoonRealEstate";
 import { AiRecommendationPanel } from "@/components/buyer/AiRecommendationPanel";
+import { CompareMilestonesPanel } from "@/components/buyer/CompareMilestonesPanel";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
@@ -46,6 +47,7 @@ const COMPARE_TABS = [
   { value: "compare", label: "Compare" },
   { value: "recommend", label: "Recommend" },
   { value: "analysis", label: "Tender report" },
+  { value: "milestones", label: "Milestones" },
   { value: "packages", label: "Published designs" },
   { value: "estates", label: "Upcoming" },
 ] as const;
@@ -510,6 +512,8 @@ export function ProposalComparator() {
           />
         ) : tab === "analysis" ? (
           <TenderAnalysisPanel />
+        ) : tab === "milestones" ? (
+          <CompareMilestonesPanel />
         ) : tab === "packages" ? (
           <PublishedPackagesPanel />
         ) : (
@@ -543,6 +547,8 @@ export function ProposalComparator() {
         />
       ) : tab === "analysis" ? (
         <TenderAnalysisPanel />
+      ) : tab === "milestones" ? (
+        <CompareMilestonesPanel />
       ) : tab === "packages" ? (
         <PublishedPackagesPanel />
       ) : tab === "estates" ? (

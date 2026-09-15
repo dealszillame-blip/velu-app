@@ -15,17 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   defaultBuildRequirements,
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
-import { ZONING_OPTIONS } from "@/lib/map/config";
 import {
   DEFAULT_SITE_REPORT_DEFINITIONS,
   type SiteReportDefinition,
@@ -40,7 +32,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [address, setAddress] = useState("");
   const [landSize, setLandSize] = useState("");
   const [frontage, setFrontage] = useState("");
-  const [zoning, setZoning] = useState("R2");
   const [landValue, setLandValue] = useState("");
   const [buildRequirements, setBuildRequirements] =
     useState<BuyerBuildRequirements>(defaultBuildRequirements());
@@ -122,7 +113,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
         address,
         land_size_sqm: Number(landSize),
         frontage_meters: Number(frontage),
-        zoning,
         land_value: landValue ? Number(landValue) : undefined,
         build_requirements: {
           ...buildRequirements,
@@ -206,22 +196,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
                 value={frontage}
                 onChange={(e) => setFrontage(e.target.value)}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="owned-zoning">Zoning</Label>
-              <Select value={zoning} onValueChange={(v) => v && setZoning(v)}>
-                <SelectTrigger id="owned-zoning" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ZONING_OPTIONS.map((z) => (
-                    <SelectItem key={z} value={z}>
-                      {z}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">

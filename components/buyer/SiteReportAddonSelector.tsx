@@ -40,8 +40,8 @@ export function SiteReportAddonSelector({
       <div className="mb-4">
         <p className="mb-1 text-sm font-medium">Add-on Services</p>
         <p className="text-sm text-muted-foreground">
-          Optionally request paid site reports for this land. Pricing will be
-          provided after your request, and our team will follow up with a quote.
+          Request soil, survey, BAL, acoustic, legal check or a 3rd party
+          inspection. Providers quote and deliver through their portal.
         </p>
       </div>
 

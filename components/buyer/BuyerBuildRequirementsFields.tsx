@@ -15,7 +15,9 @@ import {
   GRANNY_FLAT_OPTIONS,
   HOUSE_TYPE_OPTIONS,
   STOREY_OPTIONS,
+  CONSTRUCTION_GRADE_OPTIONS,
 } from "@/lib/buyer-requirements";
+import { BUILDER_TYPE_OPTIONS } from "@/lib/builder-types";
 
 type BuyerBuildRequirementsFieldsProps = {
   value: BuyerBuildRequirements;
@@ -101,6 +103,65 @@ export function BuyerBuildRequirementsFields({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-grade`}>Construction type</Label>
+          <Select
+            value={value.construction_grade ?? "medium"}
+            onValueChange={(v) =>
+              v &&
+              patch({
+                construction_grade: v as BuyerBuildRequirements["construction_grade"],
+              })
+            }
+          >
+            <SelectTrigger id={`${idPrefix}-grade`} className="w-full">
+              <SelectValue placeholder="Select construction type" />
+            </SelectTrigger>
+            <SelectContent>
+              {CONSTRUCTION_GRADE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2 sm:col-span-2">
+          <Label>Builder types</Label>
+          <p className="text-xs text-muted-foreground">
+            Choose who should quote: bulk, semi-custom, custom, or designers.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {BUILDER_TYPE_OPTIONS.map((opt) => {
+              const selected = (value.preferred_builder_types ?? []).includes(
+                opt.value
+              );
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    const current = value.preferred_builder_types ?? [];
+                    patch({
+                      preferred_builder_types: selected
+                        ? current.filter((item) => item !== opt.value)
+                        : [...current, opt.value],
+                    });
+                  }}
+                  className={
+                    selected
+                      ? "rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+                      : "rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground"
+                  }
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="space-y-2">

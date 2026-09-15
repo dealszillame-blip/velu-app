@@ -85,6 +85,31 @@ curl -X POST http://localhost:3000/api/sync/domain \
   -H "Authorization: Bearer YOUR_DOMAIN_SYNC_SECRET"
 ```
 
+## NSW builder directory — weekly licence + Google review update
+
+Nearby builders come from the **NSW Fair Trading public register**, not onboarded Velu accounts.
+
+1. In **Supabase SQL Editor**, run `migrations/mvp/027_nsw_builder_directory.sql` (SQL only — do not paste npm commands there).
+2. Load the list from **Admin → Data → Import Sydney snapshot**, or in a terminal:
+
+```bash
+npm run sync:nsw-builders
+```
+
+A Sunday job then keeps licences and Google ratings current:
+
+```bash
+npm run sync:nsw-builders:weekly
+```
+
+Or via API (Vercel Cron is configured in `vercel.json` for Sunday 20:00 UTC):
+
+```bash
+curl http://localhost:3000/api/sync/builders \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+Set `CRON_SECRET` or `BUILDER_SYNC_SECRET`, plus `GOOGLE_PLACES_API_KEY`. The GitHub Action `.github/workflows/weekly-builder-sync.yml` runs the larger weekly batch — add the same values as repo secrets.
 
 Sign up as buyer, builder, and agent — each role lands on their dashboard:
 
@@ -150,6 +175,8 @@ Register a Supabase **Database Webhook** on `land_listings` UPDATE → `POST /ap
 ## Scripts
 
 ```bash
-npm run verify:supabase  # check Supabase connection
-npm run sync:domain      # pull listings from Domain API
+npm run verify:supabase          # check Supabase connection
+npm run sync:domain              # pull listings from Domain API
+npm run sync:nsw-builders        # import Sydney licence snapshot
+npm run sync:nsw-builders:weekly # recheck licences + Google reviews
 ```

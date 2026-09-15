@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
+  constructionGradeLabel,
   ensuiteLabel,
   formatBuildRequirementsSummary,
   formatSettlementDate,
@@ -17,6 +18,7 @@ import {
   houseTypeLabel,
   storeyLabel,
 } from "@/lib/buyer-requirements";
+import { builderTypeLabel } from "@/lib/builder-types";
 
 type BuyerRequirementsSummaryProps = {
   requirements: BuyerBuildRequirements;
@@ -80,6 +82,30 @@ export function BuyerRequirementsSummary({
           <div>
             <p className="label-caps mb-1">Settlement</p>
             <p className="text-sm font-medium">{settlement}</p>
+          </div>
+        </div>
+      ) : null}
+      {requirements.construction_grade ? (
+        <div className="surface-subtle flex items-start gap-3 p-4">
+          <Home className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <div>
+            <p className="label-caps mb-1">Construction type</p>
+            <p className="text-sm font-medium">
+              {constructionGradeLabel(requirements.construction_grade)}
+            </p>
+          </div>
+        </div>
+      ) : null}
+      {requirements.preferred_builder_types?.length ? (
+        <div className="surface-subtle flex items-start gap-3 p-4">
+          <Home className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <div>
+            <p className="label-caps mb-1">Builder types</p>
+            <p className="text-sm font-medium">
+              {requirements.preferred_builder_types
+                .map((type) => builderTypeLabel(type))
+                .join(" · ")}
+            </p>
           </div>
         </div>
       ) : null}

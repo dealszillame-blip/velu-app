@@ -51,7 +51,8 @@ function includedItems(proposal: ProposalRow): InclusionItem[] {
 
 export function analyseTender(
   proposals: ProposalRow[],
-  requirements: BuyerBuildRequirements | null
+  requirements: BuyerBuildRequirements | null,
+  requestedReports: string[] = []
 ): TenderAnalysisReport {
   const proposalReports = proposals.map((proposal) => {
     const findings: TenderFinding[] = [];
@@ -179,7 +180,14 @@ export function analyseTender(
   if (proposals.length < 2) {
     overall.push("Get at least two comparable packages before accepting.");
   }
-  overall.push("Commission a soil report and site survey before locking a slab price.");
+  overall.push("Commission a soil report, site survey and legal check before locking a slab price.");
+  overall.push("Add a BAL report if the lot is bushfire-mapped, and an acoustic report if it sits near a road or rail line.");
+  if (!requestedReports.includes("legal_check")) {
+    overall.push("Request a legal check on My land before you accept a package.");
+  }
+  if (!requestedReports.includes("third_party_inspection")) {
+    overall.push("Book a 3rd party inspection at slab and lock-up so the builder is independently checked.");
+  }
   if (gapCount > 0) {
     overall.push("Send the recommended updates back to builders as a written variation list.");
   }
