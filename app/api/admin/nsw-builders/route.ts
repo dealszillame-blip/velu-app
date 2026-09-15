@@ -23,7 +23,7 @@ function directoryError(message: string) {
   return NextResponse.json(
     {
       error: message.includes("nsw_licensed_builders")
-        ? "Run migration 027_nsw_builder_directory.sql in Supabase."
+        ? "Run migrations/mvp/027_nsw_builder_directory.sql in the Supabase SQL Editor (paste the SQL file, not npm run …). Then click Import Sydney snapshot."
         : message,
     },
     { status: 500 }

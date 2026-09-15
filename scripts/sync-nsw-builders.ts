@@ -2,6 +2,8 @@
  * Load the Verify NSW Greater Sydney builder snapshot, or run the weekly
  * licence + Google review update.
  *
+ * These commands belong in a terminal (or Admin → Data), not the Supabase SQL Editor.
+ *
  * Usage:
  *   npm run sync:nsw-builders
  *   npm run sync:nsw-builders:weekly

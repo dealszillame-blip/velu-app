@@ -87,7 +87,16 @@ curl -X POST http://localhost:3000/api/sync/domain \
 
 ## NSW builder directory — weekly licence + Google review update
 
-Nearby builders come from the **NSW Fair Trading public register**, not onboarded Velu accounts. After migration `027_nsw_builder_directory.sql` and `npm run sync:nsw-builders`, a Sunday job keeps licences and Google ratings current.
+Nearby builders come from the **NSW Fair Trading public register**, not onboarded Velu accounts.
+
+1. In **Supabase SQL Editor**, run `migrations/mvp/027_nsw_builder_directory.sql` (SQL only — do not paste npm commands there).
+2. Load the list from **Admin → Data → Import Sydney snapshot**, or in a terminal:
+
+```bash
+npm run sync:nsw-builders
+```
+
+A Sunday job then keeps licences and Google ratings current:
 
 ```bash
 npm run sync:nsw-builders:weekly

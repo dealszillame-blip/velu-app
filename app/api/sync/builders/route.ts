@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: message.includes("nsw_licensed_builders")
-          ? "Run migration 027_nsw_builder_directory.sql in Supabase."
+          ? "Run migrations/mvp/027_nsw_builder_directory.sql in the Supabase SQL Editor (SQL file only, not npm run …)."
           : message,
       },
       { status: 500 }

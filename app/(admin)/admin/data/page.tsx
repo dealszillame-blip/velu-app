@@ -120,6 +120,12 @@ export default function AdminDataPage() {
           Google Places is {googleReady ? "configured" : "not configured — add GOOGLE_PLACES_API_KEY"}.
         </p>
         <p className="text-sm text-muted-foreground">
+          First run <code>027_nsw_builder_directory.sql</code> in the Supabase
+          SQL Editor, then use these buttons. Do not paste{" "}
+          <code>npm run sync:nsw-builders</code> into SQL — that belongs in a
+          terminal, or click <strong>Import Sydney snapshot</strong> here.
+        </p>
+        <p className="text-sm text-muted-foreground">
           A Sunday job rechecks licences on Verify NSW and refreshes Google
           reviews (Vercel Cron at 20:00 UTC plus GitHub Action). Nearby only
           shows licences still marked Current.

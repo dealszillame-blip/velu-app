@@ -19,10 +19,12 @@ A snapshot of **10,193** current Greater Sydney contractor-builder licences is s
 
 ### Load into Supabase
 
-1. Run `migrations/mvp/027_nsw_builder_directory.sql`
-2. Either:
+1. In the **Supabase SQL Editor**, paste and run `migrations/mvp/027_nsw_builder_directory.sql` (SQL only).
+2. Then load the licence rows — **not** in the SQL Editor:
    - Admin → **Data** → **Import Sydney snapshot**, or
-   - `npm run sync:nsw-builders`
+   - in a terminal: `npm run sync:nsw-builders`
+
+Do not paste `npm run …` into SQL Editor. That command is not SQL.
 
 Live refresh (Admin → Refresh from Verify NSW) re-queries the public register for common builder/suburb terms. The register caps each query at 200 rows, so the snapshot is the complete Sydney set.
 

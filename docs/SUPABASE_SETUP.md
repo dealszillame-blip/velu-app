@@ -74,11 +74,30 @@ copy .env.example .env.local
 | 24 | `024_buyer_hub_expansion.sql` | Architects, nearby builders, published packages |
 | 25 | `025_demo_comparison_proposals.sql` | Demo comparison packages |
 | 26 | `026_sydney_builder_hub.sql` | **Required** — verified builder criteria, extra add-ons, report-provider portal, tender knowledge base |
-| 27 | `027_nsw_builder_directory.sql` | **Required** — NSW Fair Trading licensed-builder directory (not onboarded users). Then `npm run sync:nsw-builders`. Weekly licence + Google review refresh: `npm run sync:nsw-builders:weekly` (or Vercel Cron / GitHub Action) |
+| 27 | `027_nsw_builder_directory.sql` | **Required** — creates the NSW Fair Trading licensed-builder **table**. SQL only — do not paste npm commands into this editor. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
-Each query should return **Success. No rows returned**.
+Each SQL file should return **Success. No rows returned**.
+
+### After 027 — load the builder list (not SQL)
+
+`npm run sync:nsw-builders` is a **terminal** command. Pasting it into the SQL Editor causes:
+
+`ERROR: 42601: syntax error at or near "npm"`
+
+That error is harmless. Do this instead:
+
+1. In **SQL Editor**, paste and run the full contents of `migrations/mvp/027_nsw_builder_directory.sql` (the `CREATE TABLE` file). Wait for success.
+2. Load the ~10,193 Sydney licences with **one** of:
+   - In the app: **Admin → Data → Import Sydney snapshot**
+   - In a terminal, from the project folder (needs `.env.local` with the service role key):
+
+```bash
+npm run sync:nsw-builders
+```
+
+Weekly licence + Google review refresh is also not SQL: use Admin → **Run weekly update now**, or in a terminal `npm run sync:nsw-builders:weekly`.
 
 ### Verify tables exist
 

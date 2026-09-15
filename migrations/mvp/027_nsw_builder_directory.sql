@@ -1,5 +1,13 @@
 -- Licensed NSW builders from the public Fair Trading / Verify NSW register.
 -- These are directory records, not Velu user accounts.
+--
+-- Run ONLY this file in the Supabase SQL Editor.
+-- Do not paste "npm run sync:nsw-builders" here — that is a terminal command
+-- and will error with: syntax error at or near "npm".
+-- After this migration succeeds, load the licence list from the app:
+--   Admin → Data → Import Sydney snapshot
+-- or from a terminal in the project folder:
+--   npm run sync:nsw-builders
 
 CREATE TABLE IF NOT EXISTS public.nsw_licensed_builders (
   id                         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
