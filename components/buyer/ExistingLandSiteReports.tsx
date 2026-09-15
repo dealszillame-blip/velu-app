@@ -143,8 +143,19 @@ export function ExistingLandSiteReports({
                   <div>
                     <p className="text-sm font-medium">{report.report_name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Pricing to be provided after review.
+                      {report.provider_notes ||
+                        "Pricing to be provided after review."}
                     </p>
+                    {report.deliverable_url ? (
+                      <a
+                        href={report.deliverable_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 inline-block text-xs font-medium underline-offset-2 hover:underline"
+                      >
+                        Open delivered report
+                      </a>
+                    ) : null}
                   </div>
                   <Badge
                     variant="outline"

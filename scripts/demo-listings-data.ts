@@ -294,11 +294,16 @@ export const DEMO_LISTINGS: DemoListing[] = [
 export type DemoUser = {
   email: string;
   password: string;
-  role: "buyer" | "builder";
+  role: "buyer" | "builder" | "report_provider";
   fullName: string;
   companyName?: string;
   phone?: string;
   licenseNumber?: string;
+  builderType?: "bulk" | "semi_custom" | "custom" | "designer";
+  googleRating?: number;
+  googleReviewCount?: number;
+  lastSoldAddress?: string;
+  reportKeys?: string[];
   anchorAddress: string;
   anchorLng: number;
   anchorLat: number;
@@ -336,6 +341,9 @@ export const DEMO_USERS: DemoUser[] = [
     companyName: "Apex Homes Pty Ltd",
     phone: "0434 567 890",
     licenseNumber: "NSW-BLD-28491",
+    builderType: "bulk",
+    googleRating: 4.6,
+    googleReviewCount: 54,
     anchorAddress: "Campbelltown NSW 2560",
     anchorLng: 150.8139,
     anchorLat: -34.0669,
@@ -349,6 +357,9 @@ export const DEMO_USERS: DemoUser[] = [
     companyName: "Meridian Building Co",
     phone: "0445 678 901",
     licenseNumber: "NSW-BLD-31756",
+    builderType: "custom",
+    googleRating: 4.8,
+    googleReviewCount: 61,
     anchorAddress: "Liverpool NSW 2170",
     anchorLng: 150.9256,
     anchorLat: -33.9249,
@@ -362,10 +373,57 @@ export const DEMO_USERS: DemoUser[] = [
     companyName: "SouthWest Living",
     phone: "0456 789 012",
     licenseNumber: "NSW-BLD-40283",
+    builderType: "semi_custom",
+    googleRating: 4.5,
+    googleReviewCount: 38,
+    lastSoldAddress: "11 Moore St, Liverpool",
     anchorAddress: "Camden NSW 2570",
     anchorLng: 150.6969,
     anchorLat: -34.0544,
     serviceRadiusKm: 35,
+  },
+  {
+    email: "demo.dhursan@velu.dev",
+    password: "VeluDemo123!",
+    role: "builder",
+    fullName: "Dhursan Homes",
+    companyName: "Dhursan Homes Pty Ltd",
+    phone: "0246663803",
+    licenseNumber: "369795C",
+    builderType: "bulk",
+    googleRating: 5,
+    googleReviewCount: 85,
+    lastSoldAddress: "Lot 2209 Brabham Precinct, Oran Park",
+    anchorAddress: "Suite 106, 3 Fordham Way, Oran Park NSW 2570",
+    anchorLng: 150.7442,
+    anchorLat: -34.0051,
+    serviceRadiusKm: 45,
+  },
+  {
+    email: "demo.soil@velu.dev",
+    password: "VeluDemo123!",
+    role: "report_provider",
+    fullName: "SW Soil & BAL",
+    companyName: "South West Geotech",
+    phone: "0290001111",
+    reportKeys: ["soil_report", "bal_report", "legal_check"],
+    anchorAddress: "Campbelltown NSW 2560",
+    anchorLng: 150.8139,
+    anchorLat: -34.0669,
+    serviceRadiusKm: 40,
+  },
+  {
+    email: "demo.survey@velu.dev",
+    password: "VeluDemo123!",
+    role: "report_provider",
+    fullName: "Metro Survey & Acoustic",
+    companyName: "Metro Site Services",
+    phone: "0290002222",
+    reportKeys: ["site_survey", "acoustic_report", "third_party_inspection"],
+    anchorAddress: "Liverpool NSW 2170",
+    anchorLng: 150.9256,
+    anchorLat: -33.9249,
+    serviceRadiusKm: 40,
   },
 ];
 
@@ -542,6 +600,39 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
     "demo.builder3@velu.dev",
     "family_five_premium"
   ),
+  {
+    landKey: "sam-oran-park",
+    builderEmail: "demo.dhursan@velu.dev",
+    packageName: "Dhursan Oran Park Dual Living",
+    basePrice: 529_000,
+    estimatedBuildWeeks: 30,
+    inclusions: "5-bed single storey, granny flat, stone, ducted AC, double garage",
+    notes:
+      "Local Oran Park builder. NSW contractor licences 369795C and 341107C. Verify on Fair Trading before you sign.",
+    status: "pending",
+    homeSpecs: {
+      bedrooms: 5,
+      bathrooms: 3,
+      car_spaces: 2,
+      living_area_sqm: 238,
+      storeys: 1,
+    },
+    priceBreakdown: [
+      { category: "site", label: "Site costs & connections", amount: 44000 },
+      { category: "base", label: "Base build to lock-up", amount: 286000 },
+      { category: "kitchen", label: "Kitchen package", amount: 32000 },
+      { category: "bathroom", label: "Bathroom + ensuite", amount: 36000 },
+      { category: "electrical", label: "Electrical & ducted AC", amount: 26000 },
+      { category: "external", label: "Granny flat", amount: 68000 },
+      { category: "contingency", label: "Contingency allowance", amount: 37000 },
+    ],
+    inclusionItems: [
+      { category: "kitchen", item: "Stone benchtops", detail: "40mm engineered stone", included: true },
+      { category: "electrical", item: "Ducted air conditioning", detail: "2 zones", included: true },
+      { category: "external", item: "Granny flat / studio", detail: "Self-contained rear studio", included: true },
+      { category: "warranty", item: "Structural warranty", detail: "6 years", included: true },
+    ],
+  },
   ownedProposalFromTemplate(
     "alex-mount-annan",
     "demo.builder@velu.dev",

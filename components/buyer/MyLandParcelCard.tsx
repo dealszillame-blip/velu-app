@@ -44,8 +44,7 @@ export function MyLandParcelCard({
               {parcel.address}
             </CardTitle>
             <CardDescription>
-              {parcel.suburb} {parcel.postcode} · {parcel.land_size_sqm}m² ·{" "}
-              {parcel.zoning}
+              {parcel.suburb} {parcel.postcode} · {parcel.land_size_sqm}m²
             </CardDescription>
           </div>
           <Badge variant="outline" className="rounded-full gap-1">

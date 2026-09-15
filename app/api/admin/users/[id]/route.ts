@@ -5,7 +5,7 @@ import { requireAdminApi } from "@/lib/admin/guard";
 export const dynamic = "force-dynamic";
 
 const patchSchema = z.object({
-  role: z.enum(["buyer", "builder", "agent", "admin", "pending_agent"]),
+  role: z.enum(["buyer", "builder", "agent", "admin", "pending_agent", "report_provider"]),
   full_name: z.string().min(2).optional(),
   phone_number: z.string().nullable().optional(),
   company_name: z.string().nullable().optional(),

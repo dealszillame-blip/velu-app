@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { builderTypeLabel } from "@/lib/builder-types";
 
 export const STOREY_OPTIONS = [
   { value: "ground_only", label: "Ground floor only" },
@@ -36,6 +37,14 @@ export const ENSUITE_OPTIONS = [
 
 export type EnsuitePreference = (typeof ENSUITE_OPTIONS)[number]["value"];
 
+export const CONSTRUCTION_GRADE_OPTIONS = [
+  { value: "ground", label: "Ground" },
+  { value: "medium", label: "Medium" },
+  { value: "luxury", label: "Luxury" },
+] as const;
+
+export type ConstructionGrade = (typeof CONSTRUCTION_GRADE_OPTIONS)[number]["value"];
+
 export interface BuyerBuildRequirements {
   storeys: StoreyPreference;
   house_type?: HouseTypePreference;
@@ -45,6 +54,8 @@ export interface BuyerBuildRequirements {
   car_spaces?: number;
   living_rooms?: number;
   ensuite?: EnsuitePreference;
+  construction_grade?: ConstructionGrade;
+  preferred_builder_types?: string[];
   settlement_date?: string;
   land_size_sqm?: number;
   frontage_meters?: number;
@@ -64,6 +75,8 @@ export const defaultBuildRequirements = (): BuyerBuildRequirements => ({
   car_spaces: 2,
   living_rooms: 2,
   ensuite: "not_sure",
+  construction_grade: "medium",
+  preferred_builder_types: [],
   settlement_date: "",
   additional_notes: "",
 });
@@ -91,6 +104,11 @@ export const buildRequirementsSchema = z.object({
   car_spaces: z.number().int().min(0).max(10).optional(),
   living_rooms: z.number().int().min(1).max(8).optional(),
   ensuite: z.enum(["yes", "no", "not_sure"]).optional(),
+  construction_grade: z.enum(["ground", "medium", "luxury"]).optional(),
+  preferred_builder_types: z
+    .array(z.enum(["bulk", "semi_custom", "custom", "designer"]))
+    .max(4)
+    .optional(),
   settlement_date: z.string().max(32).optional(),
   land_size_sqm: optionalPositive,
   frontage_meters: optionalPositive,
@@ -130,6 +148,11 @@ export function ensuiteLabel(value?: EnsuitePreference): string {
   return ENSUITE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
+export function constructionGradeLabel(value?: ConstructionGrade): string {
+  if (!value) return "Not sure yet";
+  return CONSTRUCTION_GRADE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
 export function formatSettlementDate(value?: string): string | null {
   if (!value) return null;
   const date = new Date(value);
@@ -151,6 +174,14 @@ export function formatBuildRequirementsSummary(
     `${req.bedrooms} bed`,
     `${req.bathrooms} bath`,
   ];
+  if (req.construction_grade) {
+    parts.push(constructionGradeLabel(req.construction_grade));
+  }
+  if (req.preferred_builder_types?.length) {
+    parts.push(
+      req.preferred_builder_types.map((type) => builderTypeLabel(type)).join(" / ")
+    );
+  }
   if (req.car_spaces != null && req.car_spaces > 0) {
     parts.push(`${req.car_spaces} car`);
   }

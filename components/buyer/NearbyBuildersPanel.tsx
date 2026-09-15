@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ExternalLink, MapPin, Users } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ExternalLink, Home, MapPin, ShieldCheck, Star, Timer, Users } from "lucide-react";
 import { StartInquiryButton } from "@/components/messages/StartInquiryButton";
 import { StarRating } from "@/components/builder/StarRating";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +21,45 @@ import {
   inviteToReviewPrefill,
   type NearbyBuilder,
 } from "@/lib/nearby-builders";
+import { builderTypeLabel } from "@/lib/builder-types";
 import { cn } from "@/lib/utils";
 
 type NearbyBuildersPanelProps = {
   parcel: BuyerOwnedLand;
 };
+
+function CriteriaRow({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+      <p className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {icon}
+        {label}
+      </p>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm font-medium text-foreground underline-offset-2 hover:underline"
+        >
+          {value}
+        </a>
+      ) : (
+        <p className="text-sm font-medium">{value}</p>
+      )}
+    </div>
+  );
+}
 
 function NearbyBuilderCard({
   builder,
@@ -71,9 +105,67 @@ function NearbyBuilderCard({
                     {builder.anchor_address}
                   </span>
                 )}
+              {builder.builder_type ? (
+                <Badge variant="outline" className="rounded-full text-[10px]">
+                  {builderTypeLabel(builder.builder_type)}
+                </Badge>
+              ) : null}
+              {builder.distance_km != null ? (
                 <Badge variant="outline" className="rounded-full text-[10px]">
                   {builder.distance_km} km away
                 </Badge>
+              ) : null}
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <CriteriaRow
+                  icon={<Star className="h-3.5 w-3.5" />}
+                  label="Google review"
+                  value={
+                    builder.google_rating != null
+                      ? `${builder.google_rating.toFixed(1)}${
+                          builder.google_review_count
+                            ? ` (${builder.google_review_count})`
+                            : ""
+                        }`
+                      : "Not listed"
+                  }
+                />
+                <CriteriaRow
+                  icon={<ShieldCheck className="h-3.5 w-3.5" />}
+                  label="Licence check"
+                  value={
+                    builder.is_license_valid
+                      ? `Verified${builder.license_number ? ` · ${builder.license_number}` : ""}`
+                      : builder.license_number
+                        ? builder.license_number
+                        : "Not verified"
+                  }
+                  href={builder.license_verify_url ?? undefined}
+                />
+                <CriteriaRow
+                  icon={<Home className="h-3.5 w-3.5" />}
+                  label="Last property sold"
+                  value={
+                    builder.last_property_sold_address
+                      ? `${builder.last_property_sold_address}${
+                          builder.last_property_sold_at
+                            ? ` · ${new Date(builder.last_property_sold_at).toLocaleDateString("en-AU", { month: "short", year: "numeric" })}`
+                            : ""
+                        }`
+                      : "Not listed"
+                  }
+                />
+                <CriteriaRow
+                  icon={<Timer className="h-3.5 w-3.5" />}
+                  label="Project delays"
+                  value={
+                    builder.avg_delay_weeks == null
+                      ? "No delay record"
+                      : builder.avg_delay_weeks === 0
+                        ? "No recorded delays"
+                        : `${builder.avg_delay_weeks} weeks average`
+                  }
+                />
               </div>
               {builder.google_rating != null && (
                 <div className="mt-2 flex items-center gap-2 text-sm">
@@ -246,8 +338,8 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         {builders.length} builder{builders.length === 1 ? "" : "s"} service{" "}
-        {parcel.suburb} and surrounding areas. Review portfolios and invite
-        them to look at your block.
+        {parcel.suburb}. Minimum criteria: Google review, NSW licence check,
+        last property sold, and project delays.
       </p>
       {builders.map((builder) => (
         <NearbyBuilderCard key={builder.id} builder={builder} parcel={parcel} />

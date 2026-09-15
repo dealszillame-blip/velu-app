@@ -19,6 +19,8 @@ type SiteReportRequestRow = {
   requested_at: string;
   created_at: string;
   updated_at: string;
+  deliverable_url?: string | null;
+  provider_notes?: string | null;
   site_report_definitions:
     | (SiteReportDefinition & { is_active?: boolean })
     | (SiteReportDefinition & { is_active?: boolean })[]
@@ -49,6 +51,8 @@ export function mapSiteReportRequests(
         requested_at: request.requested_at,
         created_at: request.created_at,
         updated_at: request.updated_at,
+        deliverable_url: request.deliverable_url ?? null,
+        provider_notes: request.provider_notes ?? null,
       };
     })
     .sort((a, b) => a.report_name.localeCompare(b.report_name));

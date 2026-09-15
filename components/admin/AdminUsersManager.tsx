@@ -17,7 +17,7 @@ type AdminUser = {
   has_profile?: boolean;
 };
 
-const ROLES = ["all", "buyer", "builder", "agent", "pending_agent", "admin"] as const;
+const ROLES = ["all", "buyer", "builder", "agent", "pending_agent", "admin", "report_provider"] as const;
 
 export function AdminUsersManager() {
   const router = useRouter();

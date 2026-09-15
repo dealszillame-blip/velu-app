@@ -69,6 +69,11 @@ copy .env.example .env.local
 | 19 | `019_buyer_build_requirements.sql` | **Required for My land** — `buyer_profiles` table |
 | 20 | `020_nearby_builders_for_buyer.sql` | **Required for Builders in area tab** on My land |
 | 21 | `021_builder_prelaunch_and_admin.sql` | Builder pre-launch interest form table |
+| 22 | `022_admin_auth_users.sql` | Admin user listing helper |
+| 23 | `023_site_report_addons.sql` | Soil report + site survey add-ons |
+| 24 | `024_buyer_hub_expansion.sql` | Architects, nearby builders, published packages |
+| 25 | `025_demo_comparison_proposals.sql` | Demo comparison packages |
+| 26 | `026_sydney_builder_hub.sql` | **Required** — verified builder criteria, Dhursan Sydney record, extra add-ons (inspection, BAL, acoustic, legal), report-provider portal, tender knowledge base |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 

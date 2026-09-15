@@ -202,6 +202,7 @@ export function AdminUserEditor({ userId }: AdminUserEditorProps) {
                 <option value="agent">agent</option>
                 <option value="pending_agent">pending_agent</option>
                 <option value="admin">admin</option>
+                <option value="report_provider">report_provider</option>
               </select>
             </div>
             {(form.role === "agent" || form.role === "pending_agent") && (
