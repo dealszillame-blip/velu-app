@@ -2,6 +2,8 @@
 
 Living blueprint of [velu-app](https://github.com/dealszillame-blip/velu-app) as shipped on `main`. Production: [velu-app-sigma.vercel.app](https://velu-app-sigma.vercel.app).
 
+**What each role can do:** [FEATURES.md](./FEATURES.md).
+
 Velu is a vacant-land marketplace for South West Sydney. Buyers register or buy a block, licensed builders send packages, and the buyer compares, gets a ranked recommendation, and accepts one builder. Agents list land. Admins operate the platform.
 
 ---
@@ -416,4 +418,4 @@ Schema is **not** applied by Vercel. Run `migrations/mvp/` in the Supabase SQL e
 | An API route | API map |
 | A third-party | System context |
 
-Source of truth for behaviour is the code on `main`. This file is the map.
+Source of truth for behaviour is the code on `main`. This file is the map. For a role-by-role list of actions (including what the UI shows but does not do), see [FEATURES.md](./FEATURES.md).

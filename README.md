@@ -6,6 +6,8 @@ Built from `Velu_MVP_PRD_v2.md` (Week 1 foundation).
 
 **Architecture blueprint:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — roles, sitemap, journeys, data model, and APIs.
 
+**Feature blueprint:** [docs/FEATURES.md](docs/FEATURES.md) — what buyers, builders, agents, admins, and guests can do today.
+
 ## Stack
 
 - **Next.js 16** (App Router) + TypeScript + Tailwind + shadcn/ui
