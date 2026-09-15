@@ -14,7 +14,7 @@ const NAV = [
   { href: "/admin/inquiries", label: "Inquiries" },
   { href: "/admin/proposals", label: "Proposals" },
   { href: "/admin/settings", label: "Settings" },
-  { href: "/admin/data", label: "LLM data" },
+  { href: "/admin/data", label: "Data" },
 ];
 
 export function AdminNav() {

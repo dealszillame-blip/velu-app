@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { licensedToNearby, type LicensedBuilderRow } from "@/lib/licensed-builders";
 import type { NearbyBuilder } from "@/lib/nearby-builders";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,16 +28,35 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data, error } = await supabase.rpc("get_public_builders_near_listing", {
-    p_listing_id: listingId,
-  });
+  const [{ data: onboarded, error: onboardedError }, { data: licensed, error: licensedError }] =
+    await Promise.all([
+      supabase.rpc("get_public_builders_near_listing", {
+        p_listing_id: listingId,
+      }),
+      supabase.rpc("get_licensed_builders_near_listing", {
+        p_listing_id: listingId,
+        p_radius_km: 40,
+        p_limit: 20,
+      }),
+    ]);
 
-  if (error) {
-    const message = error.message.includes("get_public_builders_near_listing")
+  if (onboardedError) {
+    const message = onboardedError.message.includes("get_public_builders_near_listing")
       ? "Nearby builders lookup is not set up yet. Run migration 020_nearby_builders_for_buyer.sql in Supabase."
-      : error.message;
+      : onboardedError.message;
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  return NextResponse.json((data ?? []) as NearbyBuilder[]);
+  const registerRows = Array.isArray(licensed) ? (licensed as LicensedBuilderRow[]) : [];
+  const registerBuilders = registerRows.map(licensedToNearby);
+
+  const onboardedBuilders = (
+    Array.isArray(onboarded) ? (onboarded as NearbyBuilder[]) : []
+  ).map((builder) => ({ ...builder, source: "onboarded" as const }));
+
+  if (licensedError && registerBuilders.length === 0) {
+    return NextResponse.json(onboardedBuilders);
+  }
+
+  return NextResponse.json([...registerBuilders, ...onboardedBuilders]);
 }

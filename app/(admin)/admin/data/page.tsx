@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LLM_COLLECT_PROMPT } from "@/lib/llm/ingest";
 
@@ -9,6 +9,42 @@ export default function AdminDataPage() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [registerCount, setRegisterCount] = useState<number | null>(null);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [syncing, setSyncing] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/nsw-builders")
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setRegisterCount(data.count ?? 0);
+          setGoogleReady(Boolean(data.google_places_configured));
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
+  async function syncRegister(source: "snapshot" | "live" | "google") {
+    setSyncing(source);
+    setError(null);
+    setResult(null);
+    const res = await fetch("/api/admin/nsw-builders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setSyncing(null);
+    if (!res.ok) {
+      setError(data.error ?? "Register sync failed.");
+      return;
+    }
+    setResult(JSON.stringify(data, null, 2));
+    if (typeof data.upserted === "number") {
+      setRegisterCount(data.unique ?? data.upserted);
+    }
+  }
 
   async function submit() {
     setLoading(true);
@@ -38,12 +74,56 @@ export default function AdminDataPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">LLM data collection</h1>
+        <h1 className="text-2xl font-semibold">Builder data</h1>
         <p className="text-muted-foreground">
-          Use an LLM to collect licence, Google review, last sale and delay
-          facts, then paste the JSON here to update Velu.
+          Load NSW Fair Trading contractor-builder licences for Sydney, then
+          match Google ratings. These are register records, not onboarded Velu
+          accounts.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-border p-4 space-y-3">
+        <p className="text-sm font-medium">NSW public register</p>
+        <p className="text-sm text-muted-foreground">
+          {registerCount == null
+            ? "Checking directory…"
+            : `${registerCount.toLocaleString()} licensed builders in the directory.`}{" "}
+          Google Places is {googleReady ? "configured" : "not configured — add GOOGLE_PLACES_API_KEY"}.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            disabled={Boolean(syncing)}
+            onClick={() => void syncRegister("snapshot")}
+          >
+            {syncing === "snapshot" ? "Importing…" : "Import Sydney snapshot"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={Boolean(syncing)}
+            onClick={() => void syncRegister("live")}
+          >
+            {syncing === "live" ? "Refreshing…" : "Refresh from Verify NSW"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={Boolean(syncing) || !googleReady}
+            onClick={() => void syncRegister("google")}
+          >
+            {syncing === "google" ? "Matching…" : "Match Google reviews"}
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold">LLM ingest</h2>
+        <p className="text-muted-foreground">
+          Use an LLM to collect last-sale and delay facts for a named builder,
+          then paste the JSON here.
         </p>
       </div>
 

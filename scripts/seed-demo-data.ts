@@ -13,6 +13,10 @@ import {
   DEMO_PROPOSALS,
   DEMO_USERS,
 } from "./demo-listings-data";
+import {
+  loadNswBuilderSnapshot,
+  upsertLicensedBuilders,
+} from "../lib/nsw-builders-store";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -336,6 +340,17 @@ async function seedSiteReportRequests(
   }
 }
 
+async function seedNswLicensedBuilders() {
+  try {
+    const builders = loadNswBuilderSnapshot();
+    const written = await upsertLicensedBuilders(supabase, builders);
+    ok(`NSW register directory: ${written} Greater Sydney contractor-builder licences`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    warn(`NSW register directory: ${message}`);
+  }
+}
+
 async function seedListings(buyerId: string): Promise<Map<string, string>> {
   const listingIds = new Map<string, string>();
 
@@ -452,6 +467,7 @@ async function main() {
   await seedProposals(listingIds, userIds, buyerId);
   await seedBuyerOwnedProposals(ownedIds, userIds);
   await seedSiteReportRequests(ownedIds, userIds);
+  await seedNswLicensedBuilders();
 
   console.log("\n── Demo login credentials (password for all: VeluDemo123!) ──\n");
   console.log("  Buyer:    demo.buyer@velu.dev");

@@ -39,6 +39,8 @@ export type NearbyBuilder = {
   notices?: NearbyBuilderNotice[];
   distance_km: number;
   portfolio: NearbyBuilderPortfolioItem[];
+  source?: "onboarded" | "nsw_register";
+  google_maps_url?: string | null;
 };
 
 export function displayNearbyBuilderName(builder: NearbyBuilder): string {

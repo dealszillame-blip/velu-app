@@ -105,16 +105,25 @@ function NearbyBuilderCard({
                     {builder.anchor_address}
                   </span>
                 )}
-              {builder.builder_type ? (
-                <Badge variant="outline" className="rounded-full text-[10px]">
-                  {builderTypeLabel(builder.builder_type)}
-                </Badge>
-              ) : null}
-              {builder.distance_km != null ? (
-                <Badge variant="outline" className="rounded-full text-[10px]">
-                  {builder.distance_km} km away
-                </Badge>
-              ) : null}
+                {builder.builder_type ? (
+                  <Badge variant="outline" className="rounded-full text-[10px]">
+                    {builderTypeLabel(builder.builder_type)}
+                  </Badge>
+                ) : null}
+                {builder.distance_km != null ? (
+                  <Badge variant="outline" className="rounded-full text-[10px]">
+                    {builder.distance_km} km away
+                  </Badge>
+                ) : null}
+                {builder.source === "nsw_register" ? (
+                  <Badge variant="outline" className="rounded-full text-[10px]">
+                    NSW register
+                  </Badge>
+                ) : builder.source === "onboarded" ? (
+                  <Badge variant="outline" className="rounded-full text-[10px]">
+                    On Velu
+                  </Badge>
+                ) : null}
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <CriteriaRow
@@ -129,6 +138,7 @@ function NearbyBuilderCard({
                         }`
                       : "Not listed"
                   }
+                  href={builder.google_maps_url ?? undefined}
                 />
                 <CriteriaRow
                   icon={<ShieldCheck className="h-3.5 w-3.5" />}
@@ -199,7 +209,7 @@ function NearbyBuilderCard({
                 <p className="mt-2 text-xs text-amber-700">
                   {builder.notices![0].title}
                 </p>
-              ) : builder.license_number ? (
+              ) : builder.source === "nsw_register" ? null : builder.license_number ? (
                 <p className="mt-2 text-xs text-muted-foreground">
                   No licence notices on file.
                 </p>
@@ -245,14 +255,27 @@ function NearbyBuilderCard({
               ))}
             </div>
           </div>
-        ) : (
+        ) : builder.source === "nsw_register" ? null : (
           <p className="text-sm text-muted-foreground">
             No portfolio projects listed yet.
           </p>
         )}
 
         <div className="flex flex-wrap gap-2">
-          {builder.profile_published ? (
+          {builder.source === "nsw_register" ? (
+            <a
+              href={builder.license_verify_url ?? "#"}
+              target="_blank"
+              rel="noreferrer"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-full gap-2"
+              )}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Verify NSW licence
+            </a>
+          ) : builder.profile_published ? (
             <Link
               href={`/builders/${builder.id}`}
               target="_blank"
@@ -269,13 +292,29 @@ function NearbyBuilderCard({
               Profile not published yet
             </span>
           )}
-          <StartInquiryButton
-            landListingId={parcel.id}
-            counterpartyId={builder.id}
-            messagesPath="/buyer/messages"
-            label="Invite to review land"
-            prefill={invitePrefill}
-          />
+          {builder.source === "nsw_register" ? (
+            builder.google_maps_url ? (
+              <a
+                href={builder.google_maps_url}
+                target="_blank"
+                rel="noreferrer"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "rounded-full"
+                )}
+              >
+                Google reviews
+              </a>
+            ) : null
+          ) : (
+            <StartInquiryButton
+              landListingId={parcel.id}
+              counterpartyId={builder.id}
+              messagesPath="/buyer/messages"
+              label="Invite to review land"
+              prefill={invitePrefill}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
@@ -288,8 +327,6 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
     fetch(`/api/buyer/land/${parcel.id}/builders`)
       .then(async (res) => {
         const data = await res.json().catch(() => ({}));
@@ -297,6 +334,7 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
           throw new Error(data.error ?? "Failed to load builders.");
         }
         setBuilders(Array.isArray(data) ? data : []);
+        setError(null);
       })
       .catch((err: Error) => {
         setError(err.message);
@@ -325,10 +363,11 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
     return (
       <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
         <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-        <p className="text-sm font-medium">No matched builders yet</p>
+        <p className="text-sm font-medium">No licensed builders in range yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Builders within service range of {parcel.suburb} will appear here once
-          they complete onboarding.
+          Current NSW contractor-builder licences near {parcel.suburb} will
+          appear here from the Fair Trading register, with Google ratings when
+          they have been matched.
         </p>
       </div>
     );
@@ -337,9 +376,9 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {builders.length} builder{builders.length === 1 ? "" : "s"} service{" "}
-        {parcel.suburb}. Minimum criteria: Google review, NSW licence check,
-        last property sold, and project delays.
+        {builders.length} licensed builder{builders.length === 1 ? "" : "s"} near{" "}
+        {parcel.suburb} from the NSW register (not Velu accounts). Criteria:
+        Google review, licence check, last property sold, and project delays.
       </p>
       {builders.map((builder) => (
         <NearbyBuilderCard key={builder.id} builder={builder} parcel={parcel} />
