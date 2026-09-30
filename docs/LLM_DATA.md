@@ -76,6 +76,8 @@ Set one of these on the **server** (Vercel → Environment Variables, then redep
 | `OPENAI_API_KEY` | Fallback if Gemini is unset or fails |
 | `OPENAI_MODEL` | Optional; default `gpt-4o-mini` |
 
+The key must be available to the **Production** deployment (not Preview only). After adding or changing it, **Redeploy**. Admin → Data → **Test Gemini** shows whether this server can see the key and whether Google accepted a test call.
+
 If neither key works, the tender tab still shows the deterministic stored-tender summary.
 
 ## 5. Optional LLM ingest

@@ -72,7 +72,7 @@ If a field is unknown, omit it.`;
 const TENDER_NARRATOR =
   "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
 
-function geminiKey(): string | null {
+export function geminiKey(): string | null {
   return (
     process.env.GEMINI_API_KEY?.trim() ||
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ||
@@ -80,13 +80,72 @@ function geminiKey(): string | null {
   );
 }
 
-async function narrateWithGemini(prompt: string): Promise<string | null> {
-  const key = geminiKey();
-  if (!key) return null;
+export function llmKeysConfigured() {
+  return {
+    gemini: Boolean(geminiKey()),
+    openai: Boolean(process.env.OPENAI_API_KEY?.trim()),
+  };
+}
 
-  const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+export type LlmNarrationResult = {
+  text: string | null;
+  provider: "gemini" | "openai" | null;
+  error: string | null;
+};
+
+function geminiModels(): string[] {
+  const preferred = process.env.GEMINI_MODEL?.trim();
+  const fallbacks = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-flash-latest",
+  ];
+  return [...new Set(preferred ? [preferred, ...fallbacks] : fallbacks)];
+}
+
+function extractGeminiText(json: {
+  candidates?: { content?: { parts?: { text?: string }[] } }[];
+}): string | null {
+  const text = json.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text)
+    .filter(Boolean)
+    .join("")
+    .trim();
+  return text || null;
+}
+
+function geminiErrorMessage(status: number, raw: string): string {
+  try {
+    const parsed = JSON.parse(raw) as { error?: { message?: string } };
+    if (parsed.error?.message) {
+      return `Gemini ${status}: ${parsed.error.message}`.slice(0, 280);
+    }
+  } catch {
+    /* ignore */
+  }
+  return `Gemini ${status}`.slice(0, 280);
+}
+
+async function geminiGenerate(
+  prompt: string,
+  model: string,
+  disableThinking: boolean
+): Promise<{ text: string | null; error: string | null; retryWithoutThinking?: boolean }> {
+  const key = geminiKey();
+  if (!key) {
+    return { text: null, error: "GEMINI_API_KEY is not set on this server." };
+  }
+
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.2,
+    maxOutputTokens: 1024,
+  };
+  if (disableThinking) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
+
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,
     {
       method: "POST",
       headers: {
@@ -96,26 +155,65 @@ async function narrateWithGemini(prompt: string): Promise<string | null> {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: TENDER_NARRATOR }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+        generationConfig,
       }),
     }
   );
 
-  if (!res.ok) return null;
-  const json = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-  const text = json.candidates?.[0]?.content?.parts
-    ?.map((part) => part.text)
-    .filter(Boolean)
-    .join("")
-    .trim();
-  return text || null;
+  const raw = await res.text();
+  if (!res.ok) {
+    const error = geminiErrorMessage(res.status, raw);
+    const retryWithoutThinking = disableThinking && res.status === 400;
+    return { text: null, error, retryWithoutThinking };
+  }
+
+  let json: { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  try {
+    json = JSON.parse(raw) as typeof json;
+  } catch {
+    return { text: null, error: `Gemini ${model}: invalid JSON response` };
+  }
+
+  const text = extractGeminiText(json);
+  if (!text) {
+    return {
+      text: null,
+      error: `Gemini ${model} returned no text (often thinking used the token budget).`,
+    };
+  }
+  return { text, error: null };
 }
 
-async function narrateWithOpenAi(prompt: string): Promise<string | null> {
+async function narrateWithGemini(prompt: string): Promise<LlmNarrationResult> {
+  if (!geminiKey()) {
+    return { text: null, provider: null, error: "GEMINI_API_KEY is not set on this server." };
+  }
+
+  let lastError: string | null = null;
+  for (const model of geminiModels()) {
+    let disableThinking = true;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const result = await geminiGenerate(prompt, model, disableThinking);
+      if (result.text) {
+        return { text: result.text, provider: "gemini", error: null };
+      }
+      lastError = result.error;
+      if (result.retryWithoutThinking) {
+        disableThinking = false;
+        continue;
+      }
+      break;
+    }
+  }
+
+  return { text: null, provider: null, error: lastError };
+}
+
+async function narrateWithOpenAi(prompt: string): Promise<LlmNarrationResult> {
   const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) return null;
+  if (!key) {
+    return { text: null, provider: null, error: null };
+  }
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -133,20 +231,59 @@ async function narrateWithOpenAi(prompt: string): Promise<string | null> {
     }),
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    return { text: null, provider: null, error: `OpenAI ${res.status}` };
+  }
   const json = (await res.json()) as {
     choices?: { message?: { content?: string } }[];
   };
-  return json.choices?.[0]?.message?.content?.trim() || null;
+  const text = json.choices?.[0]?.message?.content?.trim() || null;
+  return {
+    text,
+    provider: text ? "openai" : null,
+    error: text ? null : "OpenAI returned no text",
+  };
+}
+
+export async function probeGemini(): Promise<{
+  configured: boolean;
+  ok: boolean;
+  model: string | null;
+  error: string | null;
+}> {
+  const configured = Boolean(geminiKey());
+  if (!configured) {
+    return {
+      configured: false,
+      ok: false,
+      model: null,
+      error:
+        "GEMINI_API_KEY is not in this deployment. In Vercel, set it for Production and Redeploy.",
+    };
+  }
+
+  const result = await narrateWithGemini("Reply with the single word OK.");
+  return {
+    configured: true,
+    ok: Boolean(result.text),
+    model: geminiModels()[0] ?? null,
+    error: result.error,
+  };
 }
 
 /** Gemini first when GEMINI_API_KEY is set, then OpenAI. Failures fall back to the stored-tender summary. */
-export async function maybeNarrateWithLlm(prompt: string): Promise<string | null> {
+export async function maybeNarrateWithLlm(prompt: string): Promise<LlmNarrationResult> {
   try {
-    const gemini = await narrateWithGemini(prompt);
-    if (gemini) return gemini;
+    if (geminiKey()) {
+      const gemini = await narrateWithGemini(prompt);
+      if (gemini.text) return gemini;
+      const openai = await narrateWithOpenAi(prompt);
+      if (openai.text) return openai;
+      return gemini.error ? gemini : openai;
+    }
     return await narrateWithOpenAi(prompt);
-  } catch {
-    return null;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "LLM request failed";
+    return { text: null, provider: null, error: message };
   }
 }
