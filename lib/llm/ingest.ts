@@ -69,8 +69,52 @@ construction_grade must be ground | medium | luxury.
 Prefer Verify NSW for licence status. Prefer Google for rating and review count.
 If a field is unknown, omit it.`;
 
-export async function maybeNarrateWithLlm(prompt: string): Promise<string | null> {
-  const key = process.env.OPENAI_API_KEY;
+const TENDER_NARRATOR =
+  "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
+
+function geminiKey(): string | null {
+  return (
+    process.env.GEMINI_API_KEY?.trim() ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ||
+    null
+  );
+}
+
+async function narrateWithGemini(prompt: string): Promise<string | null> {
+  const key = geminiKey();
+  if (!key) return null;
+
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": key,
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: TENDER_NARRATOR }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+      }),
+    }
+  );
+
+  if (!res.ok) return null;
+  const json = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  const text = json.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text)
+    .filter(Boolean)
+    .join("")
+    .trim();
+  return text || null;
+}
+
+async function narrateWithOpenAi(prompt: string): Promise<string | null> {
+  const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) return null;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -83,11 +127,7 @@ export async function maybeNarrateWithLlm(prompt: string): Promise<string | null
       model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
       temperature: 0.2,
       messages: [
-        {
-          role: "system",
-          content:
-            "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.",
-        },
+        { role: "system", content: TENDER_NARRATOR },
         { role: "user", content: prompt },
       ],
     }),
@@ -98,4 +138,15 @@ export async function maybeNarrateWithLlm(prompt: string): Promise<string | null
     choices?: { message?: { content?: string } }[];
   };
   return json.choices?.[0]?.message?.content?.trim() || null;
+}
+
+/** Gemini first when GEMINI_API_KEY is set, then OpenAI. Failures fall back to the stored-tender summary. */
+export async function maybeNarrateWithLlm(prompt: string): Promise<string | null> {
+  try {
+    const gemini = await narrateWithGemini(prompt);
+    if (gemini) return gemini;
+    return await narrateWithOpenAi(prompt);
+  } catch {
+    return null;
+  }
 }
