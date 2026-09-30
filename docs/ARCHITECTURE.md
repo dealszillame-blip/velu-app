@@ -36,6 +36,8 @@ flowchart LR
     DOM[Domain Developer API]
     MAP[OpenFreeMap + MapLibre]
     GEO[Nominatim geocoding]
+    NSW[Verify NSW public register]
+    GPL[Google Places API New]
   end
 
   B --> MW
@@ -52,6 +54,8 @@ flowchart LR
   API --> DOM
   UI --> MAP
   API --> GEO
+  API --> NSW
+  API --> GPL
   DB --> RT
 ```
 
@@ -63,7 +67,9 @@ flowchart LR
 | Maps | MapLibre GL + OpenFreeMap | Buyer map (land / builders toggle) |
 | Geocoding | OpenStreetMap Nominatim | Address → lat/lng for owned land |
 | Listings ingest | Domain Agents & Listings API | Vacant-land sync into `land_listings` |
-| Hosting | Vercel | App + preview deploys |
+| Licensed builders | Verify NSW public register | Nearby directory on My land (not onboarded users) |
+| Google ratings | Places API (New) | Optional `GOOGLE_PLACES_API_KEY` — does not scrape google.com |
+| Hosting | Vercel | App + preview deploys + weekly builder Cron |
 
 There is no separate backend service. Business rules live in Next.js route handlers, Supabase RPCs, and a small set of `lib/` modules.
 
@@ -79,19 +85,20 @@ app/
   (builder)/               Builder hub (role-gated)
   (agent)/                 Agent listings (role-gated)
   (admin)/                 Admin control panel (role-gated)
+  (provider)/              Report-provider portal (role-gated)
   onboarding/              Profile creation after first sign-in
   builders/                Public builder directory + join form
   api/                     JSON route handlers
   auth/callback/           Supabase OAuth / email callback
 components/                Feature UI (buyer, builder, admin, landing, proposals)
-lib/                       Auth, scoring, Domain sync, Supabase clients
-migrations/mvp/            Ordered SQL schema (001 → 025)
+lib/                       Auth, scoring, Domain sync, NSW register, Places, Supabase clients
+migrations/mvp/            Ordered SQL schema (001 → 027)
 ```
 
 **Request path**
 
 1. `middleware.ts` refreshes the Supabase cookie session.
-2. Unauthenticated users hitting `/buyer/*`, `/builder/*`, `/agent/*`, `/admin/*` redirect to `/login?next=…`.
+2. Unauthenticated users hitting `/buyer/*`, `/builder/*`, `/agent/*`, `/admin/*`, `/provider/*` redirect to `/login?next=…`.
 3. Authenticated users on `/` or auth pages redirect to their role home.
 4. Cross-role URL access is bounced to that role’s home (admins may enter any gated prefix).
 5. Pages call `requireRole()` again. APIs check `profiles.role` themselves. `/api/*` is never redirected to HTML.
@@ -108,7 +115,8 @@ Public prefixes: `/`, `/login`, `/register/*`, `/builders/*`, `/builders/join`, 
 | Buyer | `/buyer/map` | Map · My land · Requirements · Compare · Messages |
 | Builder | `/builder/dashboard` | Home · Profile · Leads · Proposals · Messages |
 | Agent / pending_agent | `/agent/listings` | Listings · New listing |
-| Admin | `/admin/dashboard` | Dashboard · Listings · Users · Agent approvals · Builders · Builder interest · Inquiries · Proposals · Settings |
+| Report provider | `/provider/reports` | Reports |
+| Admin | `/admin/dashboard` | Dashboard · Listings · Users · Agent approvals · Builders · Builder interest · Inquiries · Proposals · Settings · Data |
 
 ```mermaid
 flowchart TB
@@ -171,9 +179,9 @@ flowchart TB
 | Route | What it is |
 | --- | --- |
 | `/buyer/map` | MapLibre map of vacant lots; Land / Builders toggle |
-| `/buyer/my-land` | Register an owned block; site reports; nearby builders; architects; workspace |
-| `/buyer/requirements` | Saved brief (beds, baths, storeys, granny flat, measurements) |
-| `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, published designs, upcoming estates |
+| `/buyer/my-land` | Register an owned block; site-report add-ons; nearby NSW-register + onboarded builders; architects; workspace |
+| `/buyer/requirements` | Saved brief (beds, baths, storeys, granny flat, construction grade, builder types, measurements) |
+| `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
 | `/buyer/messages` | In-app threads with builders (no phone/email shared) |
 | `/buyer/project/:id` | Milestone tracker after accept |
 
@@ -188,6 +196,18 @@ flowchart TB
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
 | `/builder/project/:id` | Shared milestone tracker |
+
+### Report provider surfaces
+
+| Route | What it is |
+| --- | --- |
+| `/provider/reports` | Quote and deliver assigned site-report add-ons |
+
+### Admin extras
+
+| Route | What it is |
+| --- | --- |
+| `/admin/data` | Import NSW licence snapshot, Verify NSW refresh, Google Places match, weekly update, LLM ingest |
 
 ---
 
@@ -334,9 +354,11 @@ APIs are App Router `route.ts` files. They return JSON. Auth is cookie session u
 | POST | `/api/onboarding/{buyer,builder,agent,complete}` | Create `profiles` |
 | POST | `/api/builder-interest` | Public join form |
 | POST | `/api/sync/domain` | Bearer `DOMAIN_SYNC_SECRET` |
+| GET | `/api/sync/builders` | Weekly NSW licence + Google refresh; Bearer `CRON_SECRET` |
 | PATCH | `/api/listings/:id/status` | Mark sold (sync secret) |
 | POST | `/api/webhooks/listing-sold` | Supabase DB webhook |
-| * | `/api/admin/*` | Listings, users, builders, proposals, flags, inquiries |
+| * | `/api/admin/*` | Listings, users, builders, proposals, flags, inquiries, NSW directory |
+| * | `/api/provider/reports` | Provider quote / deliver |
 
 ---
 
