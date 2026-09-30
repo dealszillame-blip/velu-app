@@ -70,14 +70,19 @@ export async function GET() {
         `${row.builder_name} ${row.package_name} at ${row.current_price} vs ${row.benchmark_name} ${row.benchmark_price}: ${row.headline}`
     )
     .join("\n")}`;
-  const llmSummary = await maybeNarrateWithLlm(llmPrompt);
+  const llm = await maybeNarrateWithLlm(llmPrompt);
 
   return NextResponse.json({
     ...report,
     knowledge_compare: {
       ...knowledge,
-      method: llmSummary ? "llm" : knowledge.method,
-      summary: llmSummary ?? knowledge.summary,
+      method: llm.text ? "llm" : knowledge.method,
+      summary: llm.text ?? knowledge.summary,
+    },
+    llm: {
+      used: Boolean(llm.text),
+      provider: llm.provider,
+      error: llm.text ? null : llm.error,
     },
     legal_check: requestedReports.includes("legal_check")
       ? {

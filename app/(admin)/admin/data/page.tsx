@@ -15,6 +15,10 @@ export default function AdminDataPage() {
   const [lastLicenceCheck, setLastLicenceCheck] = useState<string | null>(null);
   const [lastGoogleSync, setLastGoogleSync] = useState<string | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [geminiConfigured, setGeminiConfigured] = useState<boolean | null>(null);
+  const [geminiOk, setGeminiOk] = useState<boolean | null>(null);
+  const [geminiError, setGeminiError] = useState<string | null>(null);
+  const [testingGemini, setTestingGemini] = useState(false);
 
   function applyStats(data: {
     count?: number;
@@ -39,11 +43,29 @@ export default function AdminDataPage() {
     applyStats(data);
   }
 
+  async function loadGeminiStatus() {
+    const res = await fetch("/api/admin/llm-status");
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return;
+    setGeminiConfigured(Boolean(data.gemini_configured));
+    setGeminiOk(Boolean(data.gemini_ok));
+    setGeminiError(data.gemini_error ?? null);
+  }
+
   useEffect(() => {
     fetch("/api/admin/nsw-builders")
       .then(async (res) => {
         const data = await res.json().catch(() => ({}));
         if (res.ok) applyStats(data);
+      })
+      .catch(() => undefined);
+    fetch("/api/admin/llm-status")
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return;
+        setGeminiConfigured(Boolean(data.gemini_configured));
+        setGeminiOk(Boolean(data.gemini_ok));
+        setGeminiError(data.gemini_error ?? null);
       })
       .catch(() => undefined);
   }, []);
@@ -139,6 +161,17 @@ export default function AdminDataPage() {
           {lastGoogleSync ? new Date(lastGoogleSync).toLocaleString() : "not yet"}
           .
         </p>
+        <p className="text-sm text-muted-foreground">
+          Gemini:{" "}
+          {geminiConfigured == null
+            ? "checking…"
+            : geminiConfigured
+              ? geminiOk
+                ? "key is on this server and a test call succeeded"
+                : `key is on this server but the test call failed${geminiError ? ` — ${geminiError}` : ""}`
+              : "key is not on this deployment — in Vercel set GEMINI_API_KEY for Production, then Redeploy"}
+          .
+        </p>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -166,10 +199,23 @@ export default function AdminDataPage() {
           <Button
             type="button"
             variant="outline"
-            disabled={Boolean(syncing)}
+            disabled={Boolean(syncing) || testingGemini}
             onClick={() => void syncRegister("weekly")}
           >
             {syncing === "weekly" ? "Updating…" : "Run weekly update now"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={testingGemini}
+            onClick={() => {
+              setTestingGemini(true);
+              loadGeminiStatus()
+                .catch(() => undefined)
+                .finally(() => setTestingGemini(false));
+            }}
+          >
+            {testingGemini ? "Testing Gemini…" : "Test Gemini"}
           </Button>
         </div>
       </div>

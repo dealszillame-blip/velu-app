@@ -10,6 +10,7 @@ import { formatProposalPrice } from "@/lib/proposals";
 type TenderAnalysisPayload = TenderAnalysisReport & {
   knowledge_compare?: KnowledgeCompareReport;
   legal_check?: { status: string; detail: string };
+  llm?: { used: boolean; provider: string | null; error: string | null };
 };
 
 const SEVERITY_STYLES: Record<TenderFinding["severity"], string> = {
@@ -94,6 +95,11 @@ export function TenderAnalysisPanel() {
           <p className="mt-1 text-sm text-muted-foreground">
             {report.knowledge_compare.summary}
           </p>
+          {report.llm?.error ? (
+            <p className="mt-2 text-xs text-amber-800" role="status">
+              Gemini did not run: {report.llm.error}
+            </p>
+          ) : null}
           <div className="mt-3 space-y-2">
             {report.knowledge_compare.matches.map((row) => (
               <div key={row.proposal_id} className="rounded-lg border border-border px-3 py-2">
