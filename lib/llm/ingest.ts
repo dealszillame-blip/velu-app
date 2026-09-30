@@ -73,7 +73,7 @@ export const TENDER_NARRATOR =
   "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
 
 export const RECOMMEND_NARRATOR =
-  "You write a short NSW home-buyer recommendation from a ranked brief-fit list. Be factual. Do not invent prices, inclusions, or scores. Three short sentences max. Keep the numbered brief-fit score as given.";
+  "You write a short NSW home-buyer recommendation from a ranked brief-fit list. Be factual. Do not invent prices, inclusions, or scores. Three short sentences max. Keep the numbered brief-fit score as given. Storeys (single-storey vs Ground + 1 / two-storey) and granny-flat are hard layout constraints: never recommend a single-storey home when the brief is G+1 or two-storey. If the listed pick still mismatches layout, say no package matches the layout and name a storey-matching runner-up.";
 
 export function geminiKey(): string | null {
   return (

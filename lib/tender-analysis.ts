@@ -2,6 +2,7 @@ import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
   houseTypeLabel,
   storeyLabel,
+  wantedStoreyCount,
 } from "@/lib/buyer-requirements";
 import type { InclusionItem } from "@/lib/proposal-breakdown";
 import type { ProposalRow } from "@/lib/proposals";
@@ -36,14 +37,6 @@ const PREMIUM_INCLUSION_HINTS = [
   "air conditioning",
   "alfresco",
 ];
-
-function storeyCount(req: BuyerBuildRequirements): number | null {
-  if (req.storeys === "ground_only") return 1;
-  if (req.storeys === "ground_plus_one" || req.storeys === "two_storey") return 2;
-  if (req.house_type === "single_storey") return 1;
-  if (req.house_type === "double_storey") return 2;
-  return null;
-}
 
 function includedItems(proposal: ProposalRow): InclusionItem[] {
   return (proposal.inclusion_items ?? []).filter((item) => item.included);
@@ -87,7 +80,7 @@ export function analyseTender(
         recommendedUpdates.push("Request an extra bathroom or ensuite variation.");
       }
 
-      const wantedStoreys = storeyCount(requirements);
+      const wantedStoreys = wantedStoreyCount(requirements);
       if (wantedStoreys && specs.storeys != null && specs.storeys !== wantedStoreys) {
         findings.push({
           severity: "gap",

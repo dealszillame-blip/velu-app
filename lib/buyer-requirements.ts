@@ -134,6 +134,16 @@ export function storeyLabel(value: StoreyPreference): string {
   return STOREY_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
+/** Prefer the explicit storeys field. house_type is only a fallback when storeys is "not sure". */
+export function wantedStoreyCount(req: BuyerBuildRequirements | null): number | null {
+  if (!req) return null;
+  if (req.storeys === "ground_only") return 1;
+  if (req.storeys === "ground_plus_one" || req.storeys === "two_storey") return 2;
+  if (req.house_type === "single_storey") return 1;
+  if (req.house_type === "double_storey") return 2;
+  return null;
+}
+
 export function houseTypeLabel(value?: HouseTypePreference): string {
   if (!value) return "Not sure yet";
   return HOUSE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;

@@ -3,6 +3,7 @@ import {
   formatBuildRequirementsSummary,
   houseTypeLabel,
   storeyLabel,
+  wantedStoreyCount,
 } from "@/lib/buyer-requirements";
 import type { ProposalRow } from "@/lib/proposals";
 import { formatProposalPrice } from "@/lib/proposals";
@@ -16,6 +17,7 @@ export type RankedProposal = {
   headline: string;
   strengths: string[];
   gaps: string[];
+  storey_mismatch: boolean;
 };
 
 export type RecommendationLlm = {
@@ -32,19 +34,6 @@ export type RecommendationReport = {
   next_steps: string[];
   llm?: RecommendationLlm;
 };
-
-function wantedStoreys(req: BuyerBuildRequirements | null): number | null {
-  if (!req) return null;
-  if (req.storeys === "ground_only" || req.house_type === "single_storey") return 1;
-  if (
-    req.storeys === "ground_plus_one" ||
-    req.storeys === "two_storey" ||
-    req.house_type === "double_storey"
-  ) {
-    return 2;
-  }
-  return null;
-}
 
 function mentionsGranny(proposal: ProposalRow): boolean {
   const includedItems = (proposal.inclusion_items ?? []).filter((item) => item.included);
@@ -77,6 +66,8 @@ function hasPremiumInclusions(proposal: ProposalRow): string[] {
   return hints.filter((hint) => text.includes(hint));
 }
 
+const STOREY_MISMATCH_SCORE_CAP = 64;
+
 function scoreProposal(
   proposal: ProposalRow,
   requirements: BuyerBuildRequirements | null,
@@ -87,6 +78,7 @@ function scoreProposal(
   const gaps: string[] = [];
   const specs = proposal.home_specs ?? {};
   const builder = proposal.builder_name ?? "This builder";
+  let storeyMismatch = false;
 
   if (requirements) {
     if (specs.bedrooms != null) {
@@ -118,7 +110,7 @@ function scoreProposal(
       }
     }
 
-    const storeys = wantedStoreys(requirements);
+    const storeys = wantedStoreyCount(requirements);
     if (storeys && specs.storeys != null) {
       if (specs.storeys === storeys) {
         score += 12;
@@ -126,9 +118,10 @@ function scoreProposal(
           `${specs.storeys === 1 ? "Single-storey" : "Two-storey"} matches ${storeyLabel(requirements.storeys)} / ${houseTypeLabel(requirements.house_type)}.`
         );
       } else {
-        score -= 16;
+        storeyMismatch = true;
+        score -= 32;
         gaps.push(
-          `Package is ${specs.storeys} storey, but your brief is ${storeyLabel(requirements.storeys)}.`
+          `Package is ${specs.storeys === 1 ? "single-storey" : `${specs.storeys}-storey`}, but your brief is ${storeyLabel(requirements.storeys)}.`
         );
       }
     }
@@ -200,9 +193,13 @@ function scoreProposal(
   }
 
   score = Math.max(8, Math.min(98, Math.round(score)));
+  if (storeyMismatch) {
+    score = Math.min(score, STOREY_MISMATCH_SCORE_CAP);
+  }
 
-  const headline =
-    gaps.length === 0
+  const headline = storeyMismatch
+    ? `${builder} does not match your ${storeyLabel(requirements?.storeys ?? "not_sure")} brief.`
+    : gaps.length === 0
       ? `${builder} is a clean match on the numbers we can check.`
       : gaps.length === 1
         ? `${builder} is close, with one gap to confirm in writing.`
@@ -217,6 +214,7 @@ function scoreProposal(
     headline,
     strengths: strengths.slice(0, 4),
     gaps: gaps.slice(0, 4),
+    storey_mismatch: storeyMismatch,
   };
 }
 
@@ -238,6 +236,7 @@ export function recommendProposals(
     )
     .sort(
       (a, b) =>
+        Number(a.storey_mismatch) - Number(b.storey_mismatch) ||
         b.score - a.score ||
         a.gaps.length - b.gaps.length ||
         a.base_price - b.base_price
@@ -258,11 +257,27 @@ export function recommendProposals(
       `Send ${recommended.builder_name} a written variation list: ${recommended.gaps[0]}`
     );
   }
+  const wantedStoreys = wantedStoreyCount(requirements);
+  if (
+    recommended &&
+    !recommended.storey_mismatch &&
+    wantedStoreys === 2 &&
+    requirements &&
+    ranked.some((row) => row.storey_mismatch)
+  ) {
+    nextSteps.push(
+      `Do not accept a single-storey package against your ${storeyLabel(requirements.storeys)} brief — ask that builder for a two-storey / G+1 variation instead.`
+    );
+  }
   nextSteps.push("Message the recommended builder and one runner-up before you accept.");
 
   let summary = "No packages to rank yet.";
   if (recommended && ranked.length === 1) {
     summary = `Only one package is in. ${recommended.builder_name} scores ${recommended.score}/100, but get a second quote before deciding.`;
+  } else if (recommended?.storey_mismatch && requirements) {
+    summary = `None of the packages match your ${storeyLabel(requirements.storeys)} brief. ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100) is closest on rooms, but it is not ${storeyLabel(requirements.storeys)}. Ask for a matching layout before you decide.`;
+  } else if (recommended?.gaps.length && requirements && wantedStoreyCount(requirements)) {
+    summary = `Closest ${storeyLabel(requirements.storeys)} option is ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100 fit) at ${formatProposalPrice(recommended.base_price)}. Confirm the listed gaps in writing.`;
   } else if (recommended) {
     summary = `Velu recommends ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100 fit) at ${formatProposalPrice(recommended.base_price)}.`;
   }
@@ -284,14 +299,16 @@ export function recommendationNarrationPrompt(
     ? formatBuildRequirementsSummary(requirements)
     : "No saved brief.";
   const ranked = report.ranked
-    .map(
-      (row, index) =>
-        `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}. Brief fit ${row.score}/100. Strengths: ${row.strengths.join(" ") || "none"}. Gaps: ${row.gaps.join(" ") || "none"}.`
-    )
+    .map((row, index) => {
+      const layout = row.storey_mismatch
+        ? "LAYOUT: STOREY MISMATCH — do not recommend as a layout match"
+        : "LAYOUT: storeys match";
+      return `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}. Brief fit ${row.score}/100. ${layout}. Strengths: ${row.strengths.join(" ") || "none"}. Gaps: ${row.gaps.join(" ") || "none"}.`;
+    })
     .join("\n");
 
   return `Buyer brief: ${brief}
-Ranked packages (brief-fit scores are already calculated; do not change them):
+Ranked packages (brief-fit scores are already calculated; do not change them). Prefer a storey-matching package over a higher score that mismatches single vs G+1 / two-storey.
 ${ranked}
 Deterministic pick: ${report.summary}`;
 }
