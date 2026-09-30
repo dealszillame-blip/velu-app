@@ -177,8 +177,9 @@ export default function AdminDataPage() {
       <div>
         <h2 className="text-lg font-semibold">LLM ingest</h2>
         <p className="text-muted-foreground">
-          Use an LLM to collect last-sale and delay facts for a named builder,
-          then paste the JSON here.
+          Use Gemini (or another model) to collect last-sale and delay facts for
+          a named builder, then paste the JSON here. Compare → Tender report
+          also uses <code>GEMINI_API_KEY</code> on the server when set.
         </p>
       </div>
 

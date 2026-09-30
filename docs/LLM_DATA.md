@@ -63,6 +63,21 @@ Then Admin → **Match Google reviews** (fills rows that still have no rating) o
 
 Last-sale and delay fields are not on the licence register. Use the LLM ingest below for those.
 
-## 4. Optional LLM ingest
+## 4. Optional LLM (Gemini or OpenAI)
 
-For last property sold / project delays on a named builder, paste JSON on `/admin/data` as before.
+Compare → **Tender report** can add a short narrative on top of the stored-tender comparison.
+
+Set one of these on the **server** (Vercel → Environment Variables, then redeploy). Do not use a `NEXT_PUBLIC_` name.
+
+| Variable | Used for |
+| --- | --- |
+| `GEMINI_API_KEY` (or `GOOGLE_GENERATIVE_AI_API_KEY`) | Google Gemini — preferred when present |
+| `GEMINI_MODEL` | Optional; default `gemini-2.5-flash` |
+| `OPENAI_API_KEY` | Fallback if Gemini is unset or fails |
+| `OPENAI_MODEL` | Optional; default `gpt-4o-mini` |
+
+If neither key works, the tender tab still shows the deterministic stored-tender summary.
+
+## 5. Optional LLM ingest
+
+For last property sold / project delays on a named builder, paste JSON on `/admin/data` as before. That paste step is separate from Gemini; you can generate the JSON in AI Studio and ingest it here.
