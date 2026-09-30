@@ -65,7 +65,10 @@ Last-sale and delay fields are not on the licence register. Use the LLM ingest b
 
 ## 4. Optional LLM (Gemini or OpenAI)
 
-Compare → **Tender report** can add a short narrative on top of the stored-tender comparison.
+Compare → **Tender report** and **Recommend** can add a short Gemini (or OpenAI) narrative on top of the deterministic comparison.
+
+- **Tender report** narrates stored-tender price/inclusion matches.
+- **Recommend** keeps the numbered **brief-fit** score from bedroom/bathroom/storey/price rules. Gemini only rewrites the recommendation copy. If Gemini is unset or fails, the rules-based sentence stays (for example `Velu recommends SouthWest Living — Hawkesbury 25 Dual Living (96/100 fit)`).
 
 Set one of these on the **server** (Vercel → Environment Variables, then redeploy). Do not use a `NEXT_PUBLIC_` name.
 
@@ -78,7 +81,7 @@ Set one of these on the **server** (Vercel → Environment Variables, then redep
 
 The key must be available to the **Production** deployment (not Preview only). After adding or changing it, **Redeploy**. Admin → Data → **Test Gemini** shows whether this server can see the key and whether Google accepted a test call.
 
-If neither key works, the tender tab still shows the deterministic stored-tender summary.
+If neither key works, Tender still shows the stored-tender summary and Recommend still shows the brief-fit ranking and deterministic sentence.
 
 ## 5. Optional LLM ingest
 

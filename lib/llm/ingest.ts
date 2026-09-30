@@ -69,8 +69,11 @@ construction_grade must be ground | medium | luxury.
 Prefer Verify NSW for licence status. Prefer Google for rating and review count.
 If a field is unknown, omit it.`;
 
-const TENDER_NARRATOR =
+export const TENDER_NARRATOR =
   "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
+
+export const RECOMMEND_NARRATOR =
+  "You write a short NSW home-buyer recommendation from a ranked brief-fit list. Be factual. Do not invent prices, inclusions, or scores. Three short sentences max. Keep the numbered brief-fit score as given.";
 
 export function geminiKey(): string | null {
   return (
@@ -129,7 +132,8 @@ function geminiErrorMessage(status: number, raw: string): string {
 async function geminiGenerate(
   prompt: string,
   model: string,
-  disableThinking: boolean
+  disableThinking: boolean,
+  systemInstruction: string
 ): Promise<{ text: string | null; error: string | null; retryWithoutThinking?: boolean }> {
   const key = geminiKey();
   if (!key) {
@@ -153,7 +157,7 @@ async function geminiGenerate(
         "x-goog-api-key": key,
       },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: TENDER_NARRATOR }] },
+        systemInstruction: { parts: [{ text: systemInstruction }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig,
       }),
@@ -184,7 +188,10 @@ async function geminiGenerate(
   return { text, error: null };
 }
 
-async function narrateWithGemini(prompt: string): Promise<LlmNarrationResult> {
+async function narrateWithGemini(
+  prompt: string,
+  systemInstruction: string
+): Promise<LlmNarrationResult> {
   if (!geminiKey()) {
     return { text: null, provider: null, error: "GEMINI_API_KEY is not set on this server." };
   }
@@ -193,7 +200,7 @@ async function narrateWithGemini(prompt: string): Promise<LlmNarrationResult> {
   for (const model of geminiModels()) {
     let disableThinking = true;
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const result = await geminiGenerate(prompt, model, disableThinking);
+      const result = await geminiGenerate(prompt, model, disableThinking, systemInstruction);
       if (result.text) {
         return { text: result.text, provider: "gemini", error: null };
       }
@@ -209,7 +216,10 @@ async function narrateWithGemini(prompt: string): Promise<LlmNarrationResult> {
   return { text: null, provider: null, error: lastError };
 }
 
-async function narrateWithOpenAi(prompt: string): Promise<LlmNarrationResult> {
+async function narrateWithOpenAi(
+  prompt: string,
+  systemInstruction: string
+): Promise<LlmNarrationResult> {
   const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) {
     return { text: null, provider: null, error: null };
@@ -225,7 +235,7 @@ async function narrateWithOpenAi(prompt: string): Promise<LlmNarrationResult> {
       model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
       temperature: 0.2,
       messages: [
-        { role: "system", content: TENDER_NARRATOR },
+        { role: "system", content: systemInstruction },
         { role: "user", content: prompt },
       ],
     }),
@@ -262,7 +272,7 @@ export async function probeGemini(): Promise<{
     };
   }
 
-  const result = await narrateWithGemini("Reply with the single word OK.");
+  const result = await narrateWithGemini("Reply with the single word OK.", TENDER_NARRATOR);
   return {
     configured: true,
     ok: Boolean(result.text),
@@ -271,17 +281,21 @@ export async function probeGemini(): Promise<{
   };
 }
 
-/** Gemini first when GEMINI_API_KEY is set, then OpenAI. Failures fall back to the stored-tender summary. */
-export async function maybeNarrateWithLlm(prompt: string): Promise<LlmNarrationResult> {
+/** Gemini first when GEMINI_API_KEY is set, then OpenAI. Failures fall back to the deterministic summary. */
+export async function maybeNarrateWithLlm(
+  prompt: string,
+  options?: { systemInstruction?: string }
+): Promise<LlmNarrationResult> {
+  const systemInstruction = options?.systemInstruction ?? TENDER_NARRATOR;
   try {
     if (geminiKey()) {
-      const gemini = await narrateWithGemini(prompt);
+      const gemini = await narrateWithGemini(prompt, systemInstruction);
       if (gemini.text) return gemini;
-      const openai = await narrateWithOpenAi(prompt);
+      const openai = await narrateWithOpenAi(prompt, systemInstruction);
       if (openai.text) return openai;
       return gemini.error ? gemini : openai;
     }
-    return await narrateWithOpenAi(prompt);
+    return await narrateWithOpenAi(prompt, systemInstruction);
   } catch (error) {
     const message = error instanceof Error ? error.message : "LLM request failed";
     return { text: null, provider: null, error: message };

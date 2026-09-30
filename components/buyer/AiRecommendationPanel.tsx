@@ -7,6 +7,12 @@ import { formatProposalPrice } from "@/lib/proposals";
 import type { RecommendationReport } from "@/lib/proposal-recommendation";
 import { cn } from "@/lib/utils";
 
+function llmBadge(report: RecommendationReport): string {
+  if (report.llm?.used && report.llm.provider === "gemini") return "Gemini";
+  if (report.llm?.used && report.llm.provider === "openai") return "LLM";
+  return "Brief fit";
+}
+
 export function AiRecommendationPanel({
   variant = "full",
   onSeeFull,
@@ -74,6 +80,7 @@ export function AiRecommendationPanel({
   }
 
   const pick = report.recommended;
+  const source = llmBadge(report);
 
   if (variant === "compact") {
     return (
@@ -81,6 +88,9 @@ export function AiRecommendationPanel({
         <p className="label-caps mb-2 text-[color:rgba(255,255,255,0.55)]">
           <Sparkles className="mr-1.5 inline h-3.5 w-3.5" />
           Velu recommendation
+          <span className="ml-2 font-normal normal-case tracking-normal text-[color:rgba(255,255,255,0.45)]">
+            {source}
+          </span>
         </p>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -91,7 +101,12 @@ export function AiRecommendationPanel({
             <p className="mt-2 max-w-xl text-sm text-white/65">{report.summary}</p>
           </div>
           <div className="flex items-end gap-4">
-            <p className="text-3xl font-semibold tabular-nums">{pick.score}</p>
+            <div className="text-right">
+              <p className="label-caps text-[color:rgba(255,255,255,0.45)]">
+                Brief fit
+              </p>
+              <p className="text-3xl font-semibold tabular-nums">{pick.score}</p>
+            </div>
             {onSeeFull ? (
               <Button
                 variant="secondary"
@@ -113,6 +128,9 @@ export function AiRecommendationPanel({
         <p className="label-caps mb-3 text-[color:rgba(255,255,255,0.55)]">
           <Sparkles className="mr-1.5 inline h-3.5 w-3.5" />
           Velu recommendation
+          <span className="ml-2 font-normal normal-case tracking-normal text-[color:rgba(255,255,255,0.45)]">
+            {source}
+          </span>
         </p>
         <h2 className="text-2xl font-semibold tracking-tight">
           {pick.builder_name}
@@ -120,7 +138,7 @@ export function AiRecommendationPanel({
         <p className="mt-1 text-sm text-white/70">{pick.package_name}</p>
         <div className="mt-4 flex flex-wrap items-end gap-6">
           <div>
-            <p className="label-caps text-[color:rgba(255,255,255,0.45)]">Fit</p>
+            <p className="label-caps text-[color:rgba(255,255,255,0.45)]">Brief fit</p>
             <p className="text-3xl font-semibold tabular-nums">{pick.score}/100</p>
           </div>
           <div>
@@ -131,6 +149,11 @@ export function AiRecommendationPanel({
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
           {report.summary}
         </p>
+        {report.llm?.error ? (
+          <p className="mt-3 text-xs text-amber-200" role="status">
+            Gemini did not run: {report.llm.error}
+          </p>
+        ) : null}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -178,6 +201,7 @@ export function AiRecommendationPanel({
               </div>
               <div className="text-right">
                 <p className="text-lg font-semibold tabular-nums">{row.score}</p>
+                <p className="text-xs text-muted-foreground">Brief fit</p>
                 <p className="text-sm text-muted-foreground">
                   {formatProposalPrice(row.base_price)}
                 </p>
