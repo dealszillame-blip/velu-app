@@ -41,10 +41,8 @@ export async function GET() {
     ? normalizeBuildRequirements(requirementsRow.build_requirements)
     : null;
 
-  const report = recommendProposals(
-    (Array.isArray(proposals) ? proposals : []) as ProposalRow[],
-    requirements
-  );
+  const proposalRows = (Array.isArray(proposals) ? proposals : []) as ProposalRow[];
+  const report = recommendProposals(proposalRows, requirements);
 
   if (!report.recommended) {
     return NextResponse.json({
@@ -54,8 +52,12 @@ export async function GET() {
   }
 
   const llm = await maybeNarrateWithLlm(
-    recommendationNarrationPrompt(report, requirements),
-    { systemInstruction: RECOMMEND_NARRATOR }
+    recommendationNarrationPrompt(report, requirements, proposalRows),
+    {
+      systemInstruction: RECOMMEND_NARRATOR,
+      maxOutputTokens: 2048,
+      temperature: 0.35,
+    }
   );
 
   return NextResponse.json({

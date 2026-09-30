@@ -13,6 +13,12 @@ function llmBadge(report: RecommendationReport): string {
   return "Brief fit";
 }
 
+function firstParagraph(text: string): string {
+  const trimmed = text.trim();
+  const block = trimmed.split(/\n\s*\n/)[0] ?? trimmed;
+  return block.trim();
+}
+
 export function AiRecommendationPanel({
   variant = "full",
   onSeeFull,
@@ -98,7 +104,9 @@ export function AiRecommendationPanel({
               {pick.builder_name}
             </h3>
             <p className="mt-1 text-sm text-white/70">{pick.package_name}</p>
-            <p className="mt-2 max-w-xl text-sm text-white/65">{report.summary}</p>
+            <p className="mt-2 max-w-xl whitespace-pre-wrap text-sm text-white/65">
+              {report.llm?.used ? firstParagraph(report.summary) : report.summary}
+            </p>
           </div>
           <div className="flex items-end gap-4">
             <div className="text-right">
@@ -146,7 +154,7 @@ export function AiRecommendationPanel({
             <p className="text-xl font-medium">{formatProposalPrice(pick.base_price)}</p>
           </div>
         </div>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
+        <p className="mt-4 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-white/75">
           {report.summary}
         </p>
         {report.llm?.error ? (

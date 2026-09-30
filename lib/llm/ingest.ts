@@ -72,8 +72,22 @@ If a field is unknown, omit it.`;
 export const TENDER_NARRATOR =
   "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
 
-export const RECOMMEND_NARRATOR =
-  "You write a short NSW home-buyer recommendation from a ranked brief-fit list. Be factual. Do not invent prices, inclusions, or scores. Three short sentences max. Keep the numbered brief-fit score as given. Storeys (single-storey vs Ground + 1 / two-storey) and granny-flat are hard layout constraints: never recommend a single-storey home when the brief is G+1 or two-storey. If the listed pick still mismatches layout, say no package matches the layout and name a storey-matching runner-up.";
+export const RECOMMEND_NARRATOR = `You are Velu's NSW new-home advisor for South West Sydney buyers.
+
+The numbered brief-fit score is only a rules check of bedrooms, bathrooms, storeys, granny flat, car spaces and price. It is not the recommendation. Form an independent view from the brief, package specs, inclusions, programme and layout.
+
+Hard layout rules:
+- Never recommend a single-storey home when the brief is Ground + 1 or two-storey.
+- Never treat a missing granny flat as optional if the brief says yes.
+- If no package is a true layout match, say so in the first sentence. Name the closest layout option and the closest rooms option, and the written variation to request.
+
+Write 3–5 short paragraphs in Australian English:
+1. Verdict — which package to progress (or that none truly matches) and why layout/use-case outweighs the score.
+2. Trade-off against the next-best package (price, storeys, granny, programme, inclusions).
+3. What the score cannot see — site/soil, dual occupancy approval, inclusion quality, whether a variation is realistic.
+4. Specific questions or variations to send in writing before anyone accepts.
+
+Do not invent prices, specs or inclusions. Do not open with “Velu recommends … (96/100 fit)”. Do not use markdown headings. Keep any list to at most four short items.`;
 
 export function geminiKey(): string | null {
   return (
@@ -133,7 +147,8 @@ async function geminiGenerate(
   prompt: string,
   model: string,
   disableThinking: boolean,
-  systemInstruction: string
+  systemInstruction: string,
+  generation?: { maxOutputTokens?: number; temperature?: number }
 ): Promise<{ text: string | null; error: string | null; retryWithoutThinking?: boolean }> {
   const key = geminiKey();
   if (!key) {
@@ -141,8 +156,8 @@ async function geminiGenerate(
   }
 
   const generationConfig: Record<string, unknown> = {
-    temperature: 0.2,
-    maxOutputTokens: 1024,
+    temperature: generation?.temperature ?? 0.2,
+    maxOutputTokens: generation?.maxOutputTokens ?? 1024,
   };
   if (disableThinking) {
     generationConfig.thinkingConfig = { thinkingBudget: 0 };
@@ -190,7 +205,8 @@ async function geminiGenerate(
 
 async function narrateWithGemini(
   prompt: string,
-  systemInstruction: string
+  systemInstruction: string,
+  generation?: { maxOutputTokens?: number; temperature?: number }
 ): Promise<LlmNarrationResult> {
   if (!geminiKey()) {
     return { text: null, provider: null, error: "GEMINI_API_KEY is not set on this server." };
@@ -200,7 +216,13 @@ async function narrateWithGemini(
   for (const model of geminiModels()) {
     let disableThinking = true;
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const result = await geminiGenerate(prompt, model, disableThinking, systemInstruction);
+      const result = await geminiGenerate(
+        prompt,
+        model,
+        disableThinking,
+        systemInstruction,
+        generation
+      );
       if (result.text) {
         return { text: result.text, provider: "gemini", error: null };
       }
@@ -218,7 +240,8 @@ async function narrateWithGemini(
 
 async function narrateWithOpenAi(
   prompt: string,
-  systemInstruction: string
+  systemInstruction: string,
+  generation?: { maxOutputTokens?: number; temperature?: number }
 ): Promise<LlmNarrationResult> {
   const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) {
@@ -233,7 +256,8 @@ async function narrateWithOpenAi(
     },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-      temperature: 0.2,
+      temperature: generation?.temperature ?? 0.2,
+      max_tokens: generation?.maxOutputTokens ?? 1024,
       messages: [
         { role: "system", content: systemInstruction },
         { role: "user", content: prompt },
@@ -284,18 +308,26 @@ export async function probeGemini(): Promise<{
 /** Gemini first when GEMINI_API_KEY is set, then OpenAI. Failures fall back to the deterministic summary. */
 export async function maybeNarrateWithLlm(
   prompt: string,
-  options?: { systemInstruction?: string }
+  options?: {
+    systemInstruction?: string;
+    maxOutputTokens?: number;
+    temperature?: number;
+  }
 ): Promise<LlmNarrationResult> {
   const systemInstruction = options?.systemInstruction ?? TENDER_NARRATOR;
+  const generation = {
+    maxOutputTokens: options?.maxOutputTokens,
+    temperature: options?.temperature,
+  };
   try {
     if (geminiKey()) {
-      const gemini = await narrateWithGemini(prompt, systemInstruction);
+      const gemini = await narrateWithGemini(prompt, systemInstruction, generation);
       if (gemini.text) return gemini;
-      const openai = await narrateWithOpenAi(prompt, systemInstruction);
+      const openai = await narrateWithOpenAi(prompt, systemInstruction, generation);
       if (openai.text) return openai;
       return gemini.error ? gemini : openai;
     }
-    return await narrateWithOpenAi(prompt, systemInstruction);
+    return await narrateWithOpenAi(prompt, systemInstruction, generation);
   } catch (error) {
     const message = error instanceof Error ? error.message : "LLM request failed";
     return { text: null, provider: null, error: message };
