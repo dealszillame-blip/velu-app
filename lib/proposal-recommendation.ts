@@ -1,6 +1,7 @@
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
   formatBuildRequirementsSummary,
+  grannyFlatLabel,
   houseTypeLabel,
   storeyLabel,
   wantedStoreyCount,
@@ -293,22 +294,62 @@ export function recommendProposals(
 
 export function recommendationNarrationPrompt(
   report: RecommendationReport,
-  requirements: BuyerBuildRequirements | null
+  requirements: BuyerBuildRequirements | null,
+  proposals: ProposalRow[] = []
 ): string {
-  const brief = requirements
-    ? formatBuildRequirementsSummary(requirements)
-    : "No saved brief.";
+  const byId = new Map(proposals.map((row) => [row.id, row]));
+  const wantedStoreys = wantedStoreyCount(requirements);
+  const briefLines = [
+    requirements
+      ? `Saved brief: ${formatBuildRequirementsSummary(requirements)}`
+      : "Saved brief: none — rank on package quality only.",
+  ];
+  if (requirements) {
+    briefLines.push(
+      `Hard layout: ${storeyLabel(requirements.storeys)} (${wantedStoreys ?? "unspecified"} storey) · ${grannyFlatLabel(requirements.granny_flat)}.`
+    );
+    if (requirements.additional_notes?.trim()) {
+      briefLines.push(`Buyer notes: ${requirements.additional_notes.trim()}`);
+    }
+    if (requirements.land_size_sqm) {
+      briefLines.push(`Land about ${requirements.land_size_sqm} sqm.`);
+    }
+    if (requirements.floor_area_sqm) {
+      briefLines.push(`Target floor area ${requirements.floor_area_sqm} sqm.`);
+    }
+  }
+
   const ranked = report.ranked
     .map((row, index) => {
+      const proposal = byId.get(row.proposal_id);
+      const specs = proposal?.home_specs ?? {};
+      const included = (proposal?.inclusion_items ?? [])
+        .filter((item) => item.included)
+        .map((item) => `${item.item}${item.detail ? ` (${item.detail})` : ""}`);
       const layout = row.storey_mismatch
-        ? "LAYOUT: STOREY MISMATCH — do not recommend as a layout match"
-        : "LAYOUT: storeys match";
-      return `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}. Brief fit ${row.score}/100. ${layout}. Strengths: ${row.strengths.join(" ") || "none"}. Gaps: ${row.gaps.join(" ") || "none"}.`;
+        ? "LAYOUT FAIL — single vs G+1 / two-storey mismatch; do not recommend as a layout match"
+        : "LAYOUT OK — storeys match the brief";
+      return [
+        `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}.`,
+        `Brief-fit score ${row.score}/100 (rules only; do not treat as the verdict). ${layout}.`,
+        `Specs: ${specs.bedrooms ?? "?"} bed, ${specs.bathrooms ?? "?"} bath, ${specs.storeys ?? "?"} storey, ${specs.car_spaces ?? "?"} car, ${specs.living_area_sqm ?? "?"} sqm living. Programme ${proposal?.estimated_build_weeks ?? "?"} weeks.`,
+        `Score strengths: ${row.strengths.join(" ") || "none"}`,
+        `Score gaps: ${row.gaps.join(" ") || "none"}`,
+        proposal?.inclusions ? `Inclusions: ${proposal.inclusions}` : null,
+        included.length ? `Included items: ${included.join("; ")}` : null,
+        proposal?.notes ? `Builder notes: ${proposal.notes}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
     })
-    .join("\n");
+    .join("\n\n");
 
-  return `Buyer brief: ${brief}
-Ranked packages (brief-fit scores are already calculated; do not change them). Prefer a storey-matching package over a higher score that mismatches single vs G+1 / two-storey.
+  return `${briefLines.join("\n")}
+
+Packages (use the specs and gaps below; the brief-fit score is context only):
 ${ranked}
-Deterministic pick: ${report.summary}`;
+
+Rules-based fallback sentence (do not copy this wording): ${report.summary}
+
+Write an independent recommendation that can disagree with the top score when layout or use-case does.`;
 }
