@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { normalizeBuildRequirements } from "@/lib/buyer-requirements";
-import { recommendProposals } from "@/lib/proposal-recommendation";
+import { maybeNarrateWithLlm, RECOMMEND_NARRATOR } from "@/lib/llm/ingest";
+import {
+  recommendProposals,
+  recommendationNarrationPrompt,
+} from "@/lib/proposal-recommendation";
 import type { ProposalRow } from "@/lib/proposals";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,10 +41,30 @@ export async function GET() {
     ? normalizeBuildRequirements(requirementsRow.build_requirements)
     : null;
 
-  return NextResponse.json(
-    recommendProposals(
-      (Array.isArray(proposals) ? proposals : []) as ProposalRow[],
-      requirements
-    )
+  const report = recommendProposals(
+    (Array.isArray(proposals) ? proposals : []) as ProposalRow[],
+    requirements
   );
+
+  if (!report.recommended) {
+    return NextResponse.json({
+      ...report,
+      llm: { used: false, provider: null, error: null },
+    });
+  }
+
+  const llm = await maybeNarrateWithLlm(
+    recommendationNarrationPrompt(report, requirements),
+    { systemInstruction: RECOMMEND_NARRATOR }
+  );
+
+  return NextResponse.json({
+    ...report,
+    summary: llm.text ?? report.summary,
+    llm: {
+      used: Boolean(llm.text),
+      provider: llm.provider,
+      error: llm.text ? null : llm.error,
+    },
+  });
 }

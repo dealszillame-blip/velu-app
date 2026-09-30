@@ -1,5 +1,6 @@
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
+  formatBuildRequirementsSummary,
   houseTypeLabel,
   storeyLabel,
 } from "@/lib/buyer-requirements";
@@ -17,12 +18,19 @@ export type RankedProposal = {
   gaps: string[];
 };
 
+export type RecommendationLlm = {
+  used: boolean;
+  provider: "gemini" | "openai" | null;
+  error: string | null;
+};
+
 export type RecommendationReport = {
   generated_at: string;
   recommended: RankedProposal | null;
   ranked: RankedProposal[];
   summary: string;
   next_steps: string[];
+  llm?: RecommendationLlm;
 };
 
 function wantedStoreys(req: BuyerBuildRequirements | null): number | null {
@@ -266,4 +274,24 @@ export function recommendProposals(
     summary,
     next_steps: nextSteps,
   };
+}
+
+export function recommendationNarrationPrompt(
+  report: RecommendationReport,
+  requirements: BuyerBuildRequirements | null
+): string {
+  const brief = requirements
+    ? formatBuildRequirementsSummary(requirements)
+    : "No saved brief.";
+  const ranked = report.ranked
+    .map(
+      (row, index) =>
+        `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}. Brief fit ${row.score}/100. Strengths: ${row.strengths.join(" ") || "none"}. Gaps: ${row.gaps.join(" ") || "none"}.`
+    )
+    .join("\n");
+
+  return `Buyer brief: ${brief}
+Ranked packages (brief-fit scores are already calculated; do not change them):
+${ranked}
+Deterministic pick: ${report.summary}`;
 }
