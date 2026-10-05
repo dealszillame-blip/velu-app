@@ -1,32 +1,17 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-
-const breakdownLineSchema = z.object({
-  category: z.string(),
-  label: z.string().min(1),
-  amount: z.number().min(0),
-  note: z.string().optional(),
-});
-
-const inclusionItemSchema = z.object({
-  category: z.string(),
-  item: z.string().min(1),
-  detail: z.string(),
-  included: z.boolean(),
-});
-
-const homeSpecsSchema = z.object({
-  bedrooms: z.number().int().positive().optional(),
-  bathrooms: z.number().positive().optional(),
-  car_spaces: z.number().int().min(0).optional(),
-  living_area_sqm: z.number().positive().optional(),
-  storeys: z.number().int().positive().optional(),
-});
+import {
+  breakdownLineSchema,
+  contractTypeSchema,
+  homeSpecsSchema,
+  inclusionItemSchema,
+} from "@/lib/proposal-schema";
 
 const templateSchema = z.object({
   name: z.string().min(2),
   package_name: z.string().min(2),
+  contract_type: contractTypeSchema.optional(),
   estimated_build_weeks: z.number().int().positive().optional(),
   notes: z.string().optional(),
   price_breakdown: z.array(breakdownLineSchema).min(1),
@@ -91,6 +76,7 @@ export async function POST(request: Request) {
       builder_id: user.id,
       name: body.data.name,
       package_name: body.data.package_name,
+      contract_type: body.data.contract_type ?? null,
       estimated_build_weeks: body.data.estimated_build_weeks ?? null,
       notes: body.data.notes ?? null,
       price_breakdown: body.data.price_breakdown,

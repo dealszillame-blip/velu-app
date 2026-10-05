@@ -60,6 +60,19 @@ export function LoginForm() {
     setInfo(null);
   }
 
+  async function resolvePostLoginPath() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return getPostLoginPath(searchParams);
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    return getPostLoginPath(searchParams, profile?.role ?? null);
+  }
+
   function switchMode(next: LoginMode) {
     setMode(next);
     setEmailStep("email");
@@ -112,7 +125,7 @@ export function LoginForm() {
       return;
     }
 
-    window.location.assign(getPostLoginPath(searchParams));
+    window.location.assign(await resolvePostLoginPath());
   }
 
   async function handlePasswordSubmit(e: React.FormEvent) {
@@ -131,7 +144,7 @@ export function LoginForm() {
         return;
       }
 
-      window.location.assign(getPostLoginPath(searchParams));
+      window.location.assign(await resolvePostLoginPath());
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

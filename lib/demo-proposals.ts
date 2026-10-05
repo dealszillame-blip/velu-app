@@ -3,12 +3,14 @@ import type {
   InclusionItem,
   PriceBreakdownLine,
 } from "@/lib/proposal-breakdown";
+import type { ContractType } from "@/lib/quote-structure";
 
 export type DemoProposalTemplate = {
   key: string;
   package_name: string;
   base_price: number;
   estimated_build_weeks: number;
+  contract_type: ContractType;
   inclusions: string;
   notes: string;
   home_specs: HomeSpecs;
@@ -22,10 +24,11 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
     package_name: "Oran Park Single + Studio",
     base_price: 498000,
     estimated_build_weeks: 28,
+    contract_type: "fixed_price",
     inclusions:
       "Granny-flat studio, stone benchtops, ducted AC, double garage, 10-year warranty",
     notes:
-      "Demonstration package. Ground-floor living with a rear granny-flat studio. Site costs included for South West Sydney lots.",
+      "Demonstration package. Ground-floor living with a rear granny-flat studio. Site costs are an estimate until a soil report is delivered.",
     home_specs: {
       bedrooms: 4,
       bathrooms: 3,
@@ -34,14 +37,15 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       storeys: 1,
     },
     price_breakdown: [
-      { category: "site", label: "Site costs & connections", amount: 42000 },
-      { category: "base", label: "Base build to lock-up", amount: 268000 },
-      { category: "kitchen", label: "Kitchen package", amount: 28000 },
-      { category: "bathroom", label: "Bathroom + ensuite", amount: 32000 },
-      { category: "electrical", label: "Electrical & ducted AC", amount: 26000 },
-      { category: "external", label: "Granny flat studio fit-out", amount: 62000 },
-      { category: "driveway", label: "Driveway & paths", amount: 18000 },
-      { category: "contingency", label: "Contingency allowance", amount: 22000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 42000, line_kind: "allowance", provisional: true },
+      { category: "base", label: "Base build to lock-up (est.)", amount: 268000, line_kind: "lump_sum" },
+      { category: "kitchen", label: "Kitchen package (est.)", amount: 28000, line_kind: "lump_sum" },
+      { category: "bathroom", label: "Bathroom + ensuite (est.)", amount: 32000, line_kind: "lump_sum" },
+      { category: "electrical", label: "Electrical & ducted AC (est.)", amount: 26000, line_kind: "lump_sum" },
+      { category: "external", label: "Granny flat studio fit-out (est.)", amount: 62000, line_kind: "lump_sum" },
+      { category: "contingency", label: "Contingency (est.)", amount: 22000, line_kind: "allowance" },
+      { category: "pc", label: "Prime cost items (est.)", amount: 0, line_kind: "pc" },
+      { category: "ps", label: "Provisional sums (est.)", amount: 18000, line_kind: "ps" },
     ],
     inclusion_items: [
       { category: "kitchen", item: "Stone benchtops", detail: "40mm engineered stone", included: true },
@@ -56,10 +60,11 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
     package_name: "Hawkesbury 25 Dual Living",
     base_price: 548000,
     estimated_build_weeks: 33,
+    contract_type: "hybrid",
     inclusions:
       "5-bed single storey, granny flat, stone, ducted AC, solar-ready, landscaping",
     notes:
-      "Demonstration package. Closest match to a 5-bed + granny-flat brief. Fixed site costs for R2 estate lots.",
+      "Demonstration package. Closest match to a 5-bed + granny-flat brief. Site costs are an estimate for R2 estate lots until soil is classified.",
     home_specs: {
       bedrooms: 5,
       bathrooms: 3,
@@ -68,14 +73,14 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       storeys: 1,
     },
     price_breakdown: [
-      { category: "site", label: "Site costs & connections", amount: 48000 },
-      { category: "base", label: "Base build to lock-up", amount: 292000 },
-      { category: "kitchen", label: "Kitchen package", amount: 34000 },
-      { category: "bathroom", label: "3-way bathroom package", amount: 38000 },
-      { category: "electrical", label: "Electrical & ducted AC", amount: 28000 },
-      { category: "external", label: "Granny flat + landscaping", amount: 72000 },
-      { category: "energy", label: "Solar-ready upgrade", amount: 12000 },
-      { category: "contingency", label: "Contingency allowance", amount: 24000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 48000, line_kind: "allowance", provisional: true },
+      { category: "base", label: "Base build to lock-up (est.)", amount: 292000, line_kind: "lump_sum" },
+      { category: "kitchen", label: "Kitchen package (est.)", amount: 34000, line_kind: "lump_sum" },
+      { category: "bathroom", label: "3-way bathroom package (est.)", amount: 38000, line_kind: "lump_sum" },
+      { category: "electrical", label: "Electrical & ducted AC (est.)", amount: 28000, line_kind: "lump_sum" },
+      { category: "external", label: "Granny flat + landscaping (est.)", amount: 72000, line_kind: "allowance" },
+      { category: "contingency", label: "Contingency (est.)", amount: 24000, line_kind: "allowance" },
+      { category: "pc", label: "Prime cost items (est.)", amount: 0, line_kind: "pc" },
     ],
     inclusion_items: [
       { category: "kitchen", item: "Stone benchtops", detail: "40mm stone + butler's pantry", included: true },
@@ -91,9 +96,10 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
     package_name: "The Campbell 220",
     base_price: 468000,
     estimated_build_weeks: 26,
+    contract_type: "cost_plus",
     inclusions: "Engineered stone, split-system AC, Colorbond roof, double garage",
     notes:
-      "Demonstration package. Fastest programme and lowest lump sum. No granny flat and no ducted AC.",
+      "Demonstration package. Fastest programme. Site costs are an estimate — no granny flat and no ducted AC.",
     home_specs: {
       bedrooms: 4,
       bathrooms: 2,
@@ -102,13 +108,14 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       storeys: 2,
     },
     price_breakdown: [
-      { category: "site", label: "Site costs & connections", amount: 36000 },
-      { category: "base", label: "Base build to lock-up", amount: 274000 },
-      { category: "kitchen", label: "Kitchen package", amount: 22000 },
-      { category: "bathroom", label: "Bathroom package", amount: 24000 },
-      { category: "electrical", label: "Split-system AC (2 units)", amount: 14000 },
-      { category: "external", label: "Driveway allowance", amount: 16000 },
-      { category: "contingency", label: "Contingency allowance", amount: 18000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 36000, line_kind: "allowance", provisional: true },
+      { category: "base", label: "Base build to lock-up (est.)", amount: 274000, line_kind: "lump_sum" },
+      { category: "kitchen", label: "Kitchen package (est.)", amount: 22000, line_kind: "lump_sum" },
+      { category: "bathroom", label: "Bathroom package (est.)", amount: 24000, line_kind: "lump_sum" },
+      { category: "electrical", label: "Split-system AC (2 units) (est.)", amount: 14000, line_kind: "lump_sum" },
+      { category: "external", label: "Driveway allowance (est.)", amount: 16000, line_kind: "allowance" },
+      { category: "contingency", label: "Contingency (est.)", amount: 18000, line_kind: "allowance" },
+      { category: "ps", label: "Provisional sums (est.)", amount: 0, line_kind: "ps" },
     ],
     inclusion_items: [
       { category: "kitchen", item: "Engineered stone", detail: "20mm", included: true },

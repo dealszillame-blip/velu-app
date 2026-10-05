@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  briefSaveBlocked,
   buildRequirementsSchema,
   normalizeBuildRequirements,
 } from "@/lib/buyer-requirements";
@@ -46,6 +47,17 @@ export async function PUT(request: Request) {
   const body = buildRequirementsSchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const blocked = briefSaveBlocked(body.data);
+  if (blocked) {
+    return NextResponse.json(
+      {
+        error: blocked,
+        code: "brief_contradiction",
+      },
+      { status: 400 }
+    );
   }
 
   const { data: profile } = await supabase

@@ -16,6 +16,7 @@ import {
   formatSettlementDate,
   grannyFlatLabel,
   houseTypeLabel,
+  storeyBriefContradiction,
   storeyLabel,
 } from "@/lib/buyer-requirements";
 import { builderTypeLabel } from "@/lib/builder-types";
@@ -77,6 +78,11 @@ export function BuyerRequirementsSummary({
         <div>
           <p className="label-caps mb-1">Storeys</p>
           <p className="text-sm font-medium">{storeyLabel(requirements.storeys)}</p>
+          {storeyBriefContradiction(requirements) ? (
+            <p className="mt-1 text-xs text-amber-800">
+              {storeyBriefContradiction(requirements)}
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="surface-subtle flex items-start gap-3 p-4">

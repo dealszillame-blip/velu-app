@@ -1,42 +1,65 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { nswVerifyUrl } from "@/lib/placeholder-builders";
+import { createProposalSchema } from "@/lib/proposal-schema";
+import { defaultLineKind } from "@/lib/quote-structure";
+import { isSoilReportDelivered } from "@/lib/soil-sequencing";
 import { createClient } from "@/lib/supabase/server";
+import type { ProposalRow } from "@/lib/proposals";
+import type { SiteReportRequestStatus } from "@/lib/site-reports";
 
-const breakdownLineSchema = z.object({
-  category: z.string(),
-  label: z.string().min(1),
-  amount: z.number().min(0),
-  note: z.string().optional(),
-});
+function normalizeBreakdown(
+  lines: Array<{
+    category: string;
+    label: string;
+    amount: number;
+    note?: string;
+    line_kind?: "lump_sum" | "pc" | "ps" | "allowance";
+    provisional?: boolean;
+  }> | undefined
+) {
+  return (lines ?? []).map((line) => ({
+    ...line,
+    line_kind: line.line_kind ?? defaultLineKind(line.category),
+    provisional:
+      line.provisional ?? (line.category === "site" ? true : undefined),
+  }));
+}
 
-const inclusionItemSchema = z.object({
-  category: z.string(),
-  item: z.string().min(1),
-  detail: z.string(),
-  included: z.boolean(),
-});
+async function attachSoilFlags(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rows: ProposalRow[]
+) {
+  const listingIds = [
+    ...new Set(rows.map((row) => row.land_listing_id).filter(Boolean)),
+  ];
+  if (listingIds.length === 0) return rows;
 
-const homeSpecsSchema = z.object({
-  bedrooms: z.number().int().positive().optional(),
-  bathrooms: z.number().positive().optional(),
-  car_spaces: z.number().int().min(0).optional(),
-  living_area_sqm: z.number().positive().optional(),
-  storeys: z.number().int().positive().optional(),
-});
+  const { data: soils } = await supabase
+    .from("site_report_requests")
+    .select("land_listing_id, report_definition_key, status")
+    .eq("report_definition_key", "soil_report")
+    .in("land_listing_id", listingIds);
 
-const createSchema = z.object({
-  land_listing_id: z.string().uuid(),
-  package_name: z.string().min(2),
-  base_price: z.number().positive(),
-  inclusions: z.string().optional(),
-  estimated_build_weeks: z.number().int().positive().optional(),
-  notes: z.string().optional(),
-  price_breakdown: z.array(breakdownLineSchema).optional(),
-  inclusion_items: z.array(inclusionItemSchema).optional(),
-  home_specs: homeSpecsSchema.optional(),
-});
+  const byListing = new Map(
+    (soils ?? []).map((row) => [
+      row.land_listing_id as string,
+      row.status as SiteReportRequestStatus,
+    ])
+  );
+
+  return rows.map((row) => {
+    const status = byListing.get(row.land_listing_id) ?? null;
+    return {
+      ...row,
+      soil_report_status: status,
+      site_costs_provisional: !isSoilReportDelivered(
+        soils ?? [],
+        row.land_listing_id
+      ),
+    };
+  });
+}
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -71,7 +94,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = createSchema.safeParse(await request.json());
+  const body = createProposalSchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
@@ -97,10 +120,11 @@ export async function POST(request: Request) {
       buyer_id: listing.buyer_id,
       package_name: body.data.package_name,
       base_price: body.data.base_price,
+      contract_type: body.data.contract_type,
       inclusions: body.data.inclusions ?? null,
       estimated_build_weeks: body.data.estimated_build_weeks ?? null,
       notes: body.data.notes ?? null,
-      price_breakdown: body.data.price_breakdown ?? [],
+      price_breakdown: normalizeBreakdown(body.data.price_breakdown),
       inclusion_items: body.data.inclusion_items ?? [],
       home_specs: body.data.home_specs ?? {},
       status: "pending",
@@ -111,7 +135,10 @@ export async function POST(request: Request) {
   if (error) {
     if (error.code === "23505") {
       return NextResponse.json(
-        { error: "You already submitted a proposal for this listing." },
+        {
+          error:
+            "You already have a live proposal for this listing. Edit or withdraw it first.",
+        },
         { status: 409 }
       );
     }
@@ -121,21 +148,21 @@ export async function POST(request: Request) {
   if (listing.buyer_id) {
     const admin = await createServiceClient();
     await admin.from("notifications").insert({
-        recipient_id: listing.buyer_id,
-        type: "proposal_received",
-        title: "New builder proposal",
-        body: `${body.data.package_name} — ${new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(body.data.base_price)}`,
-        metadata: {
-          proposal_id: data.id,
-          listing_id: listing.id,
-        },
-      });
+      recipient_id: listing.buyer_id,
+      type: "proposal_received",
+      title: "New builder proposal",
+      body: `${body.data.package_name} — ${new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(body.data.base_price)}`,
+      metadata: {
+        proposal_id: data.id,
+        listing_id: listing.id,
+      },
+    });
   }
 
   return NextResponse.json({ id: data.id });
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -162,14 +189,17 @@ export async function GET(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    const rows = (Array.isArray(data) ? data : []) as Array<{
-      builder_id: string;
-      license_number?: string | null;
-      license_verify_url?: string | null;
-      is_license_valid?: boolean | null;
-      insurance_verified?: boolean | null;
-    }>;
-    const missing = rows.filter((row) => row.license_number == null).map((row) => row.builder_id);
+    const rows = (Array.isArray(data) ? data : []) as Array<
+      ProposalRow & {
+        license_number?: string | null;
+        license_verify_url?: string | null;
+        is_license_valid?: boolean | null;
+        insurance_verified?: boolean | null;
+      }
+    >;
+    const missing = rows
+      .filter((row) => row.license_number == null)
+      .map((row) => row.builder_id);
     if (missing.length > 0) {
       const { data: profiles } = await supabase
         .from("builder_profiles")
@@ -197,7 +227,8 @@ export async function GET(request: Request) {
         );
       }
     }
-    return NextResponse.json(rows);
+    const withSoil = await attachSoilFlags(supabase, rows);
+    return NextResponse.json(withSoil);
   }
 
   if (profile.role === "builder") {
@@ -209,6 +240,7 @@ export async function GET(request: Request) {
         land_listing_id,
         package_name,
         base_price,
+        contract_type,
         inclusions,
         estimated_build_weeks,
         notes,

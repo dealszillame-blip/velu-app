@@ -1,8 +1,13 @@
+import type { ContractType, LineKind } from "@/lib/quote-structure";
+import { defaultLineKind } from "@/lib/quote-structure";
+
 export type PriceBreakdownLine = {
   category: string;
   label: string;
   amount: number;
   note?: string;
+  line_kind?: LineKind;
+  provisional?: boolean;
 };
 
 export type InclusionItem = {
@@ -27,6 +32,7 @@ export type ProposalTemplate = {
   package_name: string;
   estimated_build_weeks: number | null;
   notes: string | null;
+  contract_type?: ContractType | null;
   price_breakdown: PriceBreakdownLine[];
   inclusion_items: InclusionItem[];
   home_specs: HomeSpecs;
@@ -39,6 +45,7 @@ export type ProposalFormState = {
   base_price: string;
   estimated_build_weeks: string;
   notes: string;
+  contract_type: ContractType | "";
   price_breakdown: PriceBreakdownLine[];
   inclusion_items: InclusionItem[];
   home_specs: HomeSpecs;
@@ -49,12 +56,11 @@ export const BREAKDOWN_CATEGORIES = [
   { value: "base", label: "Base build" },
   { value: "kitchen", label: "Kitchen" },
   { value: "bathroom", label: "Bathroom" },
-  { value: "flooring", label: "Flooring" },
   { value: "electrical", label: "Electrical & AC" },
   { value: "external", label: "External & landscaping" },
-  { value: "driveway", label: "Driveway & paths" },
-  { value: "contingency", label: "Contingency allowance" },
-  { value: "other", label: "Other" },
+  { value: "contingency", label: "Contingency" },
+  { value: "pc", label: "Prime cost (PC)" },
+  { value: "ps", label: "Provisional sum (PS)" },
 ] as const;
 
 export const INCLUSION_CATEGORIES = [
@@ -70,15 +76,61 @@ export const INCLUSION_CATEGORIES = [
 
 export function defaultBreakdownLines(): PriceBreakdownLine[] {
   return [
-    { category: "site", label: "Site costs & connections (est.)", amount: 0 },
-    { category: "base", label: "Base build to lock-up (est.)", amount: 0 },
-    { category: "kitchen", label: "Kitchen package (est.)", amount: 0 },
-    { category: "bathroom", label: "Bathroom package (est.)", amount: 0 },
-    { category: "flooring", label: "Floor coverings (est.)", amount: 0 },
-    { category: "electrical", label: "Electrical & ducted AC (est.)", amount: 0 },
-    { category: "external", label: "Landscaping allowance (est.)", amount: 0 },
-    { category: "driveway", label: "Driveway & paths (est.)", amount: 0 },
-    { category: "contingency", label: "Contingency (est.)", amount: 0 },
+    {
+      category: "site",
+      label: "Estimated site costs & connections",
+      amount: 0,
+      line_kind: "allowance",
+      provisional: true,
+    },
+    {
+      category: "base",
+      label: "Base build to lock-up (est.)",
+      amount: 0,
+      line_kind: "lump_sum",
+    },
+    {
+      category: "kitchen",
+      label: "Kitchen package (est.)",
+      amount: 0,
+      line_kind: "lump_sum",
+    },
+    {
+      category: "bathroom",
+      label: "Bathroom package (est.)",
+      amount: 0,
+      line_kind: "lump_sum",
+    },
+    {
+      category: "electrical",
+      label: "Electrical & ducted AC (est.)",
+      amount: 0,
+      line_kind: "lump_sum",
+    },
+    {
+      category: "external",
+      label: "External & landscaping (est.)",
+      amount: 0,
+      line_kind: "allowance",
+    },
+    {
+      category: "contingency",
+      label: "Contingency (est.)",
+      amount: 0,
+      line_kind: "allowance",
+    },
+    {
+      category: "pc",
+      label: "Prime cost items (est.)",
+      amount: 0,
+      line_kind: "pc",
+    },
+    {
+      category: "ps",
+      label: "Provisional sums (est.)",
+      amount: 0,
+      line_kind: "ps",
+    },
   ];
 }
 
@@ -103,6 +155,7 @@ export function emptyFormState(): ProposalFormState {
     base_price: "",
     estimated_build_weeks: "",
     notes: "",
+    contract_type: "",
     price_breakdown: defaultBreakdownLines(),
     inclusion_items: defaultInclusionItems(),
     home_specs: { bedrooms: 4, bathrooms: 2, car_spaces: 2, living_area_sqm: 220, storeys: 2 },
@@ -128,8 +181,21 @@ export function formatInclusionsSummary(items: InclusionItem[]): string {
     .join(", ");
 }
 
+export function withDefaultLineKind(line: PriceBreakdownLine): PriceBreakdownLine {
+  return {
+    ...line,
+    line_kind: line.line_kind ?? defaultLineKind(line.category),
+    provisional:
+      line.provisional ?? (line.category === "site" ? true : undefined),
+  };
+}
+
 export function templateToFormState(template: ProposalTemplate): ProposalFormState {
-  const total = sumBreakdown(template.price_breakdown);
+  const lines = (template.price_breakdown.length
+    ? template.price_breakdown
+    : defaultBreakdownLines()
+  ).map(withDefaultLineKind);
+  const total = sumBreakdown(lines);
   return {
     package_name: template.package_name,
     base_price: total > 0 ? String(total) : "",
@@ -137,12 +203,42 @@ export function templateToFormState(template: ProposalTemplate): ProposalFormSta
       ? String(template.estimated_build_weeks)
       : "",
     notes: template.notes ?? "",
-    price_breakdown: template.price_breakdown.length
-      ? template.price_breakdown
-      : defaultBreakdownLines(),
+    contract_type: template.contract_type ?? "",
+    price_breakdown: lines,
     inclusion_items: template.inclusion_items.length
       ? template.inclusion_items
       : defaultInclusionItems(),
     home_specs: template.home_specs ?? {},
+  };
+}
+
+export function proposalToFormState(proposal: {
+  package_name: string;
+  base_price: number;
+  estimated_build_weeks?: number | null;
+  notes?: string | null;
+  contract_type?: ContractType | null;
+  price_breakdown?: PriceBreakdownLine[] | null;
+  inclusion_items?: InclusionItem[] | null;
+  home_specs?: HomeSpecs | null;
+}): ProposalFormState {
+  const lines = (proposal.price_breakdown?.length
+    ? proposal.price_breakdown
+    : defaultBreakdownLines()
+  ).map(withDefaultLineKind);
+  const total = sumBreakdown(lines);
+  return {
+    package_name: proposal.package_name,
+    base_price: total > 0 ? String(total) : String(proposal.base_price ?? ""),
+    estimated_build_weeks: proposal.estimated_build_weeks
+      ? String(proposal.estimated_build_weeks)
+      : "",
+    notes: proposal.notes ?? "",
+    contract_type: proposal.contract_type ?? "",
+    price_breakdown: lines,
+    inclusion_items: proposal.inclusion_items?.length
+      ? proposal.inclusion_items
+      : defaultInclusionItems(),
+    home_specs: proposal.home_specs ?? {},
   };
 }

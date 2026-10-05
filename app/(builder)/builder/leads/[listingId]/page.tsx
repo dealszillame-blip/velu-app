@@ -6,6 +6,9 @@ import { ProposalForm } from "@/components/proposals/ProposalForm";
 import { LandThumbnail } from "@/components/shared/LandThumbnail";
 import { requireRole } from "@/lib/auth";
 import { listingPriceLabel } from "@/lib/listings";
+import { canEditProposal, proposalStatusLabel } from "@/lib/proposals";
+import type { ProposalRow } from "@/lib/proposals";
+import { LIVE_PROPOSAL_STATUSES, type ProposalStatus } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -34,12 +37,20 @@ export default async function BuilderLeadDetailPage({
     notFound();
   }
 
-  const { data: existingProposal } = await supabase
+  const { data: proposalRows } = await supabase
     .from("builder_proposals")
-    .select("id, package_name, status")
+    .select(
+      "id, package_name, status, base_price, contract_type, inclusions, estimated_build_weeks, notes, price_breakdown, inclusion_items, home_specs, created_at, land_listing_id, builder_id"
+    )
     .eq("land_listing_id", listingId)
     .eq("builder_id", user.id)
-    .maybeSingle();
+    .order("created_at", { ascending: false });
+
+  const liveProposal = (proposalRows ?? []).find((row) =>
+    LIVE_PROPOSAL_STATUSES.includes(row.status as ProposalStatus)
+  ) as ProposalRow | undefined;
+  const existingProposal = liveProposal ?? null;
+  const canRevise = existingProposal ? canEditProposal(existingProposal.status) : false;
 
   const soldDate = listing.sold_at
     ? new Date(listing.sold_at).toLocaleDateString("en-AU", {
@@ -158,28 +169,39 @@ export default async function BuilderLeadDetailPage({
             </div>
             <div>
               <p className="font-medium tracking-tight">
-                {existingProposal ? "Proposal submitted" : "Submit a proposal"}
+                {existingProposal
+                  ? canRevise
+                    ? "Edit your proposal"
+                    : "Proposal submitted"
+                  : "Submit a proposal"}
               </p>
               <p className="text-sm text-muted-foreground">
                 {existingProposal
-                  ? `Your "${existingProposal.package_name}" proposal is ${existingProposal.status}.`
-                  : "Send your build package directly to the buyer."}
+                  ? `Your "${existingProposal.package_name}" proposal is ${proposalStatusLabel(existingProposal.status).toLowerCase()}.`
+                  : "Send your build package directly to the buyer. Site costs should be estimates until a soil report is delivered."}
               </p>
             </div>
           </div>
         </div>
         <div className="p-5 sm:p-6">
-          {existingProposal ? (
+          {existingProposal && canRevise ? (
+            <ProposalForm listingId={listingId} existing={existingProposal} />
+          ) : existingProposal ? (
             <div className="space-y-4">
               <div className="surface-subtle flex items-center justify-between gap-3 p-4">
                 <div>
                   <p className="font-medium">{existingProposal.package_name}</p>
                   <p className="text-sm capitalize text-muted-foreground">
-                    Status: {existingProposal.status}
+                    Status: {proposalStatusLabel(existingProposal.status)}
                   </p>
+                  {existingProposal.status === "accepted" ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Accepted quotes cannot be edited here. Variations are a later step.
+                    </p>
+                  ) : null}
                 </div>
                 <Badge variant="secondary" className="rounded-full capitalize">
-                  {existingProposal.status}
+                  {proposalStatusLabel(existingProposal.status)}
                 </Badge>
               </div>
               <Link

@@ -77,6 +77,7 @@ copy .env.example .env.local
 | 27 | `027_nsw_builder_directory.sql` | **Required** — creates the NSW Fair Trading licensed-builder **table**. SQL only — do not paste npm commands into this editor. |
 | 28 | `028_audit_now_fixes.sql` | **Required for live demo** — lead dedupe, 10× price cleanup, Figtree measurements, placeholder builder filter, distinct demo track records, licence fields on compare RPC |
 | 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
+| 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -113,6 +114,15 @@ Weekly licence + Google review refresh is also not SQL: use Admin → **Run week
 - This file is SQL only. Do not paste `npm` commands into the editor.
 
 Until 029 is run, **My land** still shows one Chalford card because `/api/buyer/land` dedupes by buyer + address.
+
+### After 029 — quotes, withdraw, contract type (030)
+
+Until **`030_proposal_withdraw_and_quotes.sql`** is pasted into **SQL Editor** and run:
+
+- Builders cannot withdraw a pending quote to resubmit (the old unique on `builder_id, land_listing_id` still blocks a second row).
+- New quotes that send `contract_type` will fail if the column is missing.
+
+030 is SQL only. Do not paste `npm` commands into the editor.
 
 ### Verify tables exist
 

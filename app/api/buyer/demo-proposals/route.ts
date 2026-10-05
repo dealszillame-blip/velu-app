@@ -102,6 +102,7 @@ export async function POST() {
     home_specs: template.home_specs,
     price_breakdown: template.price_breakdown,
     inclusion_items: template.inclusion_items,
+    contract_type: template.contract_type,
     status: "pending" as const,
   }));
 

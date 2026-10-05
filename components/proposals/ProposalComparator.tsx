@@ -44,6 +44,11 @@ import {
   proposalStatusLabel,
   type ProposalRow,
 } from "@/lib/proposals";
+import { contractTypeLabel } from "@/lib/quote-structure";
+import {
+  ACCEPT_COOLING_OFF_COPY,
+  SITE_COSTS_PROVISIONAL_COPY,
+} from "@/lib/soil-sequencing";
 
 const COMPARE_TABS = [
   { value: "compare", label: "Compare" },
@@ -155,6 +160,7 @@ function ProposalCard({
   onRespond: (id: string, action: "accept" | "reject") => void;
 }) {
   const isPending = ["pending", "viewed"].includes(proposal.status);
+  const siteProvisional = proposal.site_costs_provisional !== false;
 
   return (
     <Card className="overflow-hidden border-0">
@@ -183,6 +189,15 @@ function ProposalCard({
             {formatProposalPrice(proposal.base_price)}
           </span>
         </div>
+        <div>
+          <p className="label-caps mb-1">Contract type</p>
+          <p className="font-medium">{contractTypeLabel(proposal.contract_type)}</p>
+        </div>
+        {siteProvisional ? (
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            {SITE_COSTS_PROVISIONAL_COPY}
+          </p>
+        ) : null}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="label-caps mb-1">NSW licence</p>
@@ -420,6 +435,7 @@ export function ProposalComparator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [tab, setTab] = useState<CompareTab>("compare");
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoMessage, setDemoMessage] = useState<string | null>(null);
@@ -476,7 +492,12 @@ export function ProposalComparator() {
   }, [applyProposalPayload]);
 
   async function respond(id: string, action: "accept" | "reject") {
+    if (action === "accept" && confirmingId !== id) {
+      setConfirmingId(id);
+      return;
+    }
     setActingId(id);
+    setConfirmingId(null);
     const res = await fetch(`/api/proposals/${id}/respond`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -614,6 +635,39 @@ export function ProposalComparator() {
           {error}
         </p>
       )}
+
+      {proposals.some((p) => p.site_costs_provisional !== false) ? (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {SITE_COSTS_PROVISIONAL_COPY}
+        </p>
+      ) : null}
+
+      {confirmingId ? (
+        <div className="surface-subtle space-y-3 p-5">
+          <p className="font-medium tracking-tight">Confirm before you accept</p>
+          <p className="text-sm text-muted-foreground">{ACCEPT_COOLING_OFF_COPY}</p>
+          {proposals.find((p) => p.id === confirmingId)?.site_costs_provisional !==
+          false ? (
+            <p className="text-sm text-amber-900">{SITE_COSTS_PROVISIONAL_COPY}</p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              className="rounded-full"
+              disabled={actingId === confirmingId}
+              onClick={() => void respond(confirmingId, "accept")}
+            >
+              I understand — accept this estimate
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => setConfirmingId(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {pending.length > 0 && (
         <div>
