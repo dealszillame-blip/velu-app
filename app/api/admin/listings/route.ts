@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
+import { assertPublishableLandPrice } from "@/lib/land-price";
 import { requireAdminApi } from "@/lib/admin/guard";
 
 export const dynamic = "force-dynamic";
@@ -82,6 +83,14 @@ export async function POST(request: Request) {
     "Unknown";
   const postcode = geocoded.postcode.slice(0, 4);
   const zoning = body.data.zoning.toUpperCase();
+
+  const priceCheck = assertPublishableLandPrice(
+    body.data.price,
+    body.data.land_size_sqm
+  );
+  if (!priceCheck.ok) {
+    return NextResponse.json({ error: priceCheck.error }, { status: 400 });
+  }
 
   if (body.data.agent_id) {
     const { data: listingId, error } = await auth.admin.rpc(

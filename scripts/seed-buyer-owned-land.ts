@@ -130,7 +130,11 @@ async function main() {
 
     await supabase
       .from("land_listings")
-      .update({ sold_at: registeredAt, created_at: registeredAt })
+      .update({
+        sold_at: registeredAt,
+        created_at: registeredAt,
+        ...(parcel.depthMeters != null ? { depth_meters: parcel.depthMeters } : {}),
+      })
       .eq("id", listingId);
 
     ownedIds.set(parcel.key, listingId as string);

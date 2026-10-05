@@ -25,7 +25,7 @@ export default async function BuilderLeadDetailPage({
   const { data: listing } = await supabase
     .from("land_listings")
     .select(
-      "id, address, suburb, postcode, price, price_display, land_size_sqm, frontage_meters, zoning, status, sold_at, buyer_id"
+      "id, address, suburb, postcode, price, price_display, land_size_sqm, frontage_meters, depth_meters, zoning, status, sold_at, buyer_id"
     )
     .eq("id", listingId)
     .single();
@@ -87,7 +87,7 @@ export default async function BuilderLeadDetailPage({
           </div>
 
           {/* Lot stats */}
-          <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+          <div className="mt-4 grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
             <div>
               <p className="label-caps mb-1">Land size</p>
               <p className="text-lg font-semibold">{listing.land_size_sqm}</p>
@@ -96,6 +96,13 @@ export default async function BuilderLeadDetailPage({
             <div>
               <p className="label-caps mb-1">Frontage</p>
               <p className="text-lg font-semibold">{listing.frontage_meters}</p>
+              <p className="text-xs text-muted-foreground">metres</p>
+            </div>
+            <div>
+              <p className="label-caps mb-1">Depth</p>
+              <p className="text-lg font-semibold">
+                {listing.depth_meters ?? "—"}
+              </p>
               <p className="text-xs text-muted-foreground">metres</p>
             </div>
             <div>
@@ -114,7 +121,14 @@ export default async function BuilderLeadDetailPage({
 
       {/* Buyer requirements */}
       {listing.buyer_id ? (
-        <LeadBuyerRequirements buyerId={listing.buyer_id} />
+        <LeadBuyerRequirements
+          buyerId={listing.buyer_id}
+          land={{
+            land_size_sqm: listing.land_size_sqm,
+            frontage_meters: listing.frontage_meters,
+            depth_meters: listing.depth_meters,
+          }}
+        />
       ) : null}
 
       {/* Contact buyer before proposal */}

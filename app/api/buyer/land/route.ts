@@ -3,6 +3,7 @@ import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
 import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
 import { buildRequirementsSchema } from "@/lib/buyer-requirements";
+import { assertPublishableLandPrice } from "@/lib/land-price";
 import { isSiteReportsSchemaError } from "@/lib/site-reports";
 import {
   createSiteReportRequests,
@@ -28,6 +29,7 @@ const LISTING_SELECT = `
   postcode,
   land_size_sqm,
   frontage_meters,
+  depth_meters,
   zoning,
   price,
   price_display,
@@ -102,6 +104,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
+  if (body.data.land_value && body.data.land_value > 0) {
+    const priceCheck = assertPublishableLandPrice(
+      body.data.land_value,
+      body.data.land_size_sqm,
+      "Land value"
+    );
+    if (!priceCheck.ok) {
+      return NextResponse.json({ error: priceCheck.error }, { status: 400 });
+    }
+  }
+
   const geocoded = await geocodeAddress(body.data.address);
   if (!geocoded) {
     return NextResponse.json(
@@ -154,6 +167,15 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const depth =
+    body.data.build_requirements.depth_meters ?? undefined;
+  if (depth) {
+    await supabase
+      .from("land_listings")
+      .update({ depth_meters: depth })
+      .eq("id", listingId);
   }
 
   const { data: listing } = await supabase

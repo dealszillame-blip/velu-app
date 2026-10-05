@@ -85,7 +85,7 @@ export function defaultBreakdownLines(): PriceBreakdownLine[] {
 export function defaultInclusionItems(): InclusionItem[] {
   return [
     { category: "structure", item: "Fixed-price HIA contract", detail: "Standard residential build contract", included: true },
-    { category: "structure", item: "Structural warranty", detail: "10 years (est.)", included: true },
+    { category: "warranty", item: "Extra structural warranty", detail: "Optional extra on top of NSW statutory warranties (6yr major / 2yr other)", included: false },
     { category: "kitchen", item: "Stone benchtops", detail: "20mm engineered stone — allowance", included: true },
     { category: "kitchen", item: "900mm appliances", detail: "Oven, cooktop, rangehood — allowance", included: true },
     { category: "bathroom", item: "Main bathroom package", detail: "Wall-hung vanity, semi-frameless shower", included: true },

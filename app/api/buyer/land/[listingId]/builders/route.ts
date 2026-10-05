@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { licensedToNearby, type LicensedBuilderRow } from "@/lib/licensed-builders";
 import type { NearbyBuilder } from "@/lib/nearby-builders";
+import { isPlaceholderDirectoryBuilder } from "@/lib/placeholder-builders";
 import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = {
@@ -48,11 +49,15 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const registerRows = Array.isArray(licensed) ? (licensed as LicensedBuilderRow[]) : [];
-  const registerBuilders = registerRows.map(licensedToNearby);
+  const registerBuilders = registerRows
+    .map(licensedToNearby)
+    .filter((builder) => !isPlaceholderDirectoryBuilder(builder));
 
   const onboardedBuilders = (
     Array.isArray(onboarded) ? (onboarded as NearbyBuilder[]) : []
-  ).map((builder) => ({ ...builder, source: "onboarded" as const }));
+  )
+    .map((builder) => ({ ...builder, source: "onboarded" as const }))
+    .filter((builder) => !isPlaceholderDirectoryBuilder(builder));
 
   if (licensedError && registerBuilders.length === 0) {
     return NextResponse.json(onboardedBuilders);

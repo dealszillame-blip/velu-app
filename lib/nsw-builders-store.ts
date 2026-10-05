@@ -8,6 +8,7 @@ import {
 } from "@/lib/google-places";
 import { nswRegisterToUpsert, type LicensedBuilderRow } from "@/lib/licensed-builders";
 import type { NswRegisterBuilder } from "@/lib/nsw-register";
+import { isPlaceholderDirectoryBuilder } from "@/lib/placeholder-builders";
 
 const SNAPSHOT = join(
   process.cwd(),
@@ -31,11 +32,18 @@ export async function upsertLicensedBuilders(
   admin: SupabaseClient,
   builders: NswRegisterBuilder[]
 ): Promise<number> {
+  const eligible = builders.filter(
+    (row) =>
+      !isPlaceholderDirectoryBuilder({
+        licence_number: row.licence_number,
+        licensee: row.licensee,
+      })
+  );
   let written = 0;
   const chunkSize = 200;
 
-  for (let i = 0; i < builders.length; i += chunkSize) {
-    const chunk = builders.slice(i, i + chunkSize).map(nswRegisterToUpsert);
+  for (let i = 0; i < eligible.length; i += chunkSize) {
+    const chunk = eligible.slice(i, i + chunkSize).map(nswRegisterToUpsert);
     const { error } = await admin.from("nsw_licensed_builders").upsert(chunk, {
       onConflict: "licence_number",
     });

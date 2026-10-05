@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
+import { assertPublishableLandPrice } from "@/lib/land-price";
 import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
@@ -53,6 +54,14 @@ export async function POST(request: Request) {
       { error: "Address must include a valid NSW postcode." },
       { status: 422 }
     );
+  }
+
+  const priceCheck = assertPublishableLandPrice(
+    body.data.price,
+    body.data.land_size_sqm
+  );
+  if (!priceCheck.ok) {
+    return NextResponse.json({ error: priceCheck.error }, { status: 400 });
   }
 
   const { data: listingId, error } = await supabase.rpc("create_land_listing", {

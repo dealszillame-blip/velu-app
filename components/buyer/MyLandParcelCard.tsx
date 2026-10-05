@@ -45,6 +45,10 @@ export function MyLandParcelCard({
             </CardTitle>
             <CardDescription>
               {parcel.suburb} {parcel.postcode} · {parcel.land_size_sqm}m²
+              {parcel.frontage_meters != null
+                ? ` · ${parcel.frontage_meters}m frontage`
+                : ""}
+              {parcel.depth_meters != null ? ` · ${parcel.depth_meters}m depth` : ""}
             </CardDescription>
           </div>
           <Badge variant="outline" className="rounded-full gap-1">

@@ -3,6 +3,9 @@ import {
   formatBuildRequirementsSummary,
   grannyFlatLabel,
   houseTypeLabel,
+  notesIndicateSingleLevel,
+  shouldPenaliseStoreyMismatch,
+  storeyBriefContradiction,
   storeyLabel,
   wantedStoreyCount,
 } from "@/lib/buyer-requirements";
@@ -117,6 +120,10 @@ function scoreProposal(
         score += 12;
         strengths.push(
           `${specs.storeys === 1 ? "Single-storey" : "Two-storey"} matches ${storeyLabel(requirements.storeys)} / ${houseTypeLabel(requirements.house_type)}.`
+        );
+      } else if (!shouldPenaliseStoreyMismatch(requirements, specs.storeys)) {
+        strengths.push(
+          `${specs.storeys === 1 ? "Single-storey" : `${specs.storeys}-storey`} follows your notes (${requirements.additional_notes?.trim() || "single-level living"}) rather than the structured ${storeyLabel(requirements.storeys)} field.`
         );
       } else {
         storeyMismatch = true;
@@ -259,16 +266,27 @@ export function recommendProposals(
     );
   }
   const wantedStoreys = wantedStoreyCount(requirements);
+  const notesSingle =
+    requirements != null && notesIndicateSingleLevel(requirements.additional_notes);
   if (
     recommended &&
     !recommended.storey_mismatch &&
     wantedStoreys === 2 &&
     requirements &&
+    !notesSingle &&
     ranked.some((row) => row.storey_mismatch)
   ) {
     nextSteps.push(
       `Do not accept a single-storey package against your ${storeyLabel(requirements.storeys)} brief — ask that builder for a two-storey / G+1 variation instead.`
     );
+  }
+  if (requirements) {
+    const contradiction = storeyBriefContradiction(requirements);
+    if (contradiction) {
+      nextSteps.unshift(
+        `Your brief contradicts itself: ${contradiction} Ranking does not punish 1-storey packages when your notes clearly ask for single-level living.`
+      );
+    }
   }
   nextSteps.push("Message the recommended builder and one runner-up before you accept.");
 
@@ -328,7 +346,10 @@ export function recommendationNarrationPrompt(
         .map((item) => `${item.item}${item.detail ? ` (${item.detail})` : ""}`);
       const layout = row.storey_mismatch
         ? "LAYOUT FAIL — single vs G+1 / two-storey mismatch; do not recommend as a layout match"
-        : "LAYOUT OK — storeys match the brief";
+        : notesIndicateSingleLevel(requirements?.additional_notes) &&
+            (proposal?.home_specs?.storeys ?? 0) === 1
+          ? "LAYOUT OK — buyer notes ask for single-level living; do not treat a 1-storey package as a hard fail"
+          : "LAYOUT OK — storeys match the brief";
       return [
         `${index + 1}. ${row.builder_name} — ${row.package_name} at ${formatProposalPrice(row.base_price)}.`,
         `Brief-fit score ${row.score}/100 (rules only; do not treat as the verdict). ${layout}.`,

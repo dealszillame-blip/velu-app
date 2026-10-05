@@ -68,7 +68,7 @@ Last-sale and delay fields are not on the licence register. Use the LLM ingest b
 Compare → **Tender report** and **Recommend** can add a short Gemini (or OpenAI) narrative on top of the deterministic comparison.
 
 - **Tender report** narrates stored-tender price/inclusion matches.
-- **Recommend** keeps a numbered **brief-fit** score from bedroom/bathroom/storey/granny/price rules. Storeys (single vs G+1 / two-storey) are a hard layout filter: a single-storey package cannot outrank a G+1 match, and a storey mismatch is capped at 64/100. Gemini then writes an **independent** 3–5 paragraph recommendation from the full brief, specs and inclusions — it must not open by restating the score, and it must not recommend a single-storey home against a G+1 brief. If Gemini is unset or fails, the rules-based sentence stays.
+- **Recommend** is a numbered **brief-fit** score (bedrooms, bathrooms, storeys, granny flat, car spaces, price) plus an optional Gemini write-up. It is not an AI decision engine. Storeys are a hard layout filter unless the buyer’s notes clearly ask for single-level living — in that contradiction, 1-storey packages are not penalised. A storey mismatch is otherwise capped at 64/100. Gemini then writes an independent 3–5 paragraph recommendation from the full brief, specs and inclusions. If Gemini is unset or fails, the rules-based sentence stays.
 
 Set one of these on the **server** (Vercel → Environment Variables, then redeploy). Do not use a `NEXT_PUBLIC_` name.
 

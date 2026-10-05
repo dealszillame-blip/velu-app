@@ -7,6 +7,7 @@ export interface BuyerOwnedLand {
   postcode: string;
   land_size_sqm: number;
   frontage_meters: number;
+  depth_meters?: number | null;
   zoning: string;
   price: number;
   price_display: string | null;

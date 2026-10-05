@@ -21,6 +21,7 @@ import {
   inviteToReviewPrefill,
   type NearbyBuilder,
 } from "@/lib/nearby-builders";
+import { ratingDisplay } from "@/lib/builder-ratings";
 import { builderTypeLabel } from "@/lib/builder-types";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +71,7 @@ function NearbyBuilderCard({
 }) {
   const name = displayNearbyBuilderName(builder);
   const invitePrefill = inviteToReviewPrefill(parcel.suburb, parcel.address);
+  const rating = ratingDisplay(builder);
 
   return (
     <Card className="overflow-hidden">
@@ -128,13 +130,11 @@ function NearbyBuilderCard({
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <CriteriaRow
                   icon={<Star className="h-3.5 w-3.5" />}
-                  label="Google review"
+                  label={rating?.label ?? "Rating"}
                   value={
-                    builder.google_rating != null
-                      ? `${builder.google_rating.toFixed(1)}${
-                          builder.google_review_count
-                            ? ` (${builder.google_review_count})`
-                            : ""
+                    rating
+                      ? `${rating.rating.toFixed(1)}${
+                          rating.reviewCount ? ` (${rating.reviewCount})` : ""
                         }`
                       : "Not listed"
                   }
@@ -152,41 +152,40 @@ function NearbyBuilderCard({
                   }
                   href={builder.license_verify_url ?? undefined}
                 />
-                <CriteriaRow
-                  icon={<Home className="h-3.5 w-3.5" />}
-                  label="Last property sold"
-                  value={
-                    builder.last_property_sold_address
-                      ? `${builder.last_property_sold_address}${
-                          builder.last_property_sold_at
-                            ? ` · ${new Date(builder.last_property_sold_at).toLocaleDateString("en-AU", { month: "short", year: "numeric" })}`
-                            : ""
-                        }`
-                      : "Not listed"
-                  }
-                />
-                <CriteriaRow
-                  icon={<Timer className="h-3.5 w-3.5" />}
-                  label="Project delays"
-                  value={
-                    builder.avg_delay_weeks == null
-                      ? "No delay record"
-                      : builder.avg_delay_weeks === 0
+                {builder.last_property_sold_address ? (
+                  <CriteriaRow
+                    icon={<Home className="h-3.5 w-3.5" />}
+                    label="Last property sold"
+                    value={`${builder.last_property_sold_address}${
+                      builder.last_property_sold_at
+                        ? ` · ${new Date(builder.last_property_sold_at).toLocaleDateString("en-AU", { month: "short", year: "numeric" })}`
+                        : ""
+                    }`}
+                  />
+                ) : null}
+                {builder.avg_delay_weeks != null ? (
+                  <CriteriaRow
+                    icon={<Timer className="h-3.5 w-3.5" />}
+                    label="Project delays"
+                    value={
+                      builder.avg_delay_weeks === 0
                         ? "No recorded delays"
                         : `${builder.avg_delay_weeks} weeks average`
-                  }
-                />
+                    }
+                  />
+                ) : null}
               </div>
-              {builder.google_rating != null && (
+              {rating && rating.source === "google" && (
                 <div className="mt-2 flex items-center gap-2 text-sm">
-                  <StarRating rating={builder.google_rating} size="sm" />
+                  <StarRating rating={rating.rating} size="sm" />
                   <span className="text-muted-foreground">
-                    {builder.google_rating.toFixed(1)}
-                    {builder.google_review_count
-                      ? ` (${builder.google_review_count})`
-                      : ""}
+                    {rating.rating.toFixed(1)}
+                    {rating.reviewCount ? ` (${rating.reviewCount})` : ""}
                   </span>
                 </div>
+              )}
+              {rating && rating.source === "unverified" && (
+                <p className="mt-2 text-xs text-muted-foreground">{rating.label}</p>
               )}
               <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
                 {builder.license_number ? (
@@ -377,8 +376,9 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         {builders.length} licensed builder{builders.length === 1 ? "" : "s"} near{" "}
-        {parcel.suburb} from the NSW register (not Velu accounts). Criteria:
-        Google review, licence check, last property sold, and project delays.
+        {parcel.suburb} from the NSW register (not Velu accounts). Last-sale and
+        delay facts are shown only when collected — they are not placeholder
+        defaults.
       </p>
       {builders.map((builder) => (
         <NearbyBuilderCard key={builder.id} builder={builder} parcel={parcel} />

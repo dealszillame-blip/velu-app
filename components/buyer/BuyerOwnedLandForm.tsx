@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   defaultBuildRequirements,
+  storeyBriefContradiction,
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
 import {
@@ -32,6 +33,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [address, setAddress] = useState("");
   const [landSize, setLandSize] = useState("");
   const [frontage, setFrontage] = useState("");
+  const [depth, setDepth] = useState("");
   const [landValue, setLandValue] = useState("");
   const [buildRequirements, setBuildRequirements] =
     useState<BuyerBuildRequirements>(defaultBuildRequirements());
@@ -106,18 +108,24 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setLoading(true);
     setError(null);
 
+    const size = Number(landSize);
+    const front = Number(frontage);
+    const depthMeters = depth ? Number(depth) : undefined;
+    const value = landValue ? Number(landValue) : undefined;
+
     const res = await fetch("/api/buyer/land", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         address,
-        land_size_sqm: Number(landSize),
-        frontage_meters: Number(frontage),
-        land_value: landValue ? Number(landValue) : undefined,
+        land_size_sqm: size,
+        frontage_meters: front,
+        land_value: value,
         build_requirements: {
           ...buildRequirements,
-          land_size_sqm: Number(landSize) || buildRequirements.land_size_sqm,
-          frontage_meters: Number(frontage) || buildRequirements.frontage_meters,
+          land_size_sqm: size,
+          frontage_meters: front,
+          depth_meters: depthMeters ?? buildRequirements.depth_meters,
         },
         site_report_keys: selectedSiteReportKeys,
         site_report_notes:
@@ -138,6 +146,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setAddress("");
     setLandSize("");
     setFrontage("");
+    setDepth("");
     setLandValue("");
     setSelectedSiteReportKeys([]);
     setSiteReportNotes("");
@@ -199,6 +208,19 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="owned-depth">Depth (m)</Label>
+              <Input
+                id="owned-depth"
+                type="number"
+                min={1}
+                step="0.01"
+                placeholder="30"
+                value={depth}
+                onChange={(e) => setDepth(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="owned-landValue">
                 Estimated land value (optional)
               </Label>
@@ -222,7 +244,13 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
               value={buildRequirements}
               onChange={setBuildRequirements}
               idPrefix="owned-land"
+              hideLandMeasurements
             />
+            {storeyBriefContradiction(buildRequirements) ? (
+              <p className="mt-3 text-sm text-amber-800" role="status">
+                {storeyBriefContradiction(buildRequirements)}
+              </p>
+            ) : null}
           </div>
 
           <SiteReportAddonSelector

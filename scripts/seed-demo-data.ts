@@ -105,8 +105,19 @@ async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: s
       ? "https://verify.licence.nsw.gov.au/results?searchTerm=dhursan&filter=search&status=all"
       : "https://verify.licence.nsw.gov.au/home/Trades",
     last_property_sold_address: user.lastSoldAddress ?? null,
-    last_property_sold_at: new Date().toISOString().slice(0, 10),
-    avg_delay_weeks: isDhursan ? 0 : 1.5,
+    last_property_sold_at: user.lastSoldAddress
+      ? new Date(
+          Date.now() - (user.lastSoldDaysAgo ?? 30) * 86400000
+        )
+          .toISOString()
+          .slice(0, 10)
+      : null,
+    avg_delay_weeks:
+      user.avgDelayWeeks !== undefined
+        ? user.avgDelayWeeks
+        : user.lastSoldAddress
+          ? 0
+          : null,
     profile_published: true,
     years_in_business: isDhursan ? 7 : 12,
     website_url: isDhursan ? "https://dhursanconstruction.com.au" : null,
@@ -181,6 +192,9 @@ async function seedBuyerRequirements(userIds: Map<string, string>) {
       car_spaces: 2,
       construction_grade: "medium",
       preferred_builder_types: ["bulk", "semi_custom"],
+      land_size_sqm: 518,
+      frontage_meters: 13.5,
+      depth_meters: 20,
       additional_notes: "Single-level living, granny flat for parents.",
     },
   };
@@ -246,7 +260,11 @@ async function seedBuyerOwnedLand(
 
     await supabase
       .from("land_listings")
-      .update({ sold_at: registeredAt, created_at: registeredAt })
+      .update({
+        sold_at: registeredAt,
+        created_at: registeredAt,
+        ...(parcel.depthMeters != null ? { depth_meters: parcel.depthMeters } : {}),
+      })
       .eq("id", listingId);
 
     ownedIds.set(parcel.key, listingId as string);
