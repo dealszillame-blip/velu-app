@@ -76,6 +76,7 @@ copy .env.example .env.local
 | 26 | `026_sydney_builder_hub.sql` | **Required** — verified builder criteria, extra add-ons, report-provider portal, tender knowledge base |
 | 27 | `027_nsw_builder_directory.sql` | **Required** — creates the NSW Fair Trading licensed-builder **table**. SQL only — do not paste npm commands into this editor. |
 | 28 | `028_audit_now_fixes.sql` | **Required for live demo** — lead dedupe, 10× price cleanup, Figtree measurements, placeholder builder filter, distinct demo track records, licence fields on compare RPC |
+| 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -99,6 +100,19 @@ npm run sync:nsw-builders
 ```
 
 Weekly licence + Google review refresh is also not SQL: use Admin → **Run weekly update now**, or in a terminal `npm run sync:nsw-builders:weekly`.
+
+### After 028 — leftover cleanup (029)
+
+028 reused addresses on insert and collapsed builder leads, but **did not delete** extra listing rows already in production. After merge, paste **`migrations/mvp/029_audit_leftover_cleanup.sql`** into **SQL Editor** and run it (same steps as 028).
+
+029:
+
+- Keeps **one** `land_listings` row per buyer + normalized address (Circuit / Cct). Extra Chalford copies are deleted; child proposals, site reports, and messages are re-pointed first.
+- Prefers the 028-updated Chalford row when present (`ef01c387…` at $740k).
+- Drops the leftover unpublished **AAAAA / UUU** `builder_profiles` row. Does **not** delete Apex, Meridian, SouthWest, or Dhursan, and does **not** delete `auth.users`.
+- This file is SQL only. Do not paste `npm` commands into the editor.
+
+Until 029 is run, **My land** still shows one Chalford card because `/api/buyer/land` dedupes by buyer + address.
 
 ### Verify tables exist
 
