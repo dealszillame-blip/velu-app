@@ -303,6 +303,8 @@ export type DemoUser = {
   googleRating?: number;
   googleReviewCount?: number;
   lastSoldAddress?: string;
+  lastSoldDaysAgo?: number;
+  avgDelayWeeks?: number | null;
   reportKeys?: string[];
   anchorAddress: string;
   anchorLng: number;
@@ -344,6 +346,9 @@ export const DEMO_USERS: DemoUser[] = [
     builderType: "bulk",
     googleRating: 4.6,
     googleReviewCount: 54,
+    lastSoldAddress: "45 Badgally Rd, Campbelltown",
+    lastSoldDaysAgo: 19,
+    avgDelayWeeks: 0.4,
     anchorAddress: "Campbelltown NSW 2560",
     anchorLng: 150.8139,
     anchorLat: -34.0669,
@@ -360,6 +365,9 @@ export const DEMO_USERS: DemoUser[] = [
     builderType: "custom",
     googleRating: 4.8,
     googleReviewCount: 61,
+    lastSoldAddress: "14 River Rd, Liverpool",
+    lastSoldDaysAgo: 41,
+    avgDelayWeeks: 2.1,
     anchorAddress: "Liverpool NSW 2170",
     anchorLng: 150.9256,
     anchorLat: -33.9249,
@@ -376,7 +384,9 @@ export const DEMO_USERS: DemoUser[] = [
     builderType: "semi_custom",
     googleRating: 4.5,
     googleReviewCount: 38,
-    lastSoldAddress: "11 Moore St, Liverpool",
+    lastSoldAddress: "4 Gledswood Hills Dr, Gregory Hills",
+    lastSoldDaysAgo: 12,
+    avgDelayWeeks: 1.1,
     anchorAddress: "Camden NSW 2570",
     anchorLng: 150.6969,
     anchorLat: -34.0544,
@@ -394,6 +404,8 @@ export const DEMO_USERS: DemoUser[] = [
     googleRating: 5,
     googleReviewCount: 85,
     lastSoldAddress: "Lot 2209 Brabham Precinct, Oran Park",
+    lastSoldDaysAgo: 21,
+    avgDelayWeeks: 0,
     anchorAddress: "Suite 106, 3 Fordham Way, Oran Park NSW 2570",
     anchorLng: 150.7442,
     anchorLat: -34.0051,
@@ -435,6 +447,7 @@ export type DemoBuyerOwnedLand = {
   postcode: string;
   landSizeSqm: number;
   frontageMeters: number;
+  depthMeters?: number;
   zoning: string;
   longitude: number;
   latitude: number;
@@ -464,8 +477,9 @@ export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
     address: "8 Figtree Blvd",
     suburb: "Oran Park",
     postcode: "2570",
-    landSizeSqm: 520,
-    frontageMeters: 16,
+    landSizeSqm: 518,
+    frontageMeters: 13.5,
+    depthMeters: 20,
     zoning: "R2",
     longitude: 150.7408,
     latitude: -34.0012,
@@ -630,7 +644,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
       { category: "kitchen", item: "Stone benchtops", detail: "40mm engineered stone", included: true },
       { category: "electrical", item: "Ducted air conditioning", detail: "2 zones", included: true },
       { category: "external", item: "Granny flat / studio", detail: "Self-contained rear studio", included: true },
-      { category: "warranty", item: "Structural warranty", detail: "6 years", included: true },
+      { category: "warranty", item: "Extra structural warranty", detail: "6 years listed — NSW statutory floor already applies", included: true },
     ],
   },
   ownedProposalFromTemplate(

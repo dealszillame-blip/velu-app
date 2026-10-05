@@ -13,9 +13,14 @@ import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 
 type LeadBuyerRequirementsProps = {
   buyerId: string;
+  land?: {
+    land_size_sqm?: number | null;
+    frontage_meters?: number | null;
+    depth_meters?: number | null;
+  };
 };
 
-export function LeadBuyerRequirements({ buyerId }: LeadBuyerRequirementsProps) {
+export function LeadBuyerRequirements({ buyerId, land }: LeadBuyerRequirementsProps) {
   const [requirements, setRequirements] =
     useState<BuyerBuildRequirements | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +60,7 @@ export function LeadBuyerRequirements({ buyerId }: LeadBuyerRequirementsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <BuyerRequirementsSummary requirements={requirements} />
+        <BuyerRequirementsSummary requirements={requirements} land={land} />
       </CardContent>
     </Card>
   );

@@ -1,6 +1,7 @@
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
   houseTypeLabel,
+  shouldPenaliseStoreyMismatch,
   storeyLabel,
   wantedStoreyCount,
 } from "@/lib/buyer-requirements";
@@ -81,11 +82,26 @@ export function analyseTender(
       }
 
       const wantedStoreys = wantedStoreyCount(requirements);
-      if (wantedStoreys && specs.storeys != null && specs.storeys !== wantedStoreys) {
+      if (
+        wantedStoreys &&
+        specs.storeys != null &&
+        specs.storeys !== wantedStoreys &&
+        shouldPenaliseStoreyMismatch(requirements, specs.storeys)
+      ) {
         findings.push({
           severity: "gap",
           title: "Storeys do not match the brief",
           detail: `Package is ${specs.storeys} storey vs ${storeyLabel(requirements.storeys)} / ${houseTypeLabel(requirements.house_type)}.`,
+        });
+      } else if (
+        wantedStoreys &&
+        specs.storeys != null &&
+        specs.storeys !== wantedStoreys
+      ) {
+        findings.push({
+          severity: "watch",
+          title: "Storey fields disagree with buyer notes",
+          detail: `Structured brief is ${storeyLabel(requirements.storeys)}, but notes ask for single-level living. This ${specs.storeys}-storey package is not treated as a hard fail.`,
         });
       }
 

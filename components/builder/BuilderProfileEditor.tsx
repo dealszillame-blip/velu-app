@@ -315,42 +315,14 @@ export function BuilderProfileEditor() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Google reviews summary</CardTitle>
+          <CardTitle>Google Business link</CardTitle>
           <CardDescription>
-            Add your Google rating and link, then highlight your best reviews below.
+            Ratings are no longer self-entered. Add a Google Maps / Business
+            link; Places and NSW register ratings are preferred when present.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="google_rating">Average rating</Label>
-            <Input
-              id="google_rating"
-              type="number"
-              min={1}
-              max={5}
-              step={0.1}
-              value={profile.google_rating ?? ""}
-              onChange={(e) =>
-                updateField(
-                  "google_rating",
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="google_review_count">Total review count</Label>
-            <Input
-              id="google_review_count"
-              type="number"
-              min={0}
-              value={profile.google_review_count}
-              onChange={(e) =>
-                updateField("google_review_count", Number(e.target.value) || 0)
-              }
-            />
-          </div>
-          <div className="space-y-2 sm:col-span-1">
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="google_maps_url">Google Maps / Business link</Label>
             <Input
               id="google_maps_url"

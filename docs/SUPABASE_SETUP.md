@@ -75,6 +75,7 @@ copy .env.example .env.local
 | 25 | `025_demo_comparison_proposals.sql` | Demo comparison packages |
 | 26 | `026_sydney_builder_hub.sql` | **Required** — verified builder criteria, extra add-ons, report-provider portal, tender knowledge base |
 | 27 | `027_nsw_builder_directory.sql` | **Required** — creates the NSW Fair Trading licensed-builder **table**. SQL only — do not paste npm commands into this editor. |
+| 28 | `028_audit_now_fixes.sql` | **Required for live demo** — lead dedupe, 10× price cleanup, Figtree measurements, placeholder builder filter, distinct demo track records, licence fields on compare RPC |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 

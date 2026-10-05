@@ -104,7 +104,7 @@ BEGIN
     INSERT INTO public.buyer_profiles (id, build_requirements, requirements_completed_at)
     VALUES (
       v_buyer2,
-      '{"storeys":"ground_only","granny_flat":"yes","bedrooms":5,"bathrooms":3,"car_spaces":2,"additional_notes":"Single-level living, granny flat for parents."}'::jsonb,
+      '{"storeys":"ground_only","house_type":"single_storey","granny_flat":"yes","bedrooms":5,"bathrooms":3,"car_spaces":2,"construction_grade":"medium","preferred_builder_types":["bulk","semi_custom"],"land_size_sqm":518,"frontage_meters":13.5,"depth_meters":20,"additional_notes":"Single-level living, granny flat for parents."}'::jsonb,
       NOW()
     )
     ON CONFLICT (id) DO UPDATE SET

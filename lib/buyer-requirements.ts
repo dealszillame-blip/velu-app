@@ -144,6 +144,66 @@ export function wantedStoreyCount(req: BuyerBuildRequirements | null): number | 
   return null;
 }
 
+export function notesIndicateSingleLevel(notes?: string): boolean {
+  if (!notes) return false;
+  const text = notes.toLowerCase();
+  const single = /single[-\s]?level|single[-\s]?stor(e)?y|ground[-\s]?floor only|single[-\s]?level living/.test(
+    text
+  );
+  const two = /double[-\s]?stor(e)?y|two[-\s]?stor(e)?y|g\s*\+\s*1|first[-\s]?floor bedrooms/.test(
+    text
+  );
+  return single && !two;
+}
+
+export function notesIndicateTwoStorey(notes?: string): boolean {
+  if (!notes) return false;
+  const text = notes.toLowerCase();
+  return /double[-\s]?stor(e)?y|two[-\s]?stor(e)?y|g\s*\+\s*1/.test(text);
+}
+
+export function storeyBriefContradiction(
+  req: BuyerBuildRequirements
+): string | null {
+  const structured = wantedStoreyCount(req);
+  const notes = req.additional_notes;
+  if (structured === 2 && notesIndicateSingleLevel(notes)) {
+    return "Structured storeys are G+1 / two-storey, but your notes say single-level living. Confirm one brief before builders quote.";
+  }
+  if (structured === 1 && notesIndicateTwoStorey(notes)) {
+    return "Structured storeys are single-level, but your notes describe a two-storey home. Confirm one brief before builders quote.";
+  }
+  if (
+    req.storeys === "ground_only" &&
+    req.house_type === "double_storey"
+  ) {
+    return "House type is double storey, but storeys is ground floor only.";
+  }
+  if (
+    (req.storeys === "ground_plus_one" || req.storeys === "two_storey") &&
+    req.house_type === "single_storey"
+  ) {
+    return "House type is single storey, but storeys is G+1 / two-storey.";
+  }
+  return null;
+}
+
+/**
+ * Scoring should not punish a 1-storey package when the buyer’s own notes
+ * clearly ask for single-level living, even if the structured field says G+1.
+ */
+export function shouldPenaliseStoreyMismatch(
+  req: BuyerBuildRequirements,
+  packageStoreys: number
+): boolean {
+  const wanted = wantedStoreyCount(req);
+  if (!wanted || packageStoreys === wanted) return false;
+  if (packageStoreys === 1 && notesIndicateSingleLevel(req.additional_notes)) {
+    return false;
+  }
+  return true;
+}
+
 export function houseTypeLabel(value?: HouseTypePreference): string {
   if (!value) return "Not sure yet";
   return HOUSE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;

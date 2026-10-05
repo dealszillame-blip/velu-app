@@ -22,6 +22,10 @@ export interface ProposalRow {
   home_specs?: HomeSpecs;
   status: ProposalStatus;
   created_at: string;
+  license_number?: string | null;
+  license_verify_url?: string | null;
+  is_license_valid?: boolean | null;
+  insurance_verified?: boolean | null;
 }
 
 export interface CreateProposalInput {

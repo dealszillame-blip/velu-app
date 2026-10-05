@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi } from "@/lib/admin/guard";
+import { assertPublishableLandPrice } from "@/lib/land-price";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,24 @@ export async function PATCH(request: Request, context: RouteContext) {
         { error: "Selected user is not an agent." },
         { status: 400 }
       );
+    }
+  }
+
+  if (body.data.price != null) {
+    let landSize = body.data.land_size_sqm;
+    if (landSize == null) {
+      const { data: existing } = await auth.admin
+        .from("land_listings")
+        .select("land_size_sqm")
+        .eq("id", id)
+        .single();
+      landSize = existing ? Number(existing.land_size_sqm) : undefined;
+    }
+    if (landSize) {
+      const priceCheck = assertPublishableLandPrice(body.data.price, landSize);
+      if (!priceCheck.ok) {
+        return NextResponse.json({ error: priceCheck.error }, { status: 400 });
+      }
     }
   }
 

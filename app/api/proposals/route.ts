@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { nswVerifyUrl } from "@/lib/placeholder-builders";
 import { createClient } from "@/lib/supabase/server";
 
 const breakdownLineSchema = z.object({
@@ -161,7 +162,42 @@ export async function GET(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json(data ?? []);
+    const rows = (Array.isArray(data) ? data : []) as Array<{
+      builder_id: string;
+      license_number?: string | null;
+      license_verify_url?: string | null;
+      is_license_valid?: boolean | null;
+      insurance_verified?: boolean | null;
+    }>;
+    const missing = rows.filter((row) => row.license_number == null).map((row) => row.builder_id);
+    if (missing.length > 0) {
+      const { data: profiles } = await supabase
+        .from("builder_profiles")
+        .select("id, license_number, license_verify_url, is_license_valid, insurance_verified")
+        .in("id", [...new Set(missing)]);
+      const byId = new Map(
+        (profiles ?? []).map((profileRow) => [profileRow.id, profileRow])
+      );
+      for (const row of rows) {
+        const extra = byId.get(row.builder_id);
+        if (!extra) continue;
+        row.license_number = extra.license_number;
+        row.license_verify_url = nswVerifyUrl(
+          extra.license_number,
+          extra.license_verify_url
+        );
+        row.is_license_valid = extra.is_license_valid;
+        row.insurance_verified = extra.insurance_verified;
+      }
+    } else {
+      for (const row of rows) {
+        row.license_verify_url = nswVerifyUrl(
+          row.license_number,
+          row.license_verify_url
+        );
+      }
+    }
+    return NextResponse.json(rows);
   }
 
   if (profile.role === "builder") {

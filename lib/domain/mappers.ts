@@ -4,6 +4,7 @@ import type {
   DomainListingType,
   NormalizedDomainListing,
 } from "@/lib/domain/types";
+import { sanitizeIngestedLandPrice } from "@/lib/land-price";
 import type { ListingStatus } from "@/lib/types";
 
 const UNDER_CONTRACT_LABELS = new Set([
@@ -105,6 +106,7 @@ export function normalizeDomainListing(
   const { price, priceDisplay } = parseDomainPrice(listing.priceDetails);
   const landSizeSqm = details.landArea ?? 0;
   const status = mapDomainStatus(listingType, listing);
+  const sizeForPrice = landSizeSqm > 0 ? landSizeSqm : 400;
 
   let soldAt: string | null = null;
   if (status === "sold" && listing.soldData?.soldDate) {
@@ -112,18 +114,22 @@ export function normalizeDomainListing(
   }
 
   const soldPrice = listing.soldData?.soldPrice;
-  const resolvedPrice =
+  const rawPrice =
     status === "sold" && soldPrice != null ? soldPrice : price;
+  const sanitized = sanitizeIngestedLandPrice(rawPrice, sizeForPrice, priceDisplay);
+  if (!sanitized.ok) {
+    return null;
+  }
 
   return {
     domainListingId: String(id),
     address,
     suburb,
     postcode,
-    price: resolvedPrice,
+    price: sanitized.price,
     priceDisplay,
-    landSizeSqm: landSizeSqm > 0 ? landSizeSqm : 400,
-    frontageMeters: estimateFrontageMeters(landSizeSqm > 0 ? landSizeSqm : 400),
+    landSizeSqm: sizeForPrice,
+    frontageMeters: estimateFrontageMeters(sizeForPrice),
     zoning: DOMAIN_DEFAULT_ZONING,
     longitude: details.longitude,
     latitude: details.latitude,

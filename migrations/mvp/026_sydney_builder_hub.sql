@@ -325,20 +325,15 @@ GRANT EXECUTE ON FUNCTION public.get_public_builders_near_listing(UUID) TO authe
 UPDATE public.builder_profiles bp
 SET
   builder_type = COALESCE(bp.builder_type, 'bulk'),
-  google_rating = COALESCE(bp.google_rating, 4.6),
-  google_review_count = COALESCE(bp.google_review_count, 42),
   is_license_valid = TRUE,
   license_verified_at = COALESCE(bp.license_verified_at, NOW()),
   license_verify_url = COALESCE(
     bp.license_verify_url,
     'https://verify.licence.nsw.gov.au/home/Trades'
   ),
-  last_property_sold_address = COALESCE(bp.last_property_sold_address, '7 Wattle Grove, Leumeah'),
-  last_property_sold_at = COALESCE(bp.last_property_sold_at, CURRENT_DATE - 40),
-  avg_delay_weeks = COALESCE(bp.avg_delay_weeks, 1.5),
-  profile_published = TRUE,
-  insurance_verified = TRUE
-WHERE bp.is_onboarded = TRUE;
+  profile_published = TRUE
+WHERE bp.is_onboarded = TRUE
+  AND COALESCE(bp.license_number, '') !~* '^(A{3,}|U{3,}|AAAAA|TEST)';
 
 -- Dhursan Homes (NSW contractor licences 369795C / 341107C) — Oran Park / Sydney SW.
 DO $$

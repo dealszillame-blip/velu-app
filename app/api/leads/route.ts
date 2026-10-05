@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
+import { dedupeLeads } from "@/lib/listing-identity";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -43,5 +43,5 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data ?? []);
+  return NextResponse.json(dedupeLeads(Array.isArray(data) ? data : []));
 }

@@ -48,7 +48,7 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       { category: "electrical", item: "Ducted air conditioning", detail: "2 zones", included: true },
       { category: "external", item: "Granny flat / studio", detail: "Self-contained rear studio", included: true },
       { category: "external", item: "Double garage", detail: "Remote doors", included: true },
-      { category: "warranty", item: "Structural warranty", detail: "10 years", included: true },
+      { category: "warranty", item: "Extra structural warranty", detail: "10 years on top of NSW statutory warranties", included: true },
     ],
   },
   {
@@ -83,7 +83,7 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       { category: "external", item: "Granny flat / studio", detail: "1-bed self-contained", included: true },
       { category: "energy", item: "Solar ready", detail: "Inverter wiring included", included: true },
       { category: "external", item: "Alfresco", detail: "Tiled outdoor living", included: true },
-      { category: "warranty", item: "Structural warranty", detail: "10 years + 2-year defects", included: true },
+      { category: "warranty", item: "Extra structural warranty", detail: "10 years + 2-year defects on top of NSW statutory warranties", included: true },
     ],
   },
   {
@@ -115,7 +115,7 @@ export const DEMO_COMPARISON_TEMPLATES: DemoProposalTemplate[] = [
       { category: "electrical", item: "Split-system AC", detail: "Living + main bedroom", included: true },
       { category: "external", item: "Double garage", detail: "Colorbond", included: true },
       { category: "external", item: "Granny flat / studio", detail: "Not included", included: false },
-      { category: "warranty", item: "Structural warranty", detail: "6 years", included: true },
+      { category: "warranty", item: "Extra structural warranty", detail: "Listed extra — NSW statutory floor (6yr major / 2yr other) already applies", included: true },
     ],
   },
 ];

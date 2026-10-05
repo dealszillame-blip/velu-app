@@ -8,9 +8,13 @@ import type { RecommendationReport } from "@/lib/proposal-recommendation";
 import { cn } from "@/lib/utils";
 
 function llmBadge(report: RecommendationReport): string {
-  if (report.llm?.used && report.llm.provider === "gemini") return "Gemini";
-  if (report.llm?.used && report.llm.provider === "openai") return "LLM";
-  return "Brief fit";
+  if (report.llm?.used && report.llm.provider === "gemini") {
+    return "Brief-fit score + Gemini write-up";
+  }
+  if (report.llm?.used && report.llm.provider === "openai") {
+    return "Brief-fit score + LLM write-up";
+  }
+  return "Ranked brief-fit (rules only)";
 }
 
 function firstParagraph(text: string): string {

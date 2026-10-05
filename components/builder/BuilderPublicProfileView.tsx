@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import type { BuilderPublicProfile } from "@/lib/builder-profile";
 import { displayBuilderName } from "@/lib/builder-profile";
+import { ratingDisplay } from "@/lib/builder-ratings";
 import { cn } from "@/lib/utils";
 
 type BuilderPublicProfileViewProps = {
@@ -26,6 +27,11 @@ export function BuilderPublicProfileView({
   editHref,
 }: BuilderPublicProfileViewProps) {
   const name = displayBuilderName(profile);
+  const rating = ratingDisplay({
+    google_rating: profile.google_rating,
+    google_review_count: profile.google_review_count,
+    google_maps_url: profile.google_maps_url,
+  });
 
   return (
     <div className="space-y-8">
@@ -127,20 +133,30 @@ export function BuilderPublicProfileView({
           </div>
 
           <div className="mt-6 grid gap-3 border-t border-black/[0.06] pt-6 sm:grid-cols-4">
-            {profile.google_rating != null && (
+            {rating ? (
               <div className="surface-subtle p-4">
-                <p className="label-caps mb-1">Google rating</p>
+                <p className="label-caps mb-1">{rating.label}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-semibold">
-                    {profile.google_rating.toFixed(1)}
+                  <span
+                    className={
+                      rating.source === "google"
+                        ? "text-2xl font-semibold"
+                        : "text-lg font-medium text-muted-foreground"
+                    }
+                  >
+                    {rating.rating.toFixed(1)}
                   </span>
-                  <StarRating rating={profile.google_rating} size="md" />
+                  {rating.source === "google" ? (
+                    <StarRating rating={rating.rating} size="md" />
+                  ) : null}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {profile.google_review_count} reviews
+                  {rating.reviewCount != null
+                    ? `${rating.reviewCount} reviews`
+                    : "Review count not verified"}
                 </p>
               </div>
-            )}
+            ) : null}
             {profile.years_in_business != null && (
               <div className="surface-subtle p-4">
                 <p className="label-caps mb-1">Experience</p>

@@ -20,14 +20,24 @@ import {
 } from "@/lib/buyer-requirements";
 import { builderTypeLabel } from "@/lib/builder-types";
 
+type LandMeasurements = {
+  land_size_sqm?: number | null;
+  frontage_meters?: number | null;
+  depth_meters?: number | null;
+  left_side_meters?: number | null;
+  right_side_meters?: number | null;
+};
+
 type BuyerRequirementsSummaryProps = {
   requirements: BuyerBuildRequirements;
   compact?: boolean;
+  land?: LandMeasurements;
 };
 
 export function BuyerRequirementsSummary({
   requirements,
   compact = false,
+  land,
 }: BuyerRequirementsSummaryProps) {
   if (compact) {
     return (
@@ -38,15 +48,17 @@ export function BuyerRequirementsSummary({
   }
 
   const settlement = formatSettlementDate(requirements.settlement_date);
+  const size = land?.land_size_sqm ?? requirements.land_size_sqm;
+  const frontage = land?.frontage_meters ?? requirements.frontage_meters;
+  const depth = land?.depth_meters ?? requirements.depth_meters;
+  const left = land?.left_side_meters ?? requirements.left_side_meters;
+  const right = land?.right_side_meters ?? requirements.right_side_meters;
   const measurements = [
-    requirements.land_size_sqm != null && `${requirements.land_size_sqm} m²`,
-    requirements.frontage_meters != null &&
-      `${requirements.frontage_meters} m frontage`,
-    requirements.depth_meters != null && `${requirements.depth_meters} m depth`,
-    requirements.left_side_meters != null &&
-      `${requirements.left_side_meters} m left`,
-    requirements.right_side_meters != null &&
-      `${requirements.right_side_meters} m right`,
+    size != null && `${size} m²`,
+    frontage != null && `${frontage} m frontage`,
+    depth != null && `${depth} m depth`,
+    left != null && `${left} m left`,
+    right != null && `${right} m right`,
   ].filter(Boolean);
 
   return (

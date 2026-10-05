@@ -26,6 +26,7 @@ import {
   ProposalComparisonGrid,
   ProposalHomeSpecs,
   ProposalInclusionsList,
+  StatutoryWarrantyNote,
 } from "@/components/proposals/ProposalBreakdownView";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { nswVerifyUrl } from "@/lib/placeholder-builders";
 import { cn } from "@/lib/utils";
 import {
   formatProposalPrice,
@@ -182,6 +184,37 @@ function ProposalCard({
           </span>
         </div>
         <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="label-caps mb-1">NSW licence</p>
+            {proposal.license_number ? (
+              <a
+                href={nswVerifyUrl(proposal.license_number, proposal.license_verify_url)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium underline-offset-2 hover:underline"
+              >
+                {proposal.license_number}
+              </a>
+            ) : (
+              <p className="font-medium text-muted-foreground">Not listed</p>
+            )}
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {proposal.license_number ? "Verify NSW" : "No licence on file"}
+            </p>
+          </div>
+          <div>
+            <p className="label-caps mb-1">Insurance / HBCF</p>
+            <p className="font-medium">
+              {proposal.insurance_verified
+                ? "Insurance verified"
+                : "Not verified on Velu"}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Same directory badge as nearby builders — not a Fair Trading extract.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           {proposal.estimated_build_weeks != null && (
             <div>
               <p className="label-caps mb-1">Build time</p>
@@ -206,11 +239,16 @@ function ProposalCard({
         ) : null}
         {proposal.inclusion_items && proposal.inclusion_items.length > 0 ? (
           <ProposalInclusionsList items={proposal.inclusion_items} compact />
-        ) : proposal.inclusions ? (
-          <p className="leading-relaxed text-muted-foreground">
-            {proposal.inclusions}
-          </p>
-        ) : null}
+        ) : (
+          <>
+            {proposal.inclusions ? (
+              <p className="leading-relaxed text-muted-foreground">
+                {proposal.inclusions}
+              </p>
+            ) : null}
+            <StatutoryWarrantyNote compact />
+          </>
+        )}
         {isPending && (
           <div className="flex flex-col gap-2 pt-1">
             <div className="flex gap-2">

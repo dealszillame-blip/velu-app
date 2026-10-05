@@ -47,8 +47,8 @@ BEGIN
     '8 Figtree Blvd',
     'Oran Park',
     '2570',
-    520,
-    16,
+    518,
+    13.5,
     'R2',
     150.7408,
     -34.0012,
@@ -56,7 +56,8 @@ BEGIN
   );
   UPDATE public.land_listings
   SET sold_at = NOW() - INTERVAL '5 days',
-      created_at = NOW() - INTERVAL '5 days'
+      created_at = NOW() - INTERVAL '5 days',
+      depth_meters = 20
   WHERE id = v_listing;
 
   -- Sam Chen — Gledswood Hills (second block)

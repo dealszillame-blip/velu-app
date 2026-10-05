@@ -7,6 +7,12 @@ import {
   type InclusionItem,
   type PriceBreakdownLine,
 } from "@/lib/proposal-breakdown";
+import {
+  extraWarrantyCopy,
+  isOptionalExtraWarranty,
+  isWarrantyInclusion,
+  NSW_STATUTORY_WARRANTY,
+} from "@/lib/statutory-warranty";
 import { formatProposalPrice, type ProposalRow } from "@/lib/proposals";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +81,14 @@ export function ProposalBreakdownTable({
   );
 }
 
+export function StatutoryWarrantyNote({ compact = false }: { compact?: boolean }) {
+  return (
+    <p className={cn("text-muted-foreground", compact ? "text-xs" : "text-sm")}>
+      {NSW_STATUTORY_WARRANTY}
+    </p>
+  );
+}
+
 export function ProposalInclusionsList({
   items,
   compact = false,
@@ -82,15 +96,47 @@ export function ProposalInclusionsList({
   items: InclusionItem[];
   compact?: boolean;
 }) {
-  if (!items?.length) return null;
+  if (!items?.length) {
+    return (
+      <div className={cn("space-y-2", compact && "text-xs")}>
+        <p className="label-caps">Warranty</p>
+        <StatutoryWarrantyNote compact={compact} />
+      </div>
+    );
+  }
 
+  const extras = items.filter((item) => isOptionalExtraWarranty(item) && item.included);
+  const other = items.filter((item) => !isWarrantyInclusion(item));
   const grouped = INCLUSION_CATEGORIES.map((cat) => ({
     ...cat,
-    items: items.filter((i) => i.category === cat.value),
+    items: other.filter((i) => i.category === cat.value),
   })).filter((g) => g.items.length > 0);
 
   return (
     <div className={cn("space-y-3", compact && "text-xs")}>
+      <div>
+        <p className="label-caps mb-1.5">Statutory warranty</p>
+        <StatutoryWarrantyNote compact={compact} />
+        {extras.length > 0 ? (
+          <ul className="mt-2 space-y-1.5">
+            {extras.map((item, i) => (
+              <li key={i} className="flex gap-2 rounded-lg bg-muted/50 px-2 py-1.5">
+                <span className="shrink-0">✓</span>
+                <span>
+                  <span className="font-medium">{item.item}</span>
+                  {item.detail ? (
+                    <span className="text-muted-foreground"> — {item.detail}</span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={cn("mt-1 text-muted-foreground", compact ? "text-xs" : "text-sm")}>
+            No extra warranty products listed beyond the statutory floor.
+          </p>
+        )}
+      </div>
       {grouped.map((group) => (
         <div key={group.value}>
           <p className="label-caps mb-1.5">{group.label}</p>
@@ -216,9 +262,20 @@ export function ProposalComparisonGrid({ proposals }: { proposals: ProposalRow[]
                       const item = (p.inclusion_items ?? []).find(
                         (i) => `${i.category}::${i.item}` === key
                       );
+                      const warranty = item
+                        ? isWarrantyInclusion(item)
+                        : /warranty/i.test(itemName);
                       return (
                         <td key={p.id} className="px-3 py-2 text-center">
-                          {item ? (item.included ? "✓" : "—") : "—"}
+                          {warranty
+                            ? item && item.included
+                              ? extraWarrantyCopy(item)
+                              : "Statutory floor (always applies)"
+                            : item
+                              ? item.included
+                                ? "✓"
+                                : "—"
+                              : "—"}
                         </td>
                       );
                     })}

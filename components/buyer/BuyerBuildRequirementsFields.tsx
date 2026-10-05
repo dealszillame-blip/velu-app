@@ -16,6 +16,7 @@ import {
   HOUSE_TYPE_OPTIONS,
   STOREY_OPTIONS,
   CONSTRUCTION_GRADE_OPTIONS,
+  storeyBriefContradiction,
 } from "@/lib/buyer-requirements";
 import { BUILDER_TYPE_OPTIONS } from "@/lib/builder-types";
 
@@ -23,12 +24,14 @@ type BuyerBuildRequirementsFieldsProps = {
   value: BuyerBuildRequirements;
   onChange: (value: BuyerBuildRequirements) => void;
   idPrefix?: string;
+  hideLandMeasurements?: boolean;
 };
 
 export function BuyerBuildRequirementsFields({
   value,
   onChange,
   idPrefix = "req",
+  hideLandMeasurements = false,
 }: BuyerBuildRequirementsFieldsProps) {
   function patch(partial: Partial<BuyerBuildRequirements>) {
     onChange({ ...value, ...partial });
@@ -58,6 +61,11 @@ export function BuyerBuildRequirementsFields({
         Tell builders the land, settlement, and house you want so quotes match
         the brief.
       </p>
+      {storeyBriefContradiction(value) ? (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900" role="status">
+          {storeyBriefContradiction(value)} Save is still allowed — ranking will follow your notes if they clearly ask for single-level living.
+        </p>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -197,6 +205,7 @@ export function BuyerBuildRequirementsFields({
         </div>
       </div>
 
+      {!hideLandMeasurements ? (
       <div>
         <p className="mb-3 text-sm font-medium">Land measurements</p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -274,6 +283,7 @@ export function BuyerBuildRequirementsFields({
           </div>
         </div>
       </div>
+      ) : null}
 
       <div>
         <p className="mb-3 text-sm font-medium">Rooms</p>
