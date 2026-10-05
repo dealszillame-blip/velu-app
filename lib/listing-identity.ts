@@ -43,6 +43,10 @@ type LeadLike = {
   price?: number | null;
   sold_at?: string | null;
   land_size_sqm?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  proposal_count?: number | null;
+  site_reports?: unknown[] | null;
 };
 
 function saneScore(lead: LeadLike): number {
@@ -80,4 +84,50 @@ export function dedupeLeads<T extends LeadLike>(leads: T[]): T[] {
     }
   }
   return [...chosen.values()];
+}
+
+function ownedCompleteness(row: LeadLike): number {
+  return (
+    saneScore(row) +
+    Math.min(Number(row.proposal_count) || 0, 5) +
+    Math.min(row.site_reports?.length ?? 0, 5)
+  );
+}
+
+function recencyMs(row: LeadLike): number {
+  return (
+    Date.parse(row.updated_at ?? "") ||
+    Date.parse(row.created_at ?? "") ||
+    Date.parse(row.sold_at ?? "") ||
+    0
+  );
+}
+
+/**
+ * My land: one card per buyer + normalized address (Circuit/Cct).
+ * Equivalent of DISTINCT ON so duplicate Chalford copies cannot render
+ * even before migration 029 deletes the extra rows.
+ */
+export function dedupeOwnedListings<T extends LeadLike>(listings: T[]): T[] {
+  const chosen = new Map<string, T>();
+  for (const listing of listings) {
+    const key = listingDedupeKey(listing);
+    const existing = chosen.get(key);
+    if (!existing) {
+      chosen.set(key, listing);
+      continue;
+    }
+    const nextScore = ownedCompleteness(listing);
+    const prevScore = ownedCompleteness(existing);
+    if (nextScore > prevScore) {
+      chosen.set(key, listing);
+      continue;
+    }
+    if (nextScore === prevScore && recencyMs(listing) >= recencyMs(existing)) {
+      chosen.set(key, listing);
+    }
+  }
+  return [...chosen.values()].sort(
+    (a, b) => Date.parse(String(b.created_at ?? "")) - Date.parse(String(a.created_at ?? ""))
+  );
 }

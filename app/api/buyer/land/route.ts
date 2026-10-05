@@ -9,6 +9,7 @@ import {
   createSiteReportRequests,
   mapSiteReportRequests,
 } from "@/lib/site-reports/server";
+import { dedupeOwnedListings } from "@/lib/listing-identity";
 import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
@@ -24,6 +25,7 @@ const schema = z.object({
 
 const LISTING_SELECT = `
   id,
+  buyer_id,
   address,
   suburb,
   postcode,
@@ -37,6 +39,7 @@ const LISTING_SELECT = `
   source,
   sold_at,
   created_at,
+  updated_at,
   builder_proposals (count)
 `;
 
@@ -72,6 +75,8 @@ function mapListingRow(row: Record<string, unknown>) {
 
   return {
     ...row,
+    id: String(row.id),
+    address: String(row.address ?? ""),
     builder_proposals: undefined,
     site_report_requests: undefined,
     proposal_count: proposals?.[0]?.count ?? 0,
@@ -252,7 +257,9 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (!withReports.error) {
-    return NextResponse.json((withReports.data ?? []).map(mapListingRow));
+    return NextResponse.json(
+      dedupeOwnedListings((withReports.data ?? []).map(mapListingRow))
+    );
   }
 
   if (!isSiteReportsSchemaError(withReports.error.message)) {
@@ -277,9 +284,11 @@ export async function GET() {
   }
 
   return NextResponse.json(
-    (withoutReports.data ?? []).map((row) => ({
-      ...mapListingRow(row),
-      site_reports: [],
-    }))
+    dedupeOwnedListings(
+      (withoutReports.data ?? []).map((row) => ({
+        ...mapListingRow(row),
+        site_reports: [],
+      }))
+    )
   );
 }

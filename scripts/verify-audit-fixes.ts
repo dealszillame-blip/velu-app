@@ -11,7 +11,7 @@ import {
 } from "../lib/buyer-requirements";
 import { isPlaceholderDirectoryBuilder } from "../lib/placeholder-builders";
 import { assertPublishableLandPrice, sanitizeIngestedLandPrice } from "../lib/land-price";
-import { dedupeLeads, listingDedupeKey } from "../lib/listing-identity";
+import { dedupeLeads, dedupeOwnedListings, listingDedupeKey } from "../lib/listing-identity";
 import { recommendProposals } from "../lib/proposal-recommendation";
 import { NSW_STATUTORY_WARRANTY } from "../lib/statutory-warranty";
 import { DEMO_BUYER_OWNED_LAND, DEMO_USERS } from "./demo-listings-data";
@@ -76,6 +76,59 @@ assert(
     }),
   "Chalford Circuit / Cct should share a key"
 );
+
+const myLandDupes = dedupeOwnedListings([
+  {
+    id: "older-copy",
+    address: "12 Chalford Circuit, Ingleburn NSW 2565",
+    suburb: "Ingleburn",
+    buyer_id: "demo-buyer-2",
+    source: "buyer_owned",
+    price: 740_000,
+    land_size_sqm: 518,
+    created_at: "2026-09-01T00:00:00.000Z",
+    updated_at: "2026-09-01T00:00:00.000Z",
+    proposal_count: 0,
+    site_reports: [],
+  },
+  {
+    id: "ef01c387-keep",
+    address: "12 Chalford Cct, Ingleburn",
+    suburb: "Ingleburn",
+    buyer_id: "demo-buyer-2",
+    source: "buyer_owned",
+    price: 740_000,
+    land_size_sqm: 518,
+    created_at: "2026-09-02T00:00:00.000Z",
+    updated_at: "2026-10-05T16:24:47.000Z",
+    proposal_count: 1,
+    site_reports: [{ id: "sr-1" }],
+  },
+]);
+assert(myLandDupes.length === 1, `My land should show one Chalford, got ${myLandDupes.length}`);
+assert(myLandDupes[0].id === "ef01c387-keep", "My land should keep the newest complete Chalford copy");
+
+const twoBuyers = dedupeOwnedListings([
+  {
+    id: "buyer-a",
+    address: "12 Chalford Circuit",
+    suburb: "Ingleburn",
+    buyer_id: "buyer-1",
+    source: "buyer_owned",
+    price: 740_000,
+    land_size_sqm: 518,
+  },
+  {
+    id: "buyer-b",
+    address: "12 Chalford Circuit",
+    suburb: "Ingleburn",
+    buyer_id: "buyer-2",
+    source: "buyer_owned",
+    price: 740_000,
+    land_size_sqm: 518,
+  },
+]);
+assert(twoBuyers.length === 2, "two buyers must each keep their Chalford listing");
 
 assert(
   isPlaceholderDirectoryBuilder({
@@ -164,4 +217,5 @@ console.log("✓ audit NOW punch list checks passed");
 console.log(`  Figtree: ${figtree!.landSizeSqm}m² / ${figtree!.frontageMeters}m / ${figtree!.depthMeters}m`);
 console.log(`  10× reject: ${tenX.error}`);
 console.log(`  Chalford deduped to $${dupes[0].price.toLocaleString("en-AU")}`);
+console.log(`  My land Chalford cards: ${myLandDupes.length} (kept ${myLandDupes[0].id})`);
 console.log(`  Recommend (contradictory brief) top: ${againstContradiction.recommended?.package_name} (${againstContradiction.recommended?.score})`);
