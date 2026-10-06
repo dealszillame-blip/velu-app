@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geocodeAddress } from "@/lib/geocoding";
 import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
-import { buildRequirementsSchema } from "@/lib/buyer-requirements";
+import {
+  briefSaveBlocked,
+  buildRequirementsSchema,
+} from "@/lib/buyer-requirements";
 import { assertPublishableLandPrice } from "@/lib/land-price";
 import { isSiteReportsSchemaError } from "@/lib/site-reports";
 import {
@@ -107,6 +110,17 @@ export async function POST(request: Request) {
   const body = schema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const blocked = briefSaveBlocked(body.data.build_requirements);
+  if (blocked) {
+    return NextResponse.json(
+      {
+        error: blocked,
+        code: "brief_contradiction",
+      },
+      { status: 400 }
+    );
   }
 
   if (body.data.land_value && body.data.land_value > 0) {

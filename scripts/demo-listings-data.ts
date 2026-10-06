@@ -511,6 +511,7 @@ export type DemoOwnedProposal = {
   inclusions: string;
   notes: string;
   status: "pending" | "viewed";
+  contractType?: "fixed_price" | "cost_plus" | "hybrid";
   homeSpecs?: HomeSpecs;
   priceBreakdown?: PriceBreakdownLine[];
   inclusionItems?: InclusionItem[];
@@ -535,6 +536,7 @@ function ownedProposalFromTemplate(
     inclusions: template.inclusions,
     notes: template.notes,
     status,
+    contractType: template.contract_type,
     homeSpecs: template.home_specs,
     priceBreakdown: template.price_breakdown,
     inclusionItems: template.inclusion_items,
@@ -549,8 +551,9 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
     basePrice: 478_000,
     estimatedBuildWeeks: 27,
     inclusions: "Stone benchtops, ducted AC, driveway allowance",
-    notes: "Designed for R2 lots 400–450m² in Mount Annan.",
+    notes: "Designed for R2 lots 400–450m² in Mount Annan. Site costs are an estimate until a soil report is delivered.",
     status: "pending",
+    contractType: "fixed_price",
     homeSpecs: {
       bedrooms: 4,
       bathrooms: 2,
@@ -559,7 +562,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
       storeys: 1,
     },
     priceBreakdown: [
-      { category: "site", label: "Site costs & connections", amount: 38000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 38000, line_kind: "allowance", provisional: true },
       { category: "base", label: "Base build to lock-up", amount: 268000 },
       { category: "kitchen", label: "Kitchen package", amount: 26000 },
       { category: "bathroom", label: "Bathroom package", amount: 24000 },
@@ -580,8 +583,9 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
     basePrice: 525_000,
     estimatedBuildWeeks: 31,
     inclusions: "Alfresco, double garage, premium fixtures",
-    notes: "Includes fixed site costs for Oran Park estates.",
+    notes: "Site costs are an estimate for Oran Park estates until a soil report is delivered.",
     status: "viewed",
+    contractType: "hybrid",
     homeSpecs: {
       bedrooms: 5,
       bathrooms: 2.5,
@@ -590,7 +594,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
       storeys: 1,
     },
     priceBreakdown: [
-      { category: "site", label: "Site costs & connections", amount: 45000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 45000, line_kind: "allowance", provisional: true },
       { category: "base", label: "Base build to lock-up", amount: 286000 },
       { category: "kitchen", label: "Kitchen package", amount: 30000 },
       { category: "bathroom", label: "Bathroom package", amount: 28000 },
@@ -622,8 +626,9 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
     estimatedBuildWeeks: 30,
     inclusions: "5-bed single storey, granny flat, stone, ducted AC, double garage",
     notes:
-      "Local Oran Park builder. NSW contractor licences 369795C and 341107C. Verify on Fair Trading before you sign.",
+      "Local Oran Park builder. NSW contractor licences 369795C and 341107C. Verify on Fair Trading before you sign. Site costs are an estimate until soil is classified.",
     status: "pending",
+    contractType: "fixed_price",
     homeSpecs: {
       bedrooms: 5,
       bathrooms: 3,
@@ -632,7 +637,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
       storeys: 1,
     },
     priceBreakdown: [
-      { category: "site", label: "Site costs & connections", amount: 44000 },
+      { category: "site", label: "Estimated site costs & connections", amount: 44000, line_kind: "allowance", provisional: true },
       { category: "base", label: "Base build to lock-up", amount: 286000 },
       { category: "kitchen", label: "Kitchen package", amount: 32000 },
       { category: "bathroom", label: "Bathroom + ensuite", amount: 36000 },
@@ -679,7 +684,7 @@ export const DEMO_PROPOSALS = [
     basePrice: 512_000,
     estimatedBuildWeeks: 32,
     inclusions: "Double garage, alfresco, premium fixtures, solar-ready",
-    notes: "Includes site costs. Council DA assistance included.",
+    notes: "Includes estimated site costs. Council DA assistance included.",
     status: "viewed" as const,
   },
   {

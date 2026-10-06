@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
-import { formatProposalPrice, proposalStatusLabel } from "@/lib/proposals";
+import { canEditProposal, formatProposalPrice, proposalStatusLabel } from "@/lib/proposals";
+import type { ProposalStatus } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -21,8 +22,10 @@ export default async function BuilderProposalsPage() {
     .select(
       `
       id,
+      land_listing_id,
       package_name,
       base_price,
+      contract_type,
       status,
       created_at,
       land_listings (address, suburb)
@@ -80,10 +83,22 @@ export default async function BuilderProposalsPage() {
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="text-sm">
+                <CardContent className="space-y-3 text-sm">
                   <span className="font-medium">
                     {formatProposalPrice(proposal.base_price)}
                   </span>
+                  <div className="flex flex-wrap gap-2">
+                    {proposal.land_listing_id ? (
+                      <Link
+                        href={`/builder/leads/${proposal.land_listing_id}`}
+                        className={buttonVariants({ variant: "outline", size: "sm" })}
+                      >
+                        {canEditProposal(proposal.status as ProposalStatus)
+                          ? "Edit or withdraw"
+                          : "View lead"}
+                      </Link>
+                    ) : null}
+                  </div>
                 </CardContent>
               </Card>
             );

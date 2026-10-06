@@ -17,6 +17,7 @@ import {
   loadNswBuilderSnapshot,
   upsertLicensedBuilders,
 } from "../lib/nsw-builders-store";
+import { upsertLiveProposal } from "./upsert-live-proposal";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -289,8 +290,7 @@ async function seedBuyerOwnedProposals(
       continue;
     }
 
-    const { error } = await supabase.from("builder_proposals").upsert(
-      {
+    const { error } = await upsertLiveProposal(supabase, {
         builder_id: builderId,
         land_listing_id: listingId,
         buyer_id: buyerId,
@@ -303,10 +303,9 @@ async function seedBuyerOwnedProposals(
         home_specs: proposal.homeSpecs ?? null,
         price_breakdown: proposal.priceBreakdown ?? null,
         inclusion_items: proposal.inclusionItems ?? null,
+        contract_type: proposal.contractType ?? "fixed_price",
         viewed_at: proposal.status === "viewed" ? new Date().toISOString() : null,
-      },
-      { onConflict: "builder_id,land_listing_id" }
-    );
+      });
 
     if (error) {
       warn(`Buyer-owned proposal ${proposal.packageName}: ${error.message}`);
@@ -432,8 +431,7 @@ async function seedProposals(
       continue;
     }
 
-    const { error } = await supabase.from("builder_proposals").upsert(
-      {
+    const { error } = await upsertLiveProposal(supabase, {
         builder_id: builderId,
         land_listing_id: listingId,
         buyer_id: buyerId,
@@ -443,10 +441,9 @@ async function seedProposals(
         inclusions: proposal.inclusions,
         notes: proposal.notes,
         status: proposal.status,
+        contract_type: "fixed_price",
         viewed_at: proposal.status === "viewed" ? new Date().toISOString() : null,
-      },
-      { onConflict: "builder_id,land_listing_id" }
-    );
+      });
 
     if (error) {
       warn(`Proposal ${proposal.packageName}: ${error.message}`);

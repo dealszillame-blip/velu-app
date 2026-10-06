@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BuyerRequirementsSummary } from "@/components/buyer/BuyerRequirementsSummary";
+import { StoreyBriefBanner } from "@/components/buyer/StoreyBriefBanner";
 import {
   Card,
   CardContent,
@@ -61,6 +62,12 @@ export function LeadBuyerRequirements({ buyerId, land }: LeadBuyerRequirementsPr
       </CardHeader>
       <CardContent>
         <BuyerRequirementsSummary requirements={requirements} land={land} />
+        <div className="mt-4">
+          <StoreyBriefBanner
+            value={requirements}
+            onChange={() => undefined}
+          />
+        </div>
       </CardContent>
     </Card>
   );

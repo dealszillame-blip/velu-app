@@ -152,6 +152,18 @@ export function analyseTender(
       recommendedUpdates.push("Ask for a site, kitchen, bathroom and contingency breakdown.");
     }
 
+    if (proposal.site_costs_provisional !== false) {
+      findings.push({
+        severity: "watch",
+        title: "Site costs are estimates",
+        detail:
+          "No delivered soil report on this block. Site line items are provisional. Indicative quotes are still allowed.",
+      });
+      recommendedUpdates.push(
+        "Treat site $ as an estimate until a soil report is delivered, then ask for a revised site line."
+      );
+    }
+
     if ((proposal.estimated_build_weeks ?? 0) > 40) {
       findings.push({
         severity: "watch",
@@ -189,6 +201,7 @@ export function analyseTender(
   if (proposals.length < 2) {
     overall.push("Get at least two comparable packages before accepting.");
   }
+  overall.push("Site costs stay estimates until a soil report is delivered. You can still compare indicative quotes — this is not a hard block.");
   overall.push("Commission a soil report, site survey and legal check before locking a slab price.");
   overall.push("Add a BAL report if the lot is bushfire-mapped, and an acoustic report if it sits near a road or rail line.");
   if (!requestedReports.includes("legal_check")) {

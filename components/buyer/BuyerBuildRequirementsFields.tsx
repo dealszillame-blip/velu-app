@@ -16,9 +16,9 @@ import {
   HOUSE_TYPE_OPTIONS,
   STOREY_OPTIONS,
   CONSTRUCTION_GRADE_OPTIONS,
-  storeyBriefContradiction,
 } from "@/lib/buyer-requirements";
 import { BUILDER_TYPE_OPTIONS } from "@/lib/builder-types";
+import { StoreyBriefBanner } from "@/components/buyer/StoreyBriefBanner";
 
 type BuyerBuildRequirementsFieldsProps = {
   value: BuyerBuildRequirements;
@@ -59,25 +59,30 @@ export function BuyerBuildRequirementsFields({
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Tell builders the land, settlement, and house you want so quotes match
-        the brief.
+        the brief. Storeys is the field they quote against.
       </p>
-      {storeyBriefContradiction(value) ? (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900" role="status">
-          {storeyBriefContradiction(value)} Save is still allowed — ranking will follow your notes if they clearly ask for single-level living.
-        </p>
-      ) : null}
+      <StoreyBriefBanner value={value} onChange={onChange} allowConfirm />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-house-type`}>House type</Label>
           <Select
             value={value.house_type ?? "not_sure"}
-            onValueChange={(v) =>
-              v &&
-              patch({
-                house_type: v as BuyerBuildRequirements["house_type"],
-              })
-            }
+            onValueChange={(v) => {
+              if (!v) return;
+              const house_type = v as BuyerBuildRequirements["house_type"];
+              const next: Partial<BuyerBuildRequirements> = {
+                house_type,
+                brief_contradiction_acknowledged: false,
+              };
+              if (house_type === "single_storey" && value.storeys === "not_sure") {
+                next.storeys = "ground_only";
+              }
+              if (house_type === "double_storey" && value.storeys === "not_sure") {
+                next.storeys = "ground_plus_one";
+              }
+              patch(next);
+            }}
           >
             <SelectTrigger id={`${idPrefix}-house-type`} className="w-full">
               <SelectValue placeholder="Select house type" />
@@ -94,10 +99,17 @@ export function BuyerBuildRequirementsFields({
 
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-storeys`}>Storeys</Label>
+          <p className="text-xs text-muted-foreground">
+            Builders quote against this field.
+          </p>
           <Select
             value={value.storeys}
             onValueChange={(v) =>
-              v && patch({ storeys: v as BuyerBuildRequirements["storeys"] })
+              v &&
+              patch({
+                storeys: v as BuyerBuildRequirements["storeys"],
+                brief_contradiction_acknowledged: false,
+              })
             }
           >
             <SelectTrigger id={`${idPrefix}-storeys`} className="w-full">
@@ -371,7 +383,12 @@ export function BuyerBuildRequirementsFields({
           rows={3}
           placeholder="e.g. open-plan living, study, alfresco, single-level living area…"
           value={value.additional_notes ?? ""}
-          onChange={(e) => patch({ additional_notes: e.target.value })}
+          onChange={(e) =>
+            patch({
+              additional_notes: e.target.value,
+              brief_contradiction_acknowledged: false,
+            })
+          }
           className="flex w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>

@@ -7,6 +7,7 @@ import {
   type InclusionItem,
   type PriceBreakdownLine,
 } from "@/lib/proposal-breakdown";
+import { contractTypeLabel, lineKindLabel } from "@/lib/quote-structure";
 import {
   extraWarrantyCopy,
   isOptionalExtraWarranty,
@@ -58,6 +59,7 @@ export function ProposalBreakdownTable({
         <thead>
           <tr className="border-b border-black/[0.06] text-left">
             <th className="px-3 py-2 font-medium">Item</th>
+            <th className="px-3 py-2 font-medium">Kind</th>
             <th className="px-3 py-2 text-right font-medium">Est.</th>
           </tr>
         </thead>
@@ -69,6 +71,12 @@ export function ProposalBreakdownTable({
                   {categoryLabel(BREAKDOWN_CATEGORIES, line.category)} ·{" "}
                 </span>
                 {line.label}
+                {line.category === "site" || line.provisional ? (
+                  <span className="ml-1 text-xs text-amber-800">(estimate)</span>
+                ) : null}
+              </td>
+              <td className="px-3 py-2 text-xs text-muted-foreground">
+                {lineKindLabel(line.line_kind)}
               </td>
               <td className="px-3 py-2 text-right font-medium tabular-nums">
                 {formatProposalPrice(line.amount)}
@@ -199,6 +207,9 @@ export function ProposalComparisonGrid({ proposals }: { proposals: ProposalRow[]
                 {proposals.map((p) => (
                   <th key={p.id} className="px-3 py-2 text-right font-medium">
                     {p.builder_name ?? "Builder"}
+                    <div className="text-xs font-normal text-muted-foreground">
+                      {contractTypeLabel(p.contract_type)}
+                    </div>
                   </th>
                 ))}
               </tr>

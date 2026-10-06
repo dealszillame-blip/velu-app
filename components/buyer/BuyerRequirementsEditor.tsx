@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import {
   defaultBuildRequirements,
+  briefSaveBlocked,
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
 
@@ -48,6 +49,13 @@ export function BuyerRequirementsEditor() {
     setSaving(true);
     setError(null);
     setSuccess(false);
+
+    const blocked = briefSaveBlocked(requirements);
+    if (blocked) {
+      setError(`${blocked} Resolve or confirm the mismatch before saving.`);
+      setSaving(false);
+      return;
+    }
 
     const res = await fetch("/api/buyer/requirements", {
       method: "PUT",

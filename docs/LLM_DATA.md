@@ -81,7 +81,7 @@ Set one of these on the **server** (Vercel → Environment Variables, then redep
 
 The key must be available to the **Production** deployment (not Preview only). After adding or changing it, **Redeploy**. Admin → Data → **Test Gemini** shows whether this server can see the key and whether Google accepted a test call.
 
-If neither key works, Tender still shows the stored-tender summary and Recommend still shows the brief-fit ranking and deterministic sentence.
+If neither key works, Tender still shows the stored-tender summary and Recommend still shows the brief-fit ranking and deterministic sentence. Saving a brief that says single-level while Storeys is G+1 now requires resolve-or-confirm; site $ on Compare/Tender is flagged as an estimate until a soil report is delivered.
 
 ## 5. Optional LLM ingest
 

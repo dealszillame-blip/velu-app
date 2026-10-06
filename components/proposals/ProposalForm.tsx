@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { formatProposalPrice } from "@/lib/proposals";
+import { formatProposalPrice, type ProposalRow } from "@/lib/proposals";
 import {
   BREAKDOWN_CATEGORIES,
   INCLUSION_CATEGORIES,
@@ -23,13 +23,23 @@ import {
   type ProposalTemplate,
   emptyFormState,
   formatInclusionsSummary,
+  proposalToFormState,
   sumBreakdown,
   templateToFormState,
 } from "@/lib/proposal-breakdown";
+import {
+  CONTRACT_TYPES,
+  LINE_KINDS,
+  defaultLineKind,
+  type ContractType,
+  type LineKind,
+} from "@/lib/quote-structure";
+import { SITE_COSTS_PROVISIONAL_COPY } from "@/lib/soil-sequencing";
 import { BookmarkPlus, Loader2, Plus, Trash2 } from "lucide-react";
 
 type ProposalFormProps = {
   listingId: string;
+  existing?: ProposalRow | null;
 };
 
 function Textarea({
@@ -60,16 +70,20 @@ function Textarea({
   );
 }
 
-export function ProposalForm({ listingId }: ProposalFormProps) {
+export function ProposalForm({ listingId, existing = null }: ProposalFormProps) {
   const router = useRouter();
+  const isEdit = Boolean(existing);
   const [loading, setLoading] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [templates, setTemplates] = useState<ProposalTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [templateName, setTemplateName] = useState("");
-  const [form, setForm] = useState<ProposalFormState>(emptyFormState);
+  const [form, setForm] = useState<ProposalFormState>(() =>
+    existing ? proposalToFormState(existing) : emptyFormState()
+  );
 
   const breakdownTotal = useMemo(
     () => sumBreakdown(form.price_breakdown),
@@ -106,7 +120,12 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
       ...f,
       price_breakdown: [
         ...f.price_breakdown,
-        { category: "other", label: "", amount: 0 },
+        {
+          category: "base",
+          label: "",
+          amount: 0,
+          line_kind: defaultLineKind("base"),
+        },
       ],
     }));
   }
@@ -154,6 +173,25 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
     if (template) setForm(templateToFormState(template));
   }
 
+  function payload() {
+    const total =
+      breakdownTotal > 0 ? breakdownTotal : Number(form.base_price);
+    return {
+      land_listing_id: listingId,
+      package_name: form.package_name,
+      base_price: total,
+      contract_type: form.contract_type,
+      inclusions: formatInclusionsSummary(form.inclusion_items),
+      estimated_build_weeks: form.estimated_build_weeks
+        ? Number(form.estimated_build_weeks)
+        : undefined,
+      notes: form.notes || undefined,
+      price_breakdown: form.price_breakdown,
+      inclusion_items: form.inclusion_items,
+      home_specs: form.home_specs,
+    };
+  }
+
   async function saveTemplate() {
     if (!templateName.trim()) {
       setError("Enter a template name before saving.");
@@ -167,6 +205,7 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
       body: JSON.stringify({
         name: templateName.trim(),
         package_name: form.package_name || "Untitled package",
+        contract_type: form.contract_type || undefined,
         estimated_build_weeks: form.estimated_build_weeks
           ? Number(form.estimated_build_weeks)
           : undefined,
@@ -191,6 +230,12 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
     setLoading(true);
     setError(null);
 
+    if (!form.contract_type) {
+      setError("Choose a contract type (fixed price, cost plus, or hybrid).");
+      setLoading(false);
+      return;
+    }
+
     const total =
       breakdownTotal > 0 ? breakdownTotal : Number(form.base_price);
     if (!total || total <= 0) {
@@ -199,23 +244,14 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
       return;
     }
 
-    const res = await fetch("/api/proposals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        land_listing_id: listingId,
-        package_name: form.package_name,
-        base_price: total,
-        inclusions: formatInclusionsSummary(form.inclusion_items),
-        estimated_build_weeks: form.estimated_build_weeks
-          ? Number(form.estimated_build_weeks)
-          : undefined,
-        notes: form.notes || undefined,
-        price_breakdown: form.price_breakdown,
-        inclusion_items: form.inclusion_items,
-        home_specs: form.home_specs,
-      }),
-    });
+    const res = await fetch(
+      isEdit && existing ? `/api/proposals/${existing.id}` : "/api/proposals",
+      {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload()),
+      }
+    );
 
     const data = await res.json().catch(() => ({}));
     setLoading(false);
@@ -229,9 +265,26 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
     router.refresh();
   }
 
+  async function handleWithdraw() {
+    if (!existing) return;
+    setWithdrawing(true);
+    setError(null);
+    const res = await fetch(`/api/proposals/${existing.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "withdraw" }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setWithdrawing(false);
+    if (!res.ok) {
+      setError(data.error ?? "Failed to withdraw proposal");
+      return;
+    }
+    router.refresh();
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Templates */}
       <div className="surface-subtle space-y-4 p-4 sm:p-5">
         <div className="flex items-center gap-2">
           <BookmarkPlus className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
@@ -282,22 +335,43 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          All figures are estimates for buyer comparison — not fixed quotes.
+          All figures are estimates for buyer comparison — not a signed contract.
         </p>
       </div>
 
-      {/* Package + home specs */}
       <div className="space-y-4">
         <p className="label-caps">Package overview</p>
-        <div className="space-y-2">
-          <Label htmlFor="package_name">Design / package name</Label>
-          <Input
-            id="package_name"
-            required
-            placeholder="e.g. The Camden 240"
-            value={form.package_name}
-            onChange={(e) => updateForm({ package_name: e.target.value })}
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="package_name">Design / package name</Label>
+            <Input
+              id="package_name"
+              required
+              placeholder="e.g. The Camden 240"
+              value={form.package_name}
+              onChange={(e) => updateForm({ package_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="contract_type">Contract type</Label>
+            <Select
+              value={form.contract_type || undefined}
+              onValueChange={(v) => {
+                if (v) updateForm({ contract_type: v as ContractType });
+              }}
+            >
+              <SelectTrigger id="contract_type" className="h-11 rounded-xl">
+                <SelectValue placeholder="Required — choose one" />
+              </SelectTrigger>
+              <SelectContent>
+                {CONTRACT_TYPES.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {(
@@ -339,30 +413,38 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
         </div>
       </div>
 
-      {/* Price breakdown */}
       <div className="space-y-4 border-t border-black/[0.06] pt-5">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="label-caps">Estimated price breakdown</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Itemise costs so buyers can compare line by line.
+              Itemise costs so buyers can compare line by line. Site $ stays an
+              estimate until a soil report is delivered.
             </p>
           </div>
           <p className="text-xl font-semibold tracking-tight">
             {formatProposalPrice(breakdownTotal)}
           </p>
         </div>
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          {SITE_COSTS_PROVISIONAL_COPY}
+        </p>
 
         <div className="space-y-2">
           {form.price_breakdown.map((line, index) => (
             <div
               key={index}
-              className="grid gap-2 rounded-xl bg-muted/40 p-3 sm:grid-cols-[140px_1fr_120px_32px]"
+              className="grid gap-2 rounded-xl bg-muted/40 p-3 sm:grid-cols-[130px_110px_1fr_110px_32px]"
             >
               <Select
                 value={line.category}
                 onValueChange={(v) => {
-                  if (v) updateBreakdown(index, { category: v });
+                  if (!v) return;
+                  updateBreakdown(index, {
+                    category: v,
+                    line_kind: defaultLineKind(v),
+                    provisional: v === "site" ? true : line.provisional,
+                  });
                 }}
               >
                 <SelectTrigger className="h-10 rounded-lg border-0 bg-background text-xs">
@@ -372,6 +454,23 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
                   {BREAKDOWN_CATEGORIES.map((c) => (
                     <SelectItem key={c.value} value={c.value}>
                       {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={line.line_kind ?? defaultLineKind(line.category)}
+                onValueChange={(v) => {
+                  if (v) updateBreakdown(index, { line_kind: v as LineKind });
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-lg border-0 bg-background text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LINE_KINDS.map((kind) => (
+                    <SelectItem key={kind.value} value={kind.value}>
+                      {kind.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -422,7 +521,6 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
         </Button>
       </div>
 
-      {/* Inclusions */}
       <div className="space-y-4 border-t border-black/[0.06] pt-5">
         <div>
           <p className="label-caps">Inclusions checklist</p>
@@ -499,12 +597,11 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
         </Button>
       </div>
 
-      {/* Notes */}
       <div className="space-y-2 border-t border-black/[0.06] pt-5">
         <Label htmlFor="notes">Notes for buyer</Label>
         <Textarea
           id="notes"
-          placeholder="Fixed-price contract terms, provisional sum notes, warranty details…"
+          placeholder="Contract terms, PC/PS notes, warranty details — site costs are estimates until soil is in…"
           value={form.notes}
           onChange={(v) => updateForm({ notes: v })}
           rows={3}
@@ -517,16 +614,31 @@ export function ProposalForm({ listingId }: ProposalFormProps) {
         </p>
       )}
 
-      <Button type="submit" disabled={loading} className="h-12 w-full rounded-full text-base">
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Submitting…
-          </>
-        ) : (
-          `Submit proposal — ${formatProposalPrice(breakdownTotal)}`
-        )}
-      </Button>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="submit" disabled={loading || withdrawing} className="h-12 flex-1 rounded-full text-base">
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEdit ? "Saving…" : "Submitting…"}
+            </>
+          ) : isEdit ? (
+            `Save changes — ${formatProposalPrice(breakdownTotal)}`
+          ) : (
+            `Submit proposal — ${formatProposalPrice(breakdownTotal)}`
+          )}
+        </Button>
+        {isEdit ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={loading || withdrawing}
+            className="h-12 rounded-full"
+            onClick={() => void handleWithdraw()}
+          >
+            {withdrawing ? "Withdrawing…" : "Withdraw so I can resubmit"}
+          </Button>
+        ) : null}
+      </div>
     </form>
   );
 }

@@ -7,6 +7,7 @@ import {
   type StoredTender,
 } from "@/lib/tender-knowledge";
 import type { ProposalRow } from "@/lib/proposals";
+import { isSoilReportDelivered } from "@/lib/soil-sequencing";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -39,7 +40,7 @@ export async function GET() {
         .maybeSingle(),
       supabase
         .from("site_report_requests")
-        .select("report_definition_key")
+        .select("report_definition_key, land_listing_id, status")
         .eq("buyer_id", user.id),
       supabase
         .from("tender_knowledge_base")
@@ -58,7 +59,12 @@ export async function GET() {
   );
 
   const proposalRows = (Array.isArray(proposals) ? proposals : []) as ProposalRow[];
-  const report = analyseTender(proposalRows, requirements, requestedReports);
+  const soilRequests = reports ?? [];
+  const withSoil = proposalRows.map((row) => ({
+    ...row,
+    site_costs_provisional: !isSoilReportDelivered(soilRequests, row.land_listing_id),
+  }));
+  const report = analyseTender(withSoil, requirements, requestedReports);
   const knowledge = compareAgainstStoredTenders(
     proposalRows,
     (stored ?? []) as StoredTender[]

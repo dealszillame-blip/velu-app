@@ -22,7 +22,21 @@ export type ProposalStatus =
   | "viewed"
   | "accepted"
   | "rejected"
-  | "expired";
+  | "expired"
+  | "withdrawn";
+
+export const LIVE_PROPOSAL_STATUSES: ProposalStatus[] = [
+  "draft",
+  "pending",
+  "viewed",
+  "accepted",
+  "rejected",
+];
+
+export const EDITABLE_PROPOSAL_STATUSES: ProposalStatus[] = [
+  "pending",
+  "viewed",
+];
 
 export interface Profile {
   id: string;

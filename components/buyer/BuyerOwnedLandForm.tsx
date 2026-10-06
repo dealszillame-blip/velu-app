@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   defaultBuildRequirements,
-  storeyBriefContradiction,
+  briefSaveBlocked,
   type BuyerBuildRequirements,
 } from "@/lib/buyer-requirements";
 import {
@@ -112,6 +112,13 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     const front = Number(frontage);
     const depthMeters = depth ? Number(depth) : undefined;
     const value = landValue ? Number(landValue) : undefined;
+
+    const blocked = briefSaveBlocked(buildRequirements);
+    if (blocked) {
+      setError(`${blocked} Resolve or confirm the mismatch before saving.`);
+      setLoading(false);
+      return;
+    }
 
     const res = await fetch("/api/buyer/land", {
       method: "POST",
@@ -246,11 +253,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
               idPrefix="owned-land"
               hideLandMeasurements
             />
-            {storeyBriefContradiction(buildRequirements) ? (
-              <p className="mt-3 text-sm text-amber-800" role="status">
-                {storeyBriefContradiction(buildRequirements)}
-              </p>
-            ) : null}
           </div>
 
           <SiteReportAddonSelector

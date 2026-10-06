@@ -64,6 +64,8 @@ export interface BuyerBuildRequirements {
   right_side_meters?: number;
   floor_area_sqm?: number;
   additional_notes?: string;
+  /** Buyer confirmed a remaining storey/notes mismatch so save can proceed. */
+  brief_contradiction_acknowledged?: boolean;
 }
 
 export const defaultBuildRequirements = (): BuyerBuildRequirements => ({
@@ -117,6 +119,7 @@ export const buildRequirementsSchema = z.object({
   right_side_meters: optionalPositive,
   floor_area_sqm: optionalPositive,
   additional_notes: z.string().max(1000).optional(),
+  brief_contradiction_acknowledged: z.boolean().optional(),
 });
 
 export function normalizeBuildRequirements(
@@ -184,6 +187,63 @@ export function storeyBriefContradiction(
     req.house_type === "single_storey"
   ) {
     return "House type is single storey, but storeys is G+1 / two-storey.";
+  }
+  return null;
+}
+
+/** Prefer the Storeys field: align house_type when it is a storey synonym. */
+export function applyStoreysAsSourceOfTruth(
+  req: BuyerBuildRequirements
+): BuyerBuildRequirements {
+  if (req.storeys === "ground_only" && req.house_type === "double_storey") {
+    return {
+      ...req,
+      house_type: "single_storey",
+      brief_contradiction_acknowledged: false,
+    };
+  }
+  if (
+    (req.storeys === "ground_plus_one" || req.storeys === "two_storey") &&
+    req.house_type === "single_storey"
+  ) {
+    return {
+      ...req,
+      house_type: "double_storey",
+      brief_contradiction_acknowledged: false,
+    };
+  }
+  return { ...req, brief_contradiction_acknowledged: false };
+}
+
+/** Align structured storeys (and house_type if it is a storey synonym) to notes. */
+export function applyNotesToStoreys(
+  req: BuyerBuildRequirements
+): BuyerBuildRequirements {
+  if (notesIndicateSingleLevel(req.additional_notes)) {
+    return {
+      ...req,
+      storeys: "ground_only",
+      house_type:
+        req.house_type === "double_storey" ? "single_storey" : req.house_type,
+      brief_contradiction_acknowledged: false,
+    };
+  }
+  if (notesIndicateTwoStorey(req.additional_notes)) {
+    return {
+      ...req,
+      storeys: "ground_plus_one",
+      house_type:
+        req.house_type === "single_storey" ? "double_storey" : req.house_type,
+      brief_contradiction_acknowledged: false,
+    };
+  }
+  return req;
+}
+
+export function briefSaveBlocked(req: BuyerBuildRequirements): string | null {
+  const contradiction = storeyBriefContradiction(req);
+  if (contradiction && !req.brief_contradiction_acknowledged) {
+    return contradiction;
   }
   return null;
 }
