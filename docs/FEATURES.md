@@ -21,7 +21,7 @@ Production: [velu-app-sigma.vercel.app](https://velu-app-sigma.vercel.app).
 | Save build brief | — | Yes | View on sold lead | — | — | — | — |
 | See nearby NSW-licensed builders | — | Directory | — | — | — | Import / refresh | — |
 | See sold leads in radius | — | — | If onboarded | — | — | All listings | — |
-| Submit a build package | — | — | One per lot | — | — | View only | — |
+| Submit a build package | — | — | One live per lot | — | — | View only | — |
 | Compare / recommend / tender | — | Yes | — | — | — | View proposals | — |
 | Accept / decline a package | — | Yes | — | — | — | — | — |
 | Message the other party | — | On owned sold lot | On sold lead | — | — | View threads | — |
@@ -81,7 +81,9 @@ Sixth role: `report_provider` (column **Provider**). Home is `/provider/reports`
 
 ### My land (`/buyer/my-land`)
 
-- **Register a block** they already hold: address (must geocode in NSW), size, frontage, optional land value, optional site-report add-ons. Zoning is **not** collected on the form (database still defaults R2).
+- **Register a block** they already hold: address (must geocode in NSW), size, frontage, depth, optional land value, optional site-report add-ons. Zoning is **not** collected on the form (database still defaults R2).
+- A price that looks about **10×** too high for the lot size (or above a sane $/m²) is rejected. It is not auto-corrected.
+- The same address for one buyer is **one parcel**. “Circuit” and “Cct” copies collapse, so a duplicate lead does not render twice.
 - Submit **Find builders for my land** — creates a `buyer_owned` lot (treated as sold), notifies onboarded builders in range, then sends them to Compare.
 - Register more than one block. **Cannot edit or delete** a parcel after it is created.
 
@@ -91,7 +93,7 @@ On each registered parcel:
 | --- | --- |
 | Overview | See proposal count; jump to Compare |
 | Site reports | Request soil, site survey, 3rd-party inspection, BAL, acoustic, and/or legal check; see status (requested → delivered) |
-| Builders | See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded Velu builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. **Invite to review land** only for onboarded Velu accounts — register-only rows are not users. |
+| Builders | See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded Velu builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. Placeholder licences and names (UUU, AAAAA, and similar) are hidden. **Invite to review land** only for onboarded Velu accounts — register-only rows are not users. |
 | Architects | Pick from the directory, add notes, send a request |
 | Workspace | Shortcuts to Messages and Compare; list active build projects |
 
@@ -101,6 +103,8 @@ Site-report and architect requests are **request + status only** for the buyer. 
 
 - Save a build brief: house type, storeys, granny flat, beds, baths, cars, living rooms, ensuite, **construction grade** (ground / medium / luxury), **preferred builder types** (bulk / semi-custom / custom / designer), settlement date, land measurements, notes.
 - Edit or replace the saved brief.
+- Save is **blocked** when storeys and notes contradict (G+1 or two-storey vs notes that clearly say single-level, or the reverse) until the buyer aligns them or confirms the contradiction.
+- Shown beside a lot, **listing** size, frontage, and depth win over the brief. The Figtree parcel is 518 m², 13.5 m frontage, 20 m depth.
 - This brief is what **Recommend**, **Tender report**, and the builder’s lead page use.
 
 ### Compare (`/buyer/compare`)
@@ -109,9 +113,9 @@ Six tabs:
 
 | Tab | Can do |
 | --- | --- |
-| **Compare** | See pending packages as cards (price, weeks, specs, breakdown, inclusions). Side-by-side table when **two or more** packages are pending. Accept or decline. Message the builder. Open their profile. Load **demonstration packages** if they have land but too few quotes. |
-| **Recommend** | See a ranked pick vs the saved brief (score, why this one, watch-outs, next steps). Rules-based — not an external LLM. |
-| **Tender report** | Read gap / watch / ok findings per package. Compare live quotes against stored tender knowledge. Optional `OPENAI_API_KEY` narrative if set on the server. Callout to request a **legal check** on My land before accepting. |
+| **Compare** | Pending packages as cards (price, contract type, weeks, specs, breakdown, inclusions) and a side-by-side table when **two or more** are pending. Cards show the NSW licence (Verify NSW) and insurance — a directory badge, not a live icare HBCF check. Statutory warranty is always on screen (Home Building Act: 6 years major defects, 2 years other). Site-cost lines stay an estimate until a soil report is **delivered** (warning only; quotes are not blocked). Accept or decline. Accept tells the buyer to confirm cooling-off, deposits, and contract terms with a solicitor and NSW Fair Trading. No hard-coded deposit %. Velu does not collect the deposit. Message the builder, open their profile, or load **demonstration packages** if land is registered but quotes are thin. |
+| **Recommend** | Ranked **brief-fit** score vs the saved brief (bedrooms, bathrooms, storeys, granny flat, cars, price), with why, watch-outs, and next steps. Storeys are a hard layout filter (single vs G+1). Notes that clearly say single-level do not penalise a 1-storey package. Optional Gemini write-up when `GEMINI_API_KEY` is set; OpenAI only if Gemini is missing or fails. No working key means the rules sentence stays. Page copy calls this a brief-fit scorer, not an AI decision engine. |
+| **Tender report** | Gap / watch / ok findings per package against stored tender knowledge. Optional Gemini narrative (OpenAI fallback) when a server key is set. Site $ stays an estimate until a soil report is delivered — not a hard block. Callout to request a **legal check** on My land before accepting. |
 | **Milestones** | See accepted projects and the six-stage tracker (view only — same as `/buyer/project/:id`). |
 | **Published designs** | Browse a catalogue of indicative single- and double-storey packages. Filter only — cannot request or add to Compare. |
 | **Upcoming** | Placeholder card only. No live estates. |
@@ -147,16 +151,19 @@ Six tabs:
 
 **Home:** `/builder/dashboard`  
 **Nav:** Home · Profile · Leads · Proposals · Messages  
-**Signup:** `/register/builder` sets them **onboarded immediately** (no admin approval in the signup path).
+**Signup:** `/register/builder` sets them **onboarded immediately** (no admin approval in the signup path).  
+**Sign-in:** a missing `next`, or `next=/`, opens `/builder/dashboard`.
 
 ### Can do
 
 - See dashboard stats: onboarded state, service radius, anchor, sold-lot count.
-- **Edit and publish a public profile** (headline, bio, portfolio, gallery, reviews, publish toggle). Preview `/builders/:id`.
+- **Edit and publish a public profile** (headline, bio, portfolio, gallery, reviews, publish toggle). Preview `/builders/:id`. Star ratings are not self-entered. A Google Maps link can be saved; a number shows only when Places or the NSW register supplied it, otherwise it is omitted or labelled unverified.
 - **See sold / buyer-owned lots in their service radius** (`/builder/leads`). Feed refreshes live. Empty if they have no geocoded anchor or nothing in range.
 - Open a lead (`/builder/leads/:id`): lot details + the buyer’s saved brief (if shared).
 - **Contact the buyer** (in-app message — no phone/email).
-- **Submit one package per lot:** name, home specs, price, breakdown, inclusions, notes; load/save templates. Cannot submit a second package for the same lot; **cannot edit or withdraw** after send.
+- **Submit one live package per lot.** Contract type is required: fixed price, cost plus, or hybrid. The breakdown catalog is site, base, kitchen, bathroom, electrical, external, contingency, prime cost, and provisional sum. Each line is lump sum, PC, PS, or allowance. Site lines stay provisional until a soil report is delivered — the form warns and does not block the quote. Load/save templates.
+- A second live package for the same lot is rejected until the first is withdrawn or expired.
+- **Pending** or **viewed** packages can be edited in place, or withdrawn so a new package can be sent. An **accepted** package cannot be edited or withdrawn.
 - List sent packages and their status (`/builder/proposals`).
 - Message buyers on those sold leads.
 - After a buyer **accepts**: open `/builder/project/:id` and **advance milestones one stage at a time**.
@@ -273,7 +280,8 @@ These appear in copy or UI and should not be treated as shipped features:
 | Compare **Upcoming** | Placeholder. |
 | Compare **Published designs** | Browse/filter catalogue only. |
 | Site report / architect “quoted / accepted / delivered” | Buyer can request and watch status. Providers can quote and attach a file URL; no pay UI. |
-| Google rating on a register builder | Empty until Admin matches Places (or the weekly job) with `GOOGLE_PLACES_API_KEY`. No google.com scraping. |
+| Google rating on a register builder | Empty until Admin matches Places (or the weekly job) with `GOOGLE_PLACES_API_KEY`. No google.com scraping. Places is optional — not required to use Compare. |
+| Compare “Insurance / HBCF” | Directory flag (“Insurance verified” or “Not verified on Velu”). Not a live icare HBCF lookup. |
 | Invite to review on an NSW register card | Hidden — only onboarded Velu builders can be messaged. |
 | Feature flags in Admin → Settings | Toggles persist; they do not gate most screens yet. |
 | Builder licence-valid / onboarding-status | Admin fields; signup still marks the builder onboarded. |
@@ -285,7 +293,7 @@ These appear in copy or UI and should not be treated as shipped features:
 1. Buyer registers a block on **My land** (or an agent marks their listing **Sold**).
 2. My land → **Builders** lists nearby NSW-licensed contractors (directory) and onboarded Velu builders.
 3. Onboarded builders in range see the lot on **Leads** and send a package.
-4. Buyer opens **Compare**, optionally **Recommend** / **Tender report** / **Milestones**.
+4. Buyer opens **Compare**, optionally **Recommend** (brief-fit score; Gemini write-up only if a server key is set) / **Tender report** / **Milestones**.
 5. Buyer **Accepts** one package.
 6. Both sides open the **project**; the builder moves milestones.
 7. Either side can **message** the other on that lot (no phone/email in the thread).
