@@ -1,5 +1,6 @@
 -- Velu MVP — Phase 1 quotes, withdraw, and contract type
--- SQL only. Paste into Supabase SQL Editor after 029. This is not an npm command.
+-- SQL only. Paste this file into the Supabase SQL Editor. This is not an npm command.
+-- IMMUTABLE fix: the partial unique index compares proposal_status directly (no status::text). Enum-to-text is STABLE, so Postgres rejects it in an index predicate (42P17).
 
 -- 1. Allow builders to withdraw a pending/viewed proposal so they can resubmit.
 ALTER TYPE proposal_status ADD VALUE IF NOT EXISTS 'withdrawn';
@@ -44,14 +45,21 @@ WHERE contract_type IS NULL;
 
 -- 3. Replace UNIQUE (builder_id, land_listing_id) with a partial unique index
 --    so withdrawn/expired rows do not block a second submit.
+--    Drop first so a re-paste replaces a failed or older index definition.
+--    Compare the enum with IN (labels that already exist). That is the same set as
+--    NOT IN ('withdrawn', 'expired'), without a status::text cast and without using
+--    the new 'withdrawn' label in this transaction (Postgres cannot use a value
+--    added above until that ADD VALUE commits).
 ALTER TABLE public.builder_proposals
   DROP CONSTRAINT IF EXISTS builder_proposals_builder_id_land_listing_id_key;
 
 DROP INDEX IF EXISTS builder_proposals_builder_id_land_listing_id_key;
 
+DROP INDEX IF EXISTS public.builder_proposals_one_active_per_listing;
+
 CREATE UNIQUE INDEX IF NOT EXISTS builder_proposals_one_active_per_listing
   ON public.builder_proposals (builder_id, land_listing_id)
-  WHERE status::text NOT IN ('withdrawn', 'expired');
+  WHERE status IN ('draft', 'pending', 'viewed', 'accepted', 'rejected');
 
 -- 4. Compare RPC: contract_type on the card; hide withdrawn resubmits.
 DROP FUNCTION IF EXISTS public.get_proposals_for_buyer(UUID);
