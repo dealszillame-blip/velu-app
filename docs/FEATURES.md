@@ -288,6 +288,31 @@ These appear in copy or UI and should not be treated as shipped features:
 
 ---
 
+## Audit (1 Oct 2026) — what is fixed
+
+Direct answers to the live walkthrough. Migrations **028**, **029**, and **030** have been run on production.
+
+| # | Finding | Now |
+| --- | --- | --- |
+| 1 | Duplicate Chalford leads; $740k vs $7.4M | Fixed. Same buyer + address collapses. A ~10× land price is rejected. Extra copies were deleted (029). Builder leads and My land show one Chalford at $740k. |
+| 2 | Figtree header 520 m² / 16 m vs measurements 518 / 13.5 / 20 | Fixed. The listing is the only size: 518 m², 13.5 m frontage, 20 m depth. |
+| 3 | Brief says G+1; notes say single-level; single-storey quotes were penalised | Fixed. Save is blocked until that contradiction is aligned or confirmed. Notes that clearly say single-level do not penalise a 1-storey package. |
+| 4 | Four builders with the same 4.6 rating, last sale, and delay | Fixed. Placeholder last-sale / delay is not copied onto every card. Missing history is hidden. |
+| 5 | “UUU” / licence AAAAA in the buyer directory | Fixed. Placeholder rows are filtered. The leftover unpublished profile was removed (029). |
+| 6 | “AI-assisted” while the score is rules-based | Fixed. Compare says brief-fit. Gemini writes optional copy when a server key is set. It does not replace the score. |
+| 7 | Builder-typed rating shown like a verified Google score | Fixed. Average rating is not a profile field. A number appears only from Places or the NSW register, otherwise unverified or omitted. |
+| 8 | Licence and insurance missing on Compare, where Accept happens | Fixed on the card: licence, Verify NSW link, and the directory insurance badge. That badge is **not** a live icare HBCF check. |
+| 9 | Unticked “structural warranty” reads as no warranty | Fixed. The Home Building Act floor is always shown: 6 years major defects, 2 years other. Extra warranty ticks are optional. |
+| 10 | Site costs look firm before any soil report | Partial. Site lines stay an estimate until a soil report is **delivered**. Compare, Accept, and Tender warn. They do not block an indicative quote. |
+| 11 | No Fixed Price vs Cost Plus | Shipped as a required contract type (fixed price, cost plus, or hybrid). Not an HIA contract PDF. |
+| 12 | Free-text line items, not a normalised schedule | Partial. Catalog categories plus line kind: lump sum, prime cost, provisional sum, or allowance. Not a full HIA PC/PS schedule. |
+| 13 | No edit or withdraw after submit | Partial. Pending or viewed quotes can be edited or withdrawn and resubmitted. An accepted quote cannot. A variation register after Accept is not built. |
+| 14 | Builder login lands on `/` | Fixed. A missing `next`, or `next=/`, opens `/builder/dashboard`. |
+
+**Not built** (audit Phase 2–3 and the regulated layer): icare HBCF gate, Velu Trust Score, holding deposits or escrow, open banking, DA / Planning Portal, builder CRM, defects and retention, and progress payments. Do not describe those as live.
+
+---
+
 ## Typical happy path (what works end to end)
 
 1. Buyer registers a block on **My land** (or an agent marks their listing **Sold**).
