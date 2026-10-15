@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
+import { selectItems } from "@/lib/utils";
 import {
   ENSUITE_OPTIONS,
   GRANNY_FLAT_OPTIONS,
@@ -67,6 +68,7 @@ export function BuyerBuildRequirementsFields({
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-house-type`}>House type</Label>
           <Select
+            items={selectItems(HOUSE_TYPE_OPTIONS)}
             value={value.house_type ?? "not_sure"}
             onValueChange={(v) => {
               if (!v) return;
@@ -103,6 +105,7 @@ export function BuyerBuildRequirementsFields({
             Builders quote against this field.
           </p>
           <Select
+            items={selectItems(STOREY_OPTIONS)}
             value={value.storeys}
             onValueChange={(v) =>
               v &&
@@ -128,6 +131,7 @@ export function BuyerBuildRequirementsFields({
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-grade`}>Construction type</Label>
           <Select
+            items={selectItems(CONSTRUCTION_GRADE_OPTIONS)}
             value={value.construction_grade ?? "medium"}
             onValueChange={(v) =>
               v &&
@@ -187,6 +191,7 @@ export function BuyerBuildRequirementsFields({
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-granny`}>Granny flat</Label>
           <Select
+            items={selectItems(GRANNY_FLAT_OPTIONS)}
             value={value.granny_flat}
             onValueChange={(v) =>
               v &&
@@ -357,6 +362,7 @@ export function BuyerBuildRequirementsFields({
         <div className="mt-4 space-y-2">
           <Label htmlFor={`${idPrefix}-ensuite`}>Ensuite</Label>
           <Select
+            items={selectItems(ENSUITE_OPTIONS)}
             value={value.ensuite ?? "not_sure"}
             onValueChange={(v) =>
               v && patch({ ensuite: v as BuyerBuildRequirements["ensuite"] })

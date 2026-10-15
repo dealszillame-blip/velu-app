@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readPublicProfile } from "@/lib/inquiries";
 import { createClient } from "@/lib/supabase/server";
 import { publicCounterpartName } from "@/lib/messaging";
 
@@ -61,11 +62,15 @@ export async function GET(
   const isBuyer = thread.buyer_id === user.id;
   const counterpartyId = isBuyer ? thread.builder_id : thread.buyer_id;
 
-  const { data: counterparty } = await supabase
+  const { data: visibleProfile } = await supabase
     .from("profiles")
-    .select("full_name, company_name, role")
+    .select("full_name, company_name")
     .eq("id", counterpartyId)
-    .single();
+    .maybeSingle();
+  const counterparty =
+    visibleProfile?.full_name
+      ? visibleProfile
+      : await readPublicProfile(counterpartyId);
 
   const listingRaw = thread.land_listings as
     | { address: string; suburb: string; postcode: string }

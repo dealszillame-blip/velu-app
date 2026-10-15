@@ -15,7 +15,11 @@ import { createClient } from "@/lib/supabase/server";
 const createSchema = z.object({
   land_listing_id: z.string().uuid(),
   counterparty_id: z.string().uuid(),
-  message: z.string().trim().min(10).max(4000),
+  message: z
+    .string()
+    .trim()
+    .min(10, "Message must be at least 10 characters.")
+    .max(4000),
 });
 
 export async function GET() {
@@ -71,7 +75,8 @@ export async function POST(request: Request) {
 
   const body = createSchema.safeParse(await request.json());
   if (!body.success) {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    const message = body.error.issues[0]?.message ?? "Invalid input";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   if (containsContactInfo(body.data.message)) {

@@ -238,6 +238,11 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
                   className="flex min-h-[140px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
+              {composeDraft.trim().length > 0 && composeDraft.trim().length < 10 && (
+                <p className="text-sm text-muted-foreground">
+                  Message must be at least 10 characters.
+                </p>
+              )}
               {error && (
                 <p className="text-sm text-destructive" role="alert">
                   {error}
@@ -332,9 +337,13 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
                 className="border-t border-black/[0.06] p-4 sm:p-6"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (selectedId && draft.trim()) {
-                    sendToThread(selectedId, draft.trim());
+                  const message = draft.trim();
+                  if (!selectedId) return;
+                  if (message.length < 10) {
+                    setError("Message must be at least 10 characters.");
+                    return;
                   }
+                  sendToThread(selectedId, message);
                 }}
               >
                 <div className="flex gap-2">
@@ -347,13 +356,18 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
                   />
                   <Button
                     type="submit"
-                    disabled={sending || !draft.trim()}
+                    disabled={sending || draft.trim().length < 10}
                     className="self-end rounded-full px-4"
                     aria-label="Send message"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
+                {draft.trim().length > 0 && draft.trim().length < 10 && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Message must be at least 10 characters.
+                  </p>
+                )}
                 {error && (
                   <p className="mt-2 text-sm text-destructive" role="alert">
                     {error}

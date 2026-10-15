@@ -512,7 +512,7 @@ export function ProposalComparator() {
     }
 
     if (action === "accept" && data.project_id) {
-      router.push(`/buyer/project/${data.project_id}`);
+      window.location.assign(`/buyer/project/${data.project_id}`);
       return;
     }
 
@@ -589,6 +589,7 @@ export function ProposalComparator() {
     ["accepted", "rejected"].includes(p.status)
   );
   const accepted = proposals.filter((p) => p.status === "accepted");
+  const confirming = proposals.find((p) => p.id === confirmingId);
 
   return (
     <div className="space-y-8">
@@ -645,6 +646,15 @@ export function ProposalComparator() {
       {confirmingId ? (
         <div className="surface-subtle space-y-3 p-5">
           <p className="font-medium tracking-tight">Confirm before you accept</p>
+          {confirming ? (
+            <p className="text-sm">
+              You are accepting{" "}
+              <span className="font-medium">{confirming.package_name}</span> from{" "}
+              {confirming.builder_name ?? "this builder"} at{" "}
+              {formatProposalPrice(confirming.base_price)}. Other open packages on
+              this lot will be declined. This cannot be undone from Compare.
+            </p>
+          ) : null}
           <p className="text-sm text-muted-foreground">{ACCEPT_COOLING_OFF_COPY}</p>
           {proposals.find((p) => p.id === confirmingId)?.site_costs_provisional !==
           false ? (
