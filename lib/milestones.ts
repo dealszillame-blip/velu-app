@@ -45,6 +45,37 @@ export function nextMilestone(
   return CONSTRUCTION_STAGES[index + 1] ?? null;
 }
 
+/** Buyer timeline: done trail, the open stage, the locked next stage, and a count of the rest. */
+export function buyerMilestoneFocus(current: ConstructionMilestone): {
+  complete: boolean;
+  done: ConstructionMilestone[];
+  current: ConstructionMilestone | null;
+  next: ConstructionMilestone | null;
+  laterCount: number;
+} {
+  if (isBuildComplete(current)) {
+    return {
+      complete: true,
+      done: [...CONSTRUCTION_STAGES],
+      current: null,
+      next: null,
+      laterCount: 0,
+    };
+  }
+
+  const index = CONSTRUCTION_STAGES.indexOf(current);
+  const at = index < 0 ? 0 : index;
+  const next = CONSTRUCTION_STAGES[at + 1] ?? null;
+
+  return {
+    complete: false,
+    done: CONSTRUCTION_STAGES.slice(0, at),
+    current: CONSTRUCTION_STAGES[at],
+    next,
+    laterCount: CONSTRUCTION_STAGES.length - at - 1 - (next ? 1 : 0),
+  };
+}
+
 /** Builder company, otherwise the person's name. Never a role placeholder. */
 export function projectPartyName(
   profile:

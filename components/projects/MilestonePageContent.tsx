@@ -29,6 +29,7 @@ export async function MilestonePageContent({
       id,
       buyer_id,
       builder_id,
+      land_listing_id,
       current_stage,
       stage_updated_at,
       land_listings (address, suburb, postcode)
@@ -156,8 +157,8 @@ export async function MilestonePageContent({
             {progress.complete
               ? "Every stage from Contract to Handover is done."
               : isBuilder
-                ? "Advance one stage at a time as each phase completes."
-                : "Follow the build. Only the builder can advance a stage."}
+                ? "The full timeline stays visible. Advance the current stage by one step."
+                : "Done stages stay short. Only the current stage is open."}
           </p>
         </div>
         <div className="p-5 sm:p-6">
@@ -166,8 +167,13 @@ export async function MilestonePageContent({
             currentStage={currentStage}
             canAdvance={isBuilder && project.builder_id === user.id}
             variant="timeline"
+            audience={isBuilder ? "builder" : "buyer"}
             builderName={builderName}
             buyerName={buyerName}
+            statusHref={`/buyer/project/${project.id}`}
+            messagesPath={isBuilder ? "/builder/messages" : "/buyer/messages"}
+            landListingId={project.land_listing_id}
+            counterpartyId={project.builder_id}
           />
         </div>
       </div>

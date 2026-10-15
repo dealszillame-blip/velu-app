@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BuyerMilestoneTimeline } from "@/components/projects/BuyerMilestoneTimeline";
 import {
   CONSTRUCTION_STAGES,
   MILESTONE_LABELS,
@@ -41,8 +42,14 @@ type MilestoneTrackerProps = {
   canAdvance?: boolean;
   /** Compact stepper on the project page. Timeline is the full milestone page. */
   variant?: "compact" | "timeline";
+  /** Buyer sees the focused timeline. Builder sees every stage. */
+  audience?: "buyer" | "builder";
   builderName?: string | null;
   buyerName?: string | null;
+  statusHref?: string;
+  messagesPath?: string;
+  landListingId?: string | null;
+  counterpartyId?: string | null;
 };
 
 export function MilestoneTracker({
@@ -50,8 +57,13 @@ export function MilestoneTracker({
   currentStage,
   canAdvance = false,
   variant = "compact",
+  audience = "builder",
   builderName = null,
   buyerName = null,
+  statusHref,
+  messagesPath = "/buyer/messages",
+  landListingId = null,
+  counterpartyId = null,
 }: MilestoneTrackerProps) {
   const router = useRouter();
   const pending = useRef(false);
@@ -95,12 +107,26 @@ export function MilestoneTracker({
     router.refresh();
   }
 
+  if (variant === "timeline" && (audience === "buyer" || complete)) {
+    return (
+      <BuyerMilestoneTimeline
+        stage={stage}
+        builderName={builder}
+        buyerName={buyer}
+        statusHref={statusHref ?? ""}
+        messagesPath={messagesPath}
+        landListingId={landListingId}
+        counterpartyId={counterpartyId}
+      />
+    );
+  }
+
+  const advanceOnCurrent =
+    variant === "timeline" && canAdvance && upcoming !== null;
+  const nextLabel = upcoming ? MILESTONE_LABELS[upcoming] : null;
+
   return (
     <div className="space-y-8">
-      {variant === "timeline" && complete && (
-        <FinishedBuild builder={builder} buyer={buyer} />
-      )}
-
       {variant === "timeline" ? (
         <ol className="space-y-0">
           {CONSTRUCTION_STAGES.map((milestone, index) => {
@@ -164,6 +190,22 @@ export function MilestoneTracker({
                   <p className="mt-1 text-sm text-muted-foreground">
                     {MILESTONE_SUMMARIES[milestone]}
                   </p>
+                  {state === "current" && advanceOnCurrent && nextLabel && (
+                    <div className="mt-3 flex flex-col items-start gap-3">
+                      <Button
+                        onClick={advanceStage}
+                        disabled={loading}
+                        className="h-12 rounded-full px-8"
+                      >
+                        {loading ? "Updating…" : `Advance to ${nextLabel}`}
+                      </Button>
+                      {error && (
+                        <p className="text-sm text-destructive" role="alert">
+                          {error}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </li>
             );
@@ -213,28 +255,13 @@ export function MilestoneTracker({
         </div>
       )}
 
-      {variant === "timeline" && (
+      {variant === "timeline" && !complete && (
         <div className="rounded-xl bg-muted px-4 py-3 text-sm">
-          {complete ? (
-            <p>
-              Handover is done, so there is no stage left to advance. Only{" "}
-              {builder} could move stages. {buyer} can review this timeline and
-              cannot advance a stage.
-            </p>
-          ) : canAdvance ? (
-            <p>
-              Current stage is {MILESTONE_LABELS[stage]}. You can advance it
-              {upcoming ? ` to ${MILESTONE_LABELS[upcoming]}` : ""}, one stage
-              at a time. {buyer} can view this page and cannot advance a stage.
-            </p>
-          ) : (
-            <p>
-              Current stage is {MILESTONE_LABELS[stage]}. {builder} advances
-              this build one stage at a time
-              {upcoming ? `, next to ${MILESTONE_LABELS[upcoming]}` : ""}. You
-              can view this page and cannot advance a stage.
-            </p>
-          )}
+          <p>
+            Current stage is {MILESTONE_LABELS[stage]}. Advance it
+            {upcoming ? ` to ${MILESTONE_LABELS[upcoming]}` : ""}, one stage at
+            a time. {buyer} can view this page and cannot advance a stage.
+          </p>
         </div>
       )}
 
@@ -244,7 +271,7 @@ export function MilestoneTracker({
         </p>
       )}
 
-      {canAdvance && upcoming && (
+      {canAdvance && upcoming && !advanceOnCurrent && (
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
           <Button
             onClick={advanceStage}
@@ -262,28 +289,6 @@ export function MilestoneTracker({
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-function FinishedBuild({
-  builder,
-  buyer,
-}: {
-  builder: string;
-  buyer: string;
-}) {
-  return (
-    <div className="rounded-2xl bg-foreground px-5 py-5 text-background sm:px-6">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-background/70">
-        Finished
-      </p>
-      <p className="mt-2 text-xl font-semibold tracking-tight">Build complete</p>
-      <p className="mt-2 max-w-xl text-sm text-background/80">
-        {builder} has handed this home to {buyer}. Every stage from Contract
-        through Handover is done. This page stays on the finished build.
-        Handover is the last stage.
-      </p>
     </div>
   );
 }

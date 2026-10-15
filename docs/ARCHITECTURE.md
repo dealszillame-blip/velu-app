@@ -188,7 +188,7 @@ flowchart TB
 | `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
 | `/buyer/messages` | In-app threads with builders (no phone/email shared) |
 | `/buyer/project/:id` | Project after accept; links to the milestone timeline |
-| `/buyer/project/:id/milestones` | Full stage timeline; finished state after Handover |
+| `/buyer/project/:id/milestones` | Done trail, current stage only, next stage locked; finished state after Handover |
 
 ### Builder surfaces
 
@@ -201,7 +201,7 @@ flowchart TB
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
 | `/builder/project/:id` | Shared project; builder advances stages |
-| `/builder/project/:id/milestones` | Full stage timeline; builder advances one step |
+| `/builder/project/:id/milestones` | Full stage timeline; one advance on the current stage; finished state after Handover |
 
 ### Report provider surfaces
 
