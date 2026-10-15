@@ -187,8 +187,8 @@ flowchart TB
 | `/buyer/requirements` | Saved brief (beds, baths, storeys, granny flat, construction grade, builder types, measurements) |
 | `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
 | `/buyer/messages` | In-app threads with builders (no phone/email shared) |
-| `/buyer/project/:id` | Project after accept; links to the milestone timeline |
-| `/buyer/project/:id/milestones` | Done trail, current stage only (builder bank details and an off-platform payment disclaimer), next stage locked; finished state after Handover |
+| `/buyer/project/:id` | Project after accept; links to the milestone timeline. After Handover, defects and the statutory warranty note |
+| `/buyer/project/:id/milestones` | Done trail, current stage only (builder bank details and an off-platform payment disclaimer), next stage locked; finished state after Handover, then defects and the statutory warranty note |
 
 ### Builder surfaces
 
@@ -200,8 +200,8 @@ flowchart TB
 | `/builder/leads/:listingId` | Submit a package (specs, breakdown, inclusions) |
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
-| `/builder/project/:id` | Shared project; payment confirmation on the milestone page moves a stage |
-| `/builder/project/:id/milestones` | Full stage timeline; confirm payment received moves one stage; finished state after Handover |
+| `/builder/project/:id` | Shared project; payment confirmation on the milestone page moves a stage. After Handover, the same defects list and statutory warranty note |
+| `/builder/project/:id/milestones` | Full stage timeline; confirm payment received moves one stage; finished state after Handover, then defects and the statutory warranty note |
 
 ### Report provider surfaces
 
@@ -286,6 +286,7 @@ erDiagram
   land_listings ||--o{ builder_proposals : "packages"
   profiles ||--o{ builder_proposals : "builder"
   builder_proposals ||--o| construction_projects : "on accept"
+  construction_projects ||--o{ project_defects : "after handover"
   land_listings ||--o{ site_report_requests : "addons"
   land_listings ||--o{ architect_requests : "addons"
   land_listings ||--o{ builder_inquiries : "threads"
@@ -303,6 +304,7 @@ erDiagram
 | `builder_proposal_templates` | Reusable builder packages |
 | `construction_projects` | Milestone after accept |
 | `milestone_payment_confirmations` | Builder says they received payment for one stage. Velu does not move the money. |
+| `project_defects` | After handover: buyer reports, builder marks fixed, buyer approves or sends back. No retention. |
 | `builder_inquiries` + `inquiry_messages` | In-app chat |
 | `site_report_definitions` + `site_report_requests` | Soil report / site survey add-ons |
 | `architect_directory` + `architect_requests` | Architect intro requests |
@@ -354,6 +356,8 @@ APIs are App Router `route.ts` files. They return JSON. Auth is cookie session u
 | GET | `/api/builders/:id/profile` | Public profile |
 | GET | `/api/builders/published-packages` | Catalogue |
 | PATCH | `/api/projects/:id/milestone` | Builder confirms payment received for the current stage, then the stage moves one step. Velu does not transfer money. |
+| GET/POST | `/api/projects/:id/defects` | After handover, both roles read the same defects. The buyer reports one. |
+| PATCH | `/api/projects/:id/defects/:defectId` | Builder marks an open defect fixed. Buyer approves it or sends it back. |
 
 ### Platform / admin / ingest
 

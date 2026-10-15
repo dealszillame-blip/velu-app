@@ -4,6 +4,13 @@ import type { InclusionItem } from "@/lib/proposal-breakdown";
 export const NSW_STATUTORY_WARRANTY =
   "NSW statutory warranties always apply under the Home Building Act: 6 years for major defects and 2 years for other defects. This is not optional and is not a missing tick.";
 
+/**
+ * Shown to the buyer and the builder after handover.
+ * A record of the Act between those two parties. Not a Velu product and not a claim form.
+ */
+export const HANDOVER_STATUTORY_WARRANTY =
+  "The statutory warranty is between the buyer and the builder under the NSW Home Building Act: 6 years for major defects and 2 years for other defects, starting when the build reached handover. Velu does not lodge claims, hold retention, or decide disputes.";
+
 export function isWarrantyInclusion(item: InclusionItem): boolean {
   return (
     item.category === "warranty" ||
