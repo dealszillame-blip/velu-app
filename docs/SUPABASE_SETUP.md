@@ -79,6 +79,7 @@ copy .env.example .env.local
 | 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
 | 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
 | 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. Velu does not process, hold, or transfer money. |
+| 32 | `032_build_stages.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `approvals`, `site_clearance`, and `excavation` to `construction_milestone`. Does not change `current_stage` on existing projects. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -132,6 +133,12 @@ Until **`031_milestone_payment.sql`** is pasted into **SQL Editor** and run, bui
 031 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects.
 
 Velu does not process, hold, or transfer money. The new columns are whatever the builder typed. They are not verified with a bank. The buyer pays the builder outside Velu.
+
+### After 031 — build stages (032)
+
+Until **`032_build_stages.sql`** is pasted into **SQL Editor** and run, the app cannot store Approvals, Site clearance, or Excavation. Projects already on Slab or a later stage keep that stage. This file does not move them back to Approvals.
+
+032 is SQL only. Do not paste `npm` commands into the editor. It only adds enum labels. It does not update `construction_projects` and does not confirm any payment.
 
 ### Verify tables exist
 

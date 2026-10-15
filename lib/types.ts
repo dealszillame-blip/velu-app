@@ -8,8 +8,15 @@ export type UserRole =
 
 export type ListingStatus = "available" | "under_offer" | "sold";
 
+/**
+ * Build order. Compare and display stages with this list.
+ * Postgres appends new enum labels, so enum sort order is not the build order.
+ */
 export const CONSTRUCTION_STAGES = [
   "contract",
+  "approvals",
+  "site_clearance",
+  "excavation",
   "slab",
   "frame",
   "lockup",
@@ -78,6 +85,9 @@ export const ROLE_HOME: Record<UserRole, string> = {
 
 export const MILESTONE_LABELS: Record<ConstructionMilestone, string> = {
   contract: "Contract",
+  approvals: "Approvals",
+  site_clearance: "Site clearance",
+  excavation: "Excavation",
   slab: "Slab",
   frame: "Frame",
   lockup: "Lock-up",
@@ -87,6 +97,10 @@ export const MILESTONE_LABELS: Record<ConstructionMilestone, string> = {
 
 export const MILESTONE_SUMMARIES: Record<ConstructionMilestone, string> = {
   contract: "The build contract is in place and work can start.",
+  approvals:
+    "Development approval or complying development, and certifier sign-off, are in place.",
+  site_clearance: "The site is cleared, access is open, and services are located.",
+  excavation: "The site is dug out ready for the slab.",
   slab: "The concrete slab is poured.",
   frame: "The structural frame is standing.",
   lockup: "The home is closed in: roof, walls, and windows.",

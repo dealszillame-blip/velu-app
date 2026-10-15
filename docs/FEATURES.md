@@ -132,7 +132,7 @@ Six tabs:
 
 ### Project (`/buyer/project/:id`)
 
-- See address, builder company, buyer name, and a short six-stage tracker (Contract → Slab → Frame → Lock-up → Fixing → Handover).
+- See address, builder company, buyer name, and a short nine-stage tracker (Contract → Approvals → Site clearance → Excavation → Slab → Frame → Lock-up → Fixing → Handover).
 - Open **Milestones** (`/buyer/project/:id/milestones`). Done stages stay short. Only the current stage is expanded.
 - **View only.** The builder confirms they received an off-platform payment, which moves one stage. The buyer can view status, the builder’s payment details, and message the builder. The buyer cannot mark a stage paid.
 
@@ -141,9 +141,10 @@ Six tabs:
 - Completed stages are a short trail: the stage name and done. No long explanation on past stages.
 - The current stage is the only expanded card. It says what that stage means. Before any account numbers, it says: Velu does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money. Then it shows the account name, BSB, and account number the builder typed, labelled as supplied by the builder and not verified by Velu. If the builder has not saved details, it says payment details are not on file yet. Actions on the card: view status, and message the builder. There is no button to mark the stage paid and no advance button.
 - The immediate next stage is one locked line: it unlocks when the builder confirms payment for the current stage.
-- Stages after that next one are not listed. A quiet count is enough, such as “3 later stages” while the current stage is Slab.
+- Stages after that next one are not listed. A quiet count is enough, such as “3 later stages” while the current stage is Slab. On Contract the locked line is Approvals, and the later count is the seven stages after that.
+- A project already on Slab or later stays on that stage. Approvals, Site clearance, and Excavation sit before Slab, so they show as done. The page does not move that build back to Approvals.
 - Names the builder company and the buyer.
-- After Handover: a finished banner, a compact trail of all six done stages, no locked future stage, and no payment form or confirm button. The page still shows the build is finished.
+- After Handover: a finished banner, a compact trail of all nine done stages, no locked future stage, and no payment form or confirm button. The page still shows the build is finished.
 
 ### Notifications
 
