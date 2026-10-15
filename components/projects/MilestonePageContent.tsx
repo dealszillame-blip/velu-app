@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Building2, MapPin, UserRound } from "lucide-react";
 import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
+import { PostHandoverSection } from "@/components/projects/PostHandoverSection";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { requireRole } from "@/lib/auth";
@@ -159,7 +160,7 @@ export async function MilestonePageContent({
           </p>
           <p className="text-sm text-muted-foreground">
             {progress.complete
-              ? "Every stage from Contract to Handover is done."
+              ? "Every stage from Contract to Handover is done. Defects and the statutory warranty are below."
               : isBuilder
                 ? "The full timeline stays visible. Confirm the payment you received to move the current stage by one step. Velu does not transfer the money."
                 : "Done stages stay short. Only the current stage is open, including the payment details the builder supplied."}
@@ -182,6 +183,13 @@ export async function MilestonePageContent({
           />
         </div>
       </div>
+
+      <PostHandoverSection
+        projectId={project.id}
+        stage={currentStage}
+        role={isBuilder ? "builder" : "buyer"}
+        handoverAt={project.stage_updated_at}
+      />
     </div>
   );
 }

@@ -76,7 +76,7 @@ export function CompareMilestonesPanel() {
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {complete
-                ? "Build complete. Handover is done and every stage is finished."
+                ? "Build complete. Handover is done. Open the project or the milestone page for defects and the statutory warranty."
                 : `Current stage: ${MILESTONE_LABELS[project.current_stage]}. You can view the timeline and cannot advance a stage.`}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-4">

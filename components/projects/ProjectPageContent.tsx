@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
+import { PostHandoverSection } from "@/components/projects/PostHandoverSection";
 import { requireRole } from "@/lib/auth";
 import { readCounterpartyProfile } from "@/lib/inquiries";
 import { milestoneProgress, projectPartyName } from "@/lib/milestones";
@@ -30,6 +31,7 @@ export async function ProjectPageContent({
       buyer_id,
       builder_id,
       current_stage,
+      stage_updated_at,
       land_listings (address, suburb, postcode)
     `
     )
@@ -164,7 +166,7 @@ export async function ProjectPageContent({
               <p className="font-medium tracking-tight">Construction milestones</p>
               <p className="text-sm text-muted-foreground">
                 {progress.complete
-                  ? "This build is finished. Open the timeline to see every stage done."
+                  ? "This build is finished. Open the timeline to see every stage done. Defects and the statutory warranty are below."
                   : isBuilder
                     ? "Open the milestone page to confirm you received payment. That moves one stage. Velu does not transfer the money."
                     : "Open the milestone page for this stage and the payment details the builder supplied. You cannot mark a stage paid."}
@@ -188,6 +190,13 @@ export async function ProjectPageContent({
           />
         </div>
       </div>
+
+      <PostHandoverSection
+        projectId={project.id}
+        stage={currentStage}
+        role={isBuilder ? "builder" : "buyer"}
+        handoverAt={project.stage_updated_at}
+      />
     </div>
   );
 }

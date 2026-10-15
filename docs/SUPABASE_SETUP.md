@@ -79,6 +79,7 @@ copy .env.example .env.local
 | 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
 | 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
 | 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. Velu does not process, hold, or transfer money. |
+| 32 | `032_defects.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `project_defects` for the post-handover list. The buyer reports a defect, the builder marks it fixed, and the buyer approves it or sends it back. No retention amount. Velu does not lodge warranty claims or decide disputes. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -132,6 +133,16 @@ Until **`031_milestone_payment.sql`** is pasted into **SQL Editor** and run, bui
 031 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects.
 
 Velu does not process, hold, or transfer money. The new columns are whatever the builder typed. They are not verified with a bank. The buyer pays the builder outside Velu.
+
+### After 031 — post-handover defects (032)
+
+Until **`032_defects.sql`** is pasted into **SQL Editor** and run, the defects section can show after handover but a new defect will not save.
+
+After merge, paste **`migrations/mvp/032_defects.sql`** into **SQL Editor** and run it.
+
+032 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects. It does not add a retention amount, and it does not create a warranty claim.
+
+The statutory warranty note on the finished build is copy only. It is not a Velu product. Velu does not lodge claims, hold retention, or decide disputes.
 
 ### Verify tables exist
 
