@@ -11,7 +11,7 @@ export type ParsedPaymentDetails = {
 };
 
 export const PAYMENT_DISCLAIMER =
-  "Velu does not process this payment. Call the builder and read back the account name, BSB, and account number over the phone before you transfer any money. Do not rely on these details alone.";
+  "Velu does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money.";
 
 export const PAYMENT_NOT_ON_FILE = "Payment details are not on file yet.";
 

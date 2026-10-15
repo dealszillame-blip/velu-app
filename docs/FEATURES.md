@@ -139,7 +139,7 @@ Six tabs:
 ### Milestones (`/buyer/project/:id/milestones`)
 
 - Completed stages are a short trail: the stage name and done. No long explanation on past stages.
-- The current stage is the only expanded card. It says what that stage means. Before any account numbers, it says Velu does not process this payment, and to call the builder and read back the account name, BSB, and account number before transferring money. Then it shows the account name, BSB, and account number the builder typed, labelled as supplied by the builder and not verified by Velu. If the builder has not saved details, it says payment details are not on file yet. Actions on the card: view status, and message the builder. There is no button to mark the stage paid and no advance button.
+- The current stage is the only expanded card. It says what that stage means. Before any account numbers, it says: Velu does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money. Then it shows the account name, BSB, and account number the builder typed, labelled as supplied by the builder and not verified by Velu. If the builder has not saved details, it says payment details are not on file yet. Actions on the card: view status, and message the builder. There is no button to mark the stage paid and no advance button.
 - The immediate next stage is one locked line: it unlocks when the builder confirms payment for the current stage.
 - Stages after that next one are not listed. A quiet count is enough, such as “3 later stages” while the current stage is Slab.
 - Names the builder company and the buyer.
