@@ -12,6 +12,7 @@ type MobileTabBarProps = {
 
 export function MobileTabBar({ items }: MobileTabBarProps) {
   const pathname = usePathname();
+  const roomy = items.length <= 3;
 
   return (
     <nav
@@ -26,7 +27,9 @@ export function MobileTabBar({ items }: MobileTabBarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors",
+                roomy
+                  ? "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-sm font-semibold transition-colors"
+                  : "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-xs font-semibold transition-colors",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >

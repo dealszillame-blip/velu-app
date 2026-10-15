@@ -11,6 +11,12 @@ const NAV = [
   { href: "/buyer/messages", label: "Messages" },
 ];
 
+const PHONE_NAV = [
+  { href: "/buyer/map", label: "Map" },
+  { href: "/buyer/builds", label: "Builds" },
+  { href: "/buyer/messages", label: "Messages" },
+];
+
 export default async function BuyerLayout({
   children,
 }: {
@@ -24,7 +30,7 @@ export default async function BuyerLayout({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {children}
       </main>
-      <MobileTabBar items={NAV} />
+      <MobileTabBar items={PHONE_NAV} />
     </div>
   );
 }

@@ -20,10 +20,13 @@ export function SegmentControl<T extends string>({
   onChange,
   className,
 }: SegmentControlProps<T>) {
+  const stacked = options.length > 3;
+
   return (
     <div
       className={cn(
-        "inline-flex w-full rounded-xl bg-muted p-1",
+        "w-full rounded-xl bg-muted p-1",
+        stacked ? "flex flex-col gap-1 sm:flex-row" : "inline-flex",
         className
       )}
       role="tablist"
@@ -38,7 +41,8 @@ export function SegmentControl<T extends string>({
             aria-selected={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+              "rounded-lg px-3 py-2 text-sm font-medium transition-all",
+              stacked ? "w-full text-left sm:flex-1 sm:text-center" : "flex-1",
               selected
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
