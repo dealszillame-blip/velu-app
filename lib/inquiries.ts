@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export async function validateInquiryParticipants(
@@ -78,14 +79,36 @@ export async function readPublicProfile(userId: string): Promise<{
       .select("full_name, company_name")
       .eq("id", userId)
       .maybeSingle();
-    if (!data?.full_name?.trim()) return null;
+    const fullName = data?.full_name?.trim() ?? "";
+    const companyName = data?.company_name?.trim() || null;
+    if (!fullName && !companyName) return null;
     return {
-      full_name: data.full_name,
-      company_name: data.company_name ?? null,
+      full_name: fullName,
+      company_name: companyName,
     };
   } catch {
     return null;
   }
+}
+
+/** Session profile when visible, otherwise the service-role public name. */
+export async function readCounterpartyProfile(userId: string): Promise<{
+  full_name: string;
+  company_name: string | null;
+} | null> {
+  const supabase = await createClient();
+  const { data: visible } = await supabase
+    .from("profiles")
+    .select("full_name, company_name")
+    .eq("id", userId)
+    .maybeSingle();
+  if (visible?.full_name?.trim() || visible?.company_name?.trim()) {
+    return {
+      full_name: visible.full_name?.trim() ?? "",
+      company_name: visible.company_name?.trim() || null,
+    };
+  }
+  return readPublicProfile(userId);
 }
 
 export async function notifyMessageReceived(

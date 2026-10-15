@@ -116,7 +116,7 @@ Six tabs:
 | **Compare** | Pending packages as cards (price, contract type, weeks, specs, breakdown, inclusions) and a side-by-side table when **two or more** are pending. Cards show the NSW licence (Verify NSW) and insurance — a directory badge, not a live icare HBCF check. Statutory warranty is always on screen (Home Building Act: 6 years major defects, 2 years other). Site-cost lines stay an estimate until a soil report is **delivered** (warning only; quotes are not blocked). Accept or decline. Accept tells the buyer to confirm cooling-off, deposits, and contract terms with a solicitor and NSW Fair Trading. No hard-coded deposit %. Velu does not collect the deposit. Message the builder, open their profile, or load **demonstration packages** if land is registered but quotes are thin. |
 | **Recommend** | Ranked **brief-fit** score vs the saved brief (bedrooms, bathrooms, storeys, granny flat, cars, price), with why, watch-outs, and next steps. Storeys are a hard layout filter (single vs G+1). Notes that clearly say single-level do not penalise a 1-storey package. Optional Gemini write-up when `GEMINI_API_KEY` is set; OpenAI only if Gemini is missing or fails. No working key means the rules sentence stays. Page copy calls this a brief-fit scorer, not an AI decision engine. |
 | **Tender report** | Gap / watch / ok findings per package against stored tender knowledge. Optional Gemini narrative (OpenAI fallback) when a server key is set. Site $ stays an estimate until a soil report is delivered — not a hard block. Callout to request a **legal check** on My land before accepting. |
-| **Milestones** | See accepted projects and the six-stage tracker (view only — same as `/buyer/project/:id`). |
+| **Milestones** | Accepted projects link to `/buyer/project/:id/milestones` (view only). That page lists Contract → Handover as done, current, or upcoming. After Handover it shows the build as finished. |
 | **Published designs** | Browse a catalogue of indicative single- and double-storey packages. Filter only — cannot request or add to Compare. |
 | **Upcoming** | Placeholder card only. No live estates. |
 
@@ -132,8 +132,15 @@ Six tabs:
 
 ### Project (`/buyer/project/:id`)
 
-- See address, builder, and the six-stage tracker (Contract → Slab → Frame → Lock-up → Fixing → Handover).
+- See address, builder company, buyer name, and a short six-stage tracker (Contract → Slab → Frame → Lock-up → Fixing → Handover).
+- Open **Milestones** (`/buyer/project/:id/milestones`) for the full timeline.
 - **View only.** The builder advances stages.
+
+### Milestones (`/buyer/project/:id/milestones`)
+
+- Every stage in order, marked done, current, or upcoming.
+- Names the builder company and the buyer. Says the builder advances the current stage and the buyer cannot.
+- After Handover: the build is complete, all six stages are done, and the page stays on that finished state.
 
 ### Notifications
 
@@ -166,7 +173,7 @@ Six tabs:
 - **Pending** or **viewed** packages can be edited in place, or withdrawn so a new package can be sent. An **accepted** package cannot be edited or withdrawn.
 - List sent packages and their status (`/builder/proposals`).
 - Message buyers on those sold leads.
-- After a buyer **accepts**: open `/builder/project/:id` and **advance milestones one stage at a time**.
+- After a buyer **accepts**: open `/builder/project/:id` or `/builder/project/:id/milestones` and **advance milestones one stage at a time**. After Handover the milestone page shows the build as finished.
 
 Leads, proposals, and messaging require `is_onboarded = true`. Licence-valid and onboarding-status fields exist for **admin** but do not block the builder UI today.
 
@@ -320,7 +327,7 @@ Direct answers to the live walkthrough. Migrations **028**, **029**, and **030**
 3. Onboarded builders in range see the lot on **Leads** and send a package.
 4. Buyer opens **Compare**, optionally **Recommend** (brief-fit score; Gemini write-up only if a server key is set) / **Tender report** / **Milestones**.
 5. Buyer **Accepts** one package.
-6. Both sides open the **project**; the builder moves milestones.
+6. Both sides open the **project** and the **milestone page**; the builder moves one stage at a time. After Handover the page shows the build as finished.
 7. Either side can **message** the other on that lot (no phone/email in the thread).
 
 That loop is the product. The NSW register, site-report providers, waitlist, admin Data, and demo packages support it.

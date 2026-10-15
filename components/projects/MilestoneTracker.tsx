@@ -1,102 +1,250 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MILESTONE_LABELS, type ConstructionMilestone } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import {
+  CONSTRUCTION_STAGES,
+  MILESTONE_LABELS,
+  MILESTONE_SUMMARIES,
+  type ConstructionMilestone,
+} from "@/lib/types";
+import {
+  isBuildComplete,
+  milestoneVisualState,
+  nextMilestone,
+} from "@/lib/milestones";
 import { cn } from "@/lib/utils";
 
-const STAGES: ConstructionMilestone[] = [
-  "contract",
-  "slab",
-  "frame",
-  "lockup",
-  "fixing",
-  "completion",
-];
+function displayedStage(
+  currentStage: ConstructionMilestone,
+  advancedTo: ConstructionMilestone | null
+): ConstructionMilestone {
+  if (!advancedTo) return currentStage;
+  const incoming = CONSTRUCTION_STAGES.indexOf(currentStage);
+  const held = CONSTRUCTION_STAGES.indexOf(advancedTo);
+  if (incoming < 0) return advancedTo;
+  return incoming >= held ? currentStage : advancedTo;
+}
+
+const STATE_LABEL = {
+  done: "Done",
+  current: "Current",
+  upcoming: "Upcoming",
+} as const;
 
 type MilestoneTrackerProps = {
   projectId: string;
   currentStage: ConstructionMilestone;
   canAdvance?: boolean;
+  /** Compact stepper on the project page. Timeline is the full milestone page. */
+  variant?: "compact" | "timeline";
+  builderName?: string | null;
+  buyerName?: string | null;
 };
 
 export function MilestoneTracker({
   projectId,
   currentStage,
   canAdvance = false,
+  variant = "compact",
+  builderName = null,
+  buyerName = null,
 }: MilestoneTrackerProps) {
   const router = useRouter();
+  const pending = useRef(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [stage, setStage] = useState(currentStage);
-  const currentIndex = STAGES.indexOf(stage);
+  const [advancedTo, setAdvancedTo] = useState<ConstructionMilestone | null>(null);
+  const stage = displayedStage(currentStage, advancedTo);
 
-  useEffect(() => {
-    setStage(currentStage);
-  }, [currentStage]);
+  const complete = isBuildComplete(stage);
+  const upcoming = nextMilestone(stage);
+  const builder = builderName ?? "the builder on this project";
+  const buyer = buyerName ?? "the buyer on this project";
 
   async function advanceStage() {
-    const next = STAGES[currentIndex + 1];
-    if (!next) return;
+    const target = nextMilestone(stage);
+    if (pending.current || !target) return;
 
+    pending.current = true;
     setLoading(true);
     setError(null);
 
     const res = await fetch(`/api/projects/${projectId}/milestone`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage: next }),
+      body: JSON.stringify({ stage: target }),
     });
 
     const data = await res.json().catch(() => ({}));
-    setLoading(false);
 
     if (!res.ok) {
+      pending.current = false;
+      setLoading(false);
       setError(data.error ?? "Could not update milestone");
       return;
     }
 
-    setStage(next);
+    const saved = CONSTRUCTION_STAGES.find((item) => item === data.stage) ?? target;
+    setAdvancedTo(saved);
+    pending.current = false;
+    setLoading(false);
     router.refresh();
   }
 
   return (
     <div className="space-y-8">
-      <div className="relative">
-        <div className="absolute left-0 right-0 top-5 hidden h-px bg-black/[0.08] sm:block" />
-        <ol className="grid gap-4 sm:grid-cols-6">
-          {STAGES.map((stage, index) => {
-            const done = index < currentIndex;
-            const active = index === currentIndex;
+      {variant === "timeline" && complete && (
+        <FinishedBuild builder={builder} buyer={buyer} />
+      )}
 
+      {variant === "timeline" ? (
+        <ol className="space-y-0">
+          {CONSTRUCTION_STAGES.map((milestone, index) => {
+            const state = milestoneVisualState(milestone, stage);
+            const last = index === CONSTRUCTION_STAGES.length - 1;
             return (
-              <li key={stage} className="relative flex flex-col items-center text-center">
-                <span
-                  className={cn(
-                    "relative z-10 flex size-10 items-center justify-center rounded-full text-xs font-semibold transition-colors",
-                    done && "bg-foreground text-background",
-                    active && "bg-foreground text-background ring-4 ring-foreground/10",
-                    !done && !active && "bg-muted text-muted-foreground"
+              <li
+                key={milestone}
+                className="flex gap-4"
+                aria-current={state === "current" ? "step" : undefined}
+              >
+                <div className="flex h-full flex-col items-center">
+                  <span
+                    className={cn(
+                      "relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                      state === "done" && "bg-foreground text-background",
+                      state === "current" &&
+                        "bg-foreground text-background ring-4 ring-foreground/10",
+                      state === "upcoming" && "bg-muted text-muted-foreground"
+                    )}
+                    aria-hidden
+                  >
+                    {state === "done" ? (
+                      <Check className="size-4" strokeWidth={2.5} />
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  {!last && (
+                    <span
+                      className={cn(
+                        "my-1 w-px flex-1",
+                        state === "done" ? "bg-foreground/30" : "bg-border"
+                      )}
+                    />
                   )}
-                >
-                  {index + 1}
-                </span>
-                <p
-                  className={cn(
-                    "mt-3 text-xs font-medium",
-                    active ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {MILESTONE_LABELS[stage]}
-                </p>
+                </div>
+                <div className={cn("min-w-0 flex-1", !last && "pb-6")}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p
+                      className={cn(
+                        "font-medium tracking-tight",
+                        state === "upcoming" && "text-muted-foreground"
+                      )}
+                    >
+                      {MILESTONE_LABELS[milestone]}
+                    </p>
+                    <Badge
+                      variant={
+                        state === "upcoming"
+                          ? "secondary"
+                          : state === "current"
+                            ? "default"
+                            : "outline"
+                      }
+                      className="rounded-full"
+                    >
+                      {STATE_LABEL[state]}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {MILESTONE_SUMMARIES[milestone]}
+                  </p>
+                </div>
               </li>
             );
           })}
         </ol>
-      </div>
+      ) : (
+        <div className="relative">
+          <div className="absolute left-0 right-0 top-5 hidden h-px bg-black/[0.08] sm:block" />
+          <ol className="grid gap-4 sm:grid-cols-6">
+            {CONSTRUCTION_STAGES.map((milestone, index) => {
+              const state = milestoneVisualState(milestone, stage);
+              return (
+                <li
+                  key={milestone}
+                  className="relative flex flex-col items-center text-center"
+                >
+                  <span
+                    className={cn(
+                      "relative z-10 flex size-10 items-center justify-center rounded-full text-xs font-semibold transition-colors",
+                      state === "done" && "bg-foreground text-background",
+                      state === "current" &&
+                        "bg-foreground text-background ring-4 ring-foreground/10",
+                      state === "upcoming" && "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {state === "done" ? (
+                      <Check className="size-4" strokeWidth={2.5} />
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  <p
+                    className={cn(
+                      "mt-3 text-xs font-medium",
+                      state === "current" ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {MILESTONE_LABELS[milestone]}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {STATE_LABEL[state]}
+                  </p>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
 
-      {canAdvance && currentIndex < STAGES.length - 1 && (
+      {variant === "timeline" && (
+        <div className="rounded-xl bg-muted px-4 py-3 text-sm">
+          {complete ? (
+            <p>
+              Handover is done, so there is no stage left to advance. Only{" "}
+              {builder} could move stages. {buyer} can review this timeline and
+              cannot advance a stage.
+            </p>
+          ) : canAdvance ? (
+            <p>
+              Current stage is {MILESTONE_LABELS[stage]}. You can advance it
+              {upcoming ? ` to ${MILESTONE_LABELS[upcoming]}` : ""}, one stage
+              at a time. {buyer} can view this page and cannot advance a stage.
+            </p>
+          ) : (
+            <p>
+              Current stage is {MILESTONE_LABELS[stage]}. {builder} advances
+              this build one stage at a time
+              {upcoming ? `, next to ${MILESTONE_LABELS[upcoming]}` : ""}. You
+              can view this page and cannot advance a stage.
+            </p>
+          )}
+        </div>
+      )}
+
+      {complete && variant === "compact" && (
+        <p className="text-sm text-muted-foreground">
+          Build complete. All six stages are done, including Handover.
+        </p>
+      )}
+
+      {canAdvance && upcoming && (
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
           <Button
             onClick={advanceStage}
@@ -105,7 +253,7 @@ export function MilestoneTracker({
           >
             {loading
               ? "Updating…"
-              : `Advance to ${MILESTONE_LABELS[STAGES[currentIndex + 1]]}`}
+              : `Advance to ${MILESTONE_LABELS[upcoming]}`}
           </Button>
           {error && (
             <p className="text-sm text-destructive" role="alert">
@@ -114,6 +262,28 @@ export function MilestoneTracker({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function FinishedBuild({
+  builder,
+  buyer,
+}: {
+  builder: string;
+  buyer: string;
+}) {
+  return (
+    <div className="rounded-2xl bg-foreground px-5 py-5 text-background sm:px-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-background/70">
+        Finished
+      </p>
+      <p className="mt-2 text-xl font-semibold tracking-tight">Build complete</p>
+      <p className="mt-2 max-w-xl text-sm text-background/80">
+        {builder} has handed this home to {buyer}. Every stage from Contract
+        through Handover is done. This page stays on the finished build.
+        Handover is the last stage.
+      </p>
     </div>
   );
 }
