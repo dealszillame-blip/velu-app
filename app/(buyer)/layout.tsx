@@ -7,6 +7,7 @@ const NAV = [
   { href: "/buyer/my-land", label: "My land" },
   { href: "/buyer/requirements", label: "Requirements" },
   { href: "/buyer/compare", label: "Compare" },
+  { href: "/buyer/builds", label: "Builds" },
   { href: "/buyer/messages", label: "Messages" },
 ];
 

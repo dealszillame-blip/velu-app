@@ -34,6 +34,7 @@ export async function MilestonePageContent({
       builder_id,
       land_listing_id,
       current_stage,
+      created_at,
       stage_updated_at,
       land_listings (address, suburb, postcode)
     `
@@ -65,6 +66,7 @@ export async function MilestonePageContent({
     projectPartyName(buyerProfile, "buyer") ??
     (project.buyer_id === user.id ? projectPartyName(profile, "buyer") : null);
   const updated = formatAuDate(project.stage_updated_at);
+  const contractExecuted = formatAuDate(project.created_at);
   const paymentDetails = progress.complete
     ? null
     : await readProjectPaymentDetails(supabase, project.id);
@@ -103,6 +105,14 @@ export async function MilestonePageContent({
                   {listing.address}, {listing.postcode}
                 </p>
               )}
+              {contractExecuted ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Contract executed {contractExecuted}, when the proposal was accepted.
+                  {currentStage === "contract"
+                    ? " This stage is still open."
+                    : " Contract is done."}
+                </p>
+              ) : null}
             </div>
             <Badge
               variant={progress.complete ? "default" : "secondary"}
