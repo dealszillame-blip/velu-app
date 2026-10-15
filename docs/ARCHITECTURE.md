@@ -314,7 +314,7 @@ erDiagram
 | `notifications` | In-app alerts |
 | `feature_flags` | Admin-toggled modules |
 
-Enums that drive UX: `user_role`, `listing_status`, `proposal_status`, `construction_milestone`.
+Enums that drive UX: `user_role`, `listing_status`, `proposal_status`, `construction_milestone`. Build order is `CONSTRUCTION_STAGES` in `lib/types.ts` (Contract, Approvals, Site clearance, Excavation, then Slab through Handover). Do not sort stages by the Postgres enum, which appends new labels.
 
 Security: RLS on all product tables; route handlers use the user session. Privileged writes (Domain sync, demo seed, some admin lists) use `SUPABASE_SERVICE_ROLE_KEY` via `createServiceClient()`.
 

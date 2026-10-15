@@ -42,6 +42,7 @@ export function nextMilestone(
 ): ConstructionMilestone | null {
   if (isBuildComplete(current)) return null;
   const index = CONSTRUCTION_STAGES.indexOf(current);
+  if (index < 0) return null;
   return CONSTRUCTION_STAGES[index + 1] ?? null;
 }
 
@@ -64,15 +65,23 @@ export function buyerMilestoneFocus(current: ConstructionMilestone): {
   }
 
   const index = CONSTRUCTION_STAGES.indexOf(current);
-  const at = index < 0 ? 0 : index;
-  const next = CONSTRUCTION_STAGES[at + 1] ?? null;
+  if (index < 0) {
+    return {
+      complete: false,
+      done: [],
+      current: null,
+      next: null,
+      laterCount: 0,
+    };
+  }
+  const next = CONSTRUCTION_STAGES[index + 1] ?? null;
 
   return {
     complete: false,
-    done: CONSTRUCTION_STAGES.slice(0, at),
-    current: CONSTRUCTION_STAGES[at],
+    done: CONSTRUCTION_STAGES.slice(0, index),
+    current: CONSTRUCTION_STAGES[index],
     next,
-    laterCount: CONSTRUCTION_STAGES.length - at - 1 - (next ? 1 : 0),
+    laterCount: CONSTRUCTION_STAGES.length - index - 1 - (next ? 1 : 0),
   };
 }
 

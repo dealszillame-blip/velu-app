@@ -80,6 +80,7 @@ copy .env.example .env.local
 | 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
 | 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. Velu does not process, hold, or transfer money. |
 | 32 | `032_defects.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `project_defects` for the post-handover list. The buyer reports a defect, the builder marks it fixed, and the buyer approves it or sends it back. No retention amount. Velu does not lodge warranty claims or decide disputes. |
+| 33 | `033_build_stages.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `approvals`, `site_clearance`, and `excavation` to `construction_milestone`. Does not change `current_stage` on existing projects. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -143,6 +144,12 @@ After merge, paste **`migrations/mvp/032_defects.sql`** into **SQL Editor** and 
 032 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects. It does not add a retention amount, and it does not create a warranty claim.
 
 The statutory warranty note on the finished build is copy only. It is not a Velu product. Velu does not lodge claims, hold retention, or decide disputes.
+
+### After 032 — build stages (033)
+
+Until **`033_build_stages.sql`** is pasted into **SQL Editor** and run, the app cannot store Approvals, Site clearance, or Excavation. Projects already on Slab or a later stage keep that stage. This file does not move them back to Approvals.
+
+033 is SQL only. Do not paste `npm` commands into the editor. It only adds enum labels. It does not update `construction_projects` and does not confirm any payment.
 
 ### Verify tables exist
 

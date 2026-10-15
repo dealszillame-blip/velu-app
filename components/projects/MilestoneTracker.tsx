@@ -232,9 +232,10 @@ export function MilestoneTracker({
           })}
         </ol>
       ) : (
-        <div className="relative">
-          <div className="absolute left-0 right-0 top-5 hidden h-px bg-black/[0.08] sm:block" />
-          <ol className="grid gap-4 sm:grid-cols-6">
+        <div className="overflow-x-auto">
+          <div className="relative min-w-[52rem] lg:min-w-0">
+            <div className="absolute left-0 right-0 top-5 h-px bg-black/[0.08]" />
+            <ol className="grid grid-cols-9 gap-2">
             {CONSTRUCTION_STAGES.map((milestone, index) => {
               const state = milestoneVisualState(milestone, stage);
               return (
@@ -271,7 +272,8 @@ export function MilestoneTracker({
                 </li>
               );
             })}
-          </ol>
+            </ol>
+          </div>
         </div>
       )}
 
@@ -289,7 +291,7 @@ export function MilestoneTracker({
 
       {complete && variant === "compact" && (
         <p className="text-sm text-muted-foreground">
-          Build complete. All six stages are done, including Handover.
+          Build complete. All nine stages are done, including Handover.
         </p>
       )}
 
