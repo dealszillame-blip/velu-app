@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
 import { requireRole } from "@/lib/auth";
+import { readPublicProfile } from "@/lib/inquiries";
 import { MILESTONE_LABELS } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
@@ -50,11 +51,14 @@ export async function ProjectPageContent({
     notFound();
   }
 
-  const { data: builderProfile } = await supabase
+  const { data: visibleBuilder } = await supabase
     .from("profiles")
     .select("full_name, company_name")
     .eq("id", project.builder_id)
-    .single();
+    .maybeSingle();
+  const builderProfile = visibleBuilder?.full_name
+    ? visibleBuilder
+    : await readPublicProfile(project.builder_id);
 
   const listingRaw = project.land_listings;
   const listing = Array.isArray(listingRaw) ? listingRaw[0] : listingRaw;

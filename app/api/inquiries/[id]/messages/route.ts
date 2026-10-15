@@ -9,7 +9,11 @@ import {
 import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
-  message: z.string().trim().min(1).max(4000),
+  message: z
+    .string()
+    .trim()
+    .min(10, "Message must be at least 10 characters.")
+    .max(4000),
 });
 
 export async function POST(
@@ -28,7 +32,8 @@ export async function POST(
 
   const body = schema.safeParse(await request.json());
   if (!body.success) {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    const message = body.error.issues[0]?.message ?? "Invalid input";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   if (containsContactInfo(body.data.message)) {

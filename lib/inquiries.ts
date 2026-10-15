@@ -36,12 +36,14 @@ export async function validateInquiryParticipants(
     if (userId !== listing.buyer_id) {
       return { ok: false, error: "You can only message builders about your own land." };
     }
-    const { data: builder } = await supabase
-      .from("profiles")
-      .select("id, role")
+    // profiles are readable only by their owner, so a buyer cannot see role.
+    // Onboarded builder_profiles are readable by any signed-in user.
+    const { data: builderProfile } = await supabase
+      .from("builder_profiles")
+      .select("id, is_onboarded")
       .eq("id", counterpartyId)
-      .single();
-    if (builder?.role !== "builder") {
+      .maybeSingle();
+    if (!builderProfile?.is_onboarded) {
       return { ok: false, error: "Invalid builder." };
     }
     return { ok: true, buyerId: userId, builderId: counterpartyId };
@@ -63,6 +65,27 @@ export async function validateInquiryParticipants(
   }
 
   return { ok: false, error: "Forbidden." };
+}
+
+export async function readPublicProfile(userId: string): Promise<{
+  full_name: string;
+  company_name: string | null;
+} | null> {
+  try {
+    const admin = await createServiceClient();
+    const { data } = await admin
+      .from("profiles")
+      .select("full_name, company_name")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!data?.full_name?.trim()) return null;
+    return {
+      full_name: data.full_name,
+      company_name: data.company_name ?? null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function notifyMessageReceived(

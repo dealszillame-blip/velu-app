@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { MILESTONE_LABELS, type ConstructionMilestone } from "@/lib/types";
@@ -29,7 +29,12 @@ export function MilestoneTracker({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const currentIndex = STAGES.indexOf(currentStage);
+  const [stage, setStage] = useState(currentStage);
+  const currentIndex = STAGES.indexOf(stage);
+
+  useEffect(() => {
+    setStage(currentStage);
+  }, [currentStage]);
 
   async function advanceStage() {
     const next = STAGES[currentIndex + 1];
@@ -52,6 +57,7 @@ export function MilestoneTracker({
       return;
     }
 
+    setStage(next);
     router.refresh();
   }
 

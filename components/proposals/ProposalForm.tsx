@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, selectItems } from "@/lib/utils";
 import { formatProposalPrice, type ProposalRow } from "@/lib/proposals";
 import {
   BREAKDOWN_CATEGORIES,
@@ -294,6 +294,10 @@ export function ProposalForm({ listingId, existing = null }: ProposalFormProps) 
           <div className="space-y-2">
             <Label>Load saved template</Label>
             <Select
+              items={{
+                blank: "Start from scratch",
+                ...Object.fromEntries(templates.map((template) => [template.id, template.name])),
+              }}
               value={selectedTemplateId || "blank"}
               onValueChange={(value) => {
                 if (value) applyTemplate(value);
@@ -355,6 +359,7 @@ export function ProposalForm({ listingId, existing = null }: ProposalFormProps) 
           <div className="space-y-2">
             <Label htmlFor="contract_type">Contract type</Label>
             <Select
+              items={selectItems(CONTRACT_TYPES)}
               value={form.contract_type || undefined}
               onValueChange={(v) => {
                 if (v) updateForm({ contract_type: v as ContractType });
@@ -437,6 +442,7 @@ export function ProposalForm({ listingId, existing = null }: ProposalFormProps) 
               className="grid gap-2 rounded-xl bg-muted/40 p-3 sm:grid-cols-[130px_110px_1fr_110px_32px]"
             >
               <Select
+                items={selectItems(BREAKDOWN_CATEGORIES)}
                 value={line.category}
                 onValueChange={(v) => {
                   if (!v) return;
@@ -459,6 +465,7 @@ export function ProposalForm({ listingId, existing = null }: ProposalFormProps) 
                 </SelectContent>
               </Select>
               <Select
+                items={selectItems(LINE_KINDS)}
                 value={line.line_kind ?? defaultLineKind(line.category)}
                 onValueChange={(v) => {
                   if (v) updateBreakdown(index, { line_kind: v as LineKind });
@@ -535,6 +542,7 @@ export function ProposalForm({ listingId, existing = null }: ProposalFormProps) 
               className="grid gap-2 rounded-xl bg-muted/40 p-3 sm:grid-cols-[130px_1fr_1fr_80px_32px] sm:items-center"
             >
               <Select
+                items={selectItems(INCLUSION_CATEGORIES)}
                 value={item.category}
                 onValueChange={(v) => {
                   if (v) updateInclusion(index, { category: v });
