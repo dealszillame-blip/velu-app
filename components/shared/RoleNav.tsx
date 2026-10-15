@@ -13,10 +13,11 @@ type NavItem = { href: string; label: string };
 
 type RoleNavProps = {
   items: NavItem[];
+  trailing?: NavItem[];
   userName: string;
 };
 
-export function RoleNav({ items, userName }: RoleNavProps) {
+export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -41,22 +42,35 @@ export function RoleNav({ items, userName }: RoleNavProps) {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
         <VeluLogo href={homeHref} size="sm" />
 
-        <nav className="hidden items-center gap-1 lg:flex">
-          {items.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} />
+        <nav className="hidden min-w-0 items-center gap-5 lg:flex" aria-label="Steps">
+          {items.map((item, index) => (
+            <NavLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              index={index + 1}
+            />
           ))}
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-3">
           <button
             type="button"
-            className="touch-target rounded-full px-3 text-sm font-medium text-foreground lg:hidden"
+            className={cn(
+              "touch-target rounded-full px-3 text-sm font-medium text-foreground lg:hidden",
+              items.length + trailing.length < 2 && "hidden"
+            )}
             aria-expanded={menuOpen}
             aria-controls="role-nav-menu"
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? "Close" : "Menu"}
           </button>
+          <div className="hidden items-center gap-5 lg:flex">
+            {trailing.map((item) => (
+              <NavLink key={item.href} item={item} pathname={pathname} />
+            ))}
+          </div>
           <NotificationBell />
           <span className="hidden text-sm text-muted-foreground md:inline">
             {firstName}
@@ -78,7 +92,7 @@ export function RoleNav({ items, userName }: RoleNavProps) {
           aria-label="Pages"
         >
           <ul>
-            {items.map((item) => (
+            {[...items, ...trailing].map((item) => (
               <li key={item.href}>
                 <NavLink item={item} pathname={pathname} stacked />
               </li>
@@ -94,26 +108,29 @@ function NavLink({
   item,
   pathname,
   stacked = false,
+  index,
 }: {
   item: NavItem;
   pathname: string;
   stacked?: boolean;
+  index?: number;
 }) {
   const active = navItemActive(item.href, pathname);
   return (
     <Link
       href={item.href}
       className={cn(
-        "block text-sm font-medium transition-colors",
-        stacked
-          ? "rounded-lg px-3 py-3"
-          : "rounded-full px-4 py-2",
-        active
-          ? "bg-primary text-primary-foreground"
-          : "text-foreground hover:bg-muted"
+        "text-sm transition-colors",
+        stacked ? "block rounded-lg px-3 py-3 font-medium" : "inline-flex items-baseline gap-2 py-2",
+        active ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"
       )}
       aria-current={active ? "page" : undefined}
     >
+      {index ? (
+        <span className={cn("text-xs", active ? "text-foreground" : "text-muted-foreground")}>
+          {index}
+        </span>
+      ) : null}
       {item.label}
     </Link>
   );
