@@ -62,19 +62,18 @@ type CompareTab = (typeof COMPARE_TABS)[number]["value"];
 const COMPARE_STEPS = [
   {
     icon: FileText,
-    title: "Secure your land",
-    description:
-      "Mark a lot as sold on the map, or register a block you already own under My land.",
+    title: "Add your land",
+    description: "Register the block, or mark a lot on the map.",
   },
   {
     icon: Hammer,
-    title: "Builders submit packages",
-    description: "Registered builders in your area send build proposals.",
+    title: "Invite builders",
+    description: "Review who can build in the area and invite them to price the block.",
   },
   {
     icon: Scale,
-    title: "Compare side by side",
-    description: "Review price, inclusions, and timelines — then accept one.",
+    title: "Review proposals",
+    description: "Read the packages, then accept one. That opens contract finalisation.",
   },
 ];
 

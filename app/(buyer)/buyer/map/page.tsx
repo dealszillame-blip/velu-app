@@ -8,15 +8,15 @@ export default function BuyerMapPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="1 · Land"
-        title="Find land"
-        description="Look for a vacant lot, or register a block you already own. The brief comes next."
+        eyebrow="1 · Add land"
+        title="Find a lot"
+        description="Choose a vacant lot, then register it. That is the same first step as land you already own."
         action={
           <Link
             href="/buyer/my-land"
             className={cn(buttonVariants({ variant: "outline" }), "rounded-full")}
           >
-            Land I own
+            Add land
           </Link>
         }
       />

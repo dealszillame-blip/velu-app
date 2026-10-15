@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const ROLE_HOME: Record<string, string> = {
-  buyer: "/buyer/map",
+  buyer: "/buyer/my-land",
   builder: "/builder/leads",
   agent: "/agent/listings",
   admin: "/admin/dashboard",
@@ -104,21 +104,21 @@ export async function updateSession(request: NextRequest) {
 
     if (isAuthRoute && role) {
       const url = request.nextUrl.clone();
-      url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+      url.pathname = ROLE_HOME[role] ?? "/buyer/my-land";
       return NextResponse.redirect(url);
     }
 
     if (path === "/") {
       const url = request.nextUrl.clone();
       url.pathname = role
-        ? (ROLE_HOME[role] ?? "/buyer/map")
+        ? (ROLE_HOME[role] ?? "/buyer/my-land")
         : "/onboarding/complete";
       return NextResponse.redirect(url);
     }
 
     if (isOnboardingRoute && role) {
       const url = request.nextUrl.clone();
-      url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+      url.pathname = ROLE_HOME[role] ?? "/buyer/my-land";
       return NextResponse.redirect(url);
     }
 
@@ -135,7 +135,7 @@ export async function updateSession(request: NextRequest) {
             : `/${role}`;
       if (!path.startsWith(expectedPrefix) && role !== "admin") {
         const url = request.nextUrl.clone();
-        url.pathname = ROLE_HOME[role] ?? "/buyer/map";
+        url.pathname = ROLE_HOME[role] ?? "/buyer/my-land";
         return NextResponse.redirect(url);
       }
     }

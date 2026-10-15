@@ -5,9 +5,9 @@ export default function BuyerRequirementsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2 · Brief"
+        eyebrow="1 · Add land"
         title="Brief"
-        description="Beds, baths, storeys, and the block. Builders see this when they price your land."
+        description="Beds, baths, and storeys for the block you added. Builders see this when you invite them."
       />
       <BuyerRequirementsEditor />
     </div>

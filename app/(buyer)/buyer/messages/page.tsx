@@ -6,9 +6,9 @@ export default function BuyerMessagesPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="5 · Messages"
+        eyebrow="Messages"
         title="Messages"
-        description="Talk with a builder about the land, the proposal, or the build. Phone numbers stay off Velu."
+        description="Invites and build questions land here. Phone numbers stay off Velu."
       />
       <Suspense
         fallback={
