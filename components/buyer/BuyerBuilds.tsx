@@ -36,16 +36,15 @@ export async function BuyerBuilds() {
   if (!projects?.length) {
     return (
       <div className="rounded-xl border border-dashed border-border p-6">
-        <p className="font-medium">No contract executed yet</p>
+        <p className="font-medium">No build yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Accept a proposal on Compare. That acceptance is the contract execution,
-          and the build then appears here with its completed stages.
+          Finalise the contract first. The milestones open after that.
         </p>
         <Link
-          href="/buyer/compare"
+          href="/buyer/contract"
           className={cn(buttonVariants({ size: "sm" }), "mt-4 rounded-full")}
         >
-          Go to Compare
+          Go to Contract
         </Link>
       </div>
     );

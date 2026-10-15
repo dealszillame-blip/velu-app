@@ -38,8 +38,7 @@ export function MyLandDashboard() {
           <div>
             <p className="label-caps mb-1">Your registered land</p>
             <p className="text-sm text-muted-foreground">
-              Builders in your area have been notified. Proposals appear on the
-              compare page.
+              Next, review builders for this block and invite the ones you want to price it.
             </p>
           </div>
           <div className="grid gap-4">

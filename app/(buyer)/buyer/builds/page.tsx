@@ -5,9 +5,9 @@ export default function BuyerBuildsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="4 · Build"
+        eyebrow="5 · Build"
         title="Build"
-        description="The contract is executed when you accept a proposal. Open a build to see the stages already done and the one that is open."
+        description="Milestones start after the contract is final. Open a build to see the stage that is open and the ones already done."
       />
       <BuyerBuilds />
     </div>
