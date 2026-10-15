@@ -166,8 +166,8 @@ export async function ProjectPageContent({
                 {progress.complete
                   ? "This build is finished. Open the timeline to see every stage done."
                   : isBuilder
-                    ? "Advance one stage at a time, or open the full timeline."
-                    : "Follow progress here, or open the full timeline. You cannot advance a stage."}
+                    ? "Open the milestone page to confirm you received payment. That moves one stage. Velu does not transfer the money."
+                    : "Open the milestone page for this stage and the payment details the builder supplied. You cannot mark a stage paid."}
               </p>
             </div>
             <Link

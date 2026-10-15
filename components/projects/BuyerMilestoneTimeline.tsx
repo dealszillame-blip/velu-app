@@ -13,7 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { StartInquiryButton } from "@/components/messages/StartInquiryButton";
+import { StagePaymentDetails } from "@/components/projects/StagePaymentDetails";
 import { buyerMilestoneFocus } from "@/lib/milestones";
+import type { BuilderPaymentDetails } from "@/lib/payment-details";
 import {
   MILESTONE_LABELS,
   MILESTONE_SUMMARIES,
@@ -29,6 +31,7 @@ type BuyerMilestoneTimelineProps = {
   messagesPath: string;
   landListingId?: string | null;
   counterpartyId?: string | null;
+  paymentDetails?: BuilderPaymentDetails | null;
 };
 
 export function BuyerMilestoneTimeline({
@@ -39,6 +42,7 @@ export function BuyerMilestoneTimeline({
   messagesPath,
   landListingId,
   counterpartyId,
+  paymentDetails = null,
 }: BuyerMilestoneTimelineProps) {
   const focus = buyerMilestoneFocus(stage);
 
@@ -70,10 +74,12 @@ export function BuyerMilestoneTimeline({
               {MILESTONE_SUMMARIES[focus.current]}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <StagePaymentDetails details={paymentDetails} />
             <p className="text-sm text-muted-foreground">
-              This is the open stage. You can view its status and message{" "}
-              {builderName}. You cannot advance it.
+              This is the open stage. You can view the payment details{" "}
+              {builderName} supplied and message the builder. You cannot mark this
+              stage paid, and you cannot move the build forward.
             </p>
           </CardContent>
           <CardFooter className="flex-wrap gap-2">
@@ -103,7 +109,7 @@ export function BuyerMilestoneTimeline({
           <span className="font-medium text-foreground">
             {MILESTONE_LABELS[focus.next]}
           </span>
-          <span>Unlocks when the current stage is marked complete.</span>
+          <span>Unlocks when the builder confirms payment for the current stage.</span>
         </p>
       )}
 

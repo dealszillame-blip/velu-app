@@ -78,6 +78,7 @@ copy .env.example .env.local
 | 28 | `028_audit_now_fixes.sql` | **Required for live demo** — lead dedupe, 10× price cleanup, Figtree measurements, placeholder builder filter, distinct demo track records, licence fields on compare RPC |
 | 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
 | 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
+| 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. Velu does not process, hold, or transfer money. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -123,6 +124,14 @@ Until **`030_proposal_withdraw_and_quotes.sql`** is pasted into **SQL Editor** a
 - New quotes that send `contract_type` will fail if the column is missing.
 
 030 is SQL only. Do not paste `npm` commands into the editor.
+
+### After 030 — milestone payment details (031)
+
+Until **`031_milestone_payment.sql`** is pasted into **SQL Editor** and run, builders cannot save the account details buyers see on the current milestone, and confirming a stage payment will fail.
+
+031 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects.
+
+Velu does not process, hold, or transfer money. The new columns are whatever the builder typed. They are not verified with a bank. The buyer pays the builder outside Velu.
 
 ### Verify tables exist
 

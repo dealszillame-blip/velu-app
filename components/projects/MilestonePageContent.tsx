@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { requireRole } from "@/lib/auth";
 import { readCounterpartyProfile } from "@/lib/inquiries";
 import { milestoneProgress, projectPartyName } from "@/lib/milestones";
+import { paymentDetailsFromRow, type BuilderPaymentDetails } from "@/lib/payment-details";
 import { createClient } from "@/lib/supabase/server";
 import { MILESTONE_LABELS, type ConstructionMilestone } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,9 @@ export async function MilestonePageContent({
     projectPartyName(buyerProfile, "buyer") ??
     (project.buyer_id === user.id ? projectPartyName(profile, "buyer") : null);
   const updated = formatUpdated(project.stage_updated_at);
+  const paymentDetails = progress.complete
+    ? null
+    : await readProjectPaymentDetails(supabase, project.id);
 
   return (
     <div className="space-y-6">
@@ -157,8 +161,8 @@ export async function MilestonePageContent({
             {progress.complete
               ? "Every stage from Contract to Handover is done."
               : isBuilder
-                ? "The full timeline stays visible. Advance the current stage by one step."
-                : "Done stages stay short. Only the current stage is open."}
+                ? "The full timeline stays visible. Confirm the payment you received to move the current stage by one step. Velu does not transfer the money."
+                : "Done stages stay short. Only the current stage is open, including the payment details the builder supplied."}
           </p>
         </div>
         <div className="p-5 sm:p-6">
@@ -174,6 +178,7 @@ export async function MilestonePageContent({
             messagesPath={isBuilder ? "/builder/messages" : "/buyer/messages"}
             landListingId={project.land_listing_id}
             counterpartyId={project.builder_id}
+            paymentDetails={paymentDetails}
           />
         </div>
       </div>
@@ -203,6 +208,17 @@ function Party({
       </div>
     </div>
   );
+}
+
+async function readProjectPaymentDetails(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  projectId: string
+): Promise<BuilderPaymentDetails> {
+  const { data } = await supabase.rpc("get_project_builder_payment_details", {
+    p_project_id: projectId,
+  });
+  const row = Array.isArray(data) ? data[0] : data;
+  return paymentDetailsFromRow(row);
 }
 
 function formatUpdated(value: string | null | undefined): string | null {

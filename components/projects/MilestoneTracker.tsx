@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BuilderPaymentDetailsForm } from "@/components/builder/BuilderPaymentDetailsForm";
 import { BuyerMilestoneTimeline } from "@/components/projects/BuyerMilestoneTimeline";
 import {
   CONSTRUCTION_STAGES,
@@ -17,6 +18,10 @@ import {
   milestoneVisualState,
   nextMilestone,
 } from "@/lib/milestones";
+import {
+  clientSafeMessage,
+  type BuilderPaymentDetails,
+} from "@/lib/payment-details";
 import { cn } from "@/lib/utils";
 
 function displayedStage(
@@ -50,6 +55,7 @@ type MilestoneTrackerProps = {
   messagesPath?: string;
   landListingId?: string | null;
   counterpartyId?: string | null;
+  paymentDetails?: BuilderPaymentDetails | null;
 };
 
 export function MilestoneTracker({
@@ -64,6 +70,7 @@ export function MilestoneTracker({
   messagesPath = "/buyer/messages",
   landListingId = null,
   counterpartyId = null,
+  paymentDetails = null,
 }: MilestoneTrackerProps) {
   const router = useRouter();
   const pending = useRef(false);
@@ -77,7 +84,7 @@ export function MilestoneTracker({
   const builder = builderName ?? "the builder on this project";
   const buyer = buyerName ?? "the buyer on this project";
 
-  async function advanceStage() {
+  async function confirmPayment() {
     const target = nextMilestone(stage);
     if (pending.current || !target) return;
 
@@ -88,7 +95,7 @@ export function MilestoneTracker({
     const res = await fetch(`/api/projects/${projectId}/milestone`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage: target }),
+      body: JSON.stringify({ confirm_payment: true }),
     });
 
     const data = await res.json().catch(() => ({}));
@@ -96,7 +103,9 @@ export function MilestoneTracker({
     if (!res.ok) {
       pending.current = false;
       setLoading(false);
-      setError(data.error ?? "Could not update milestone");
+      setError(
+        clientSafeMessage(data.error, "Could not confirm the payment you received.")
+      );
       return;
     }
 
@@ -117,11 +126,12 @@ export function MilestoneTracker({
         messagesPath={messagesPath}
         landListingId={landListingId}
         counterpartyId={counterpartyId}
+        paymentDetails={complete ? null : paymentDetails}
       />
     );
   }
 
-  const advanceOnCurrent =
+  const confirmOnCurrent =
     variant === "timeline" && canAdvance && upcoming !== null;
   const nextLabel = upcoming ? MILESTONE_LABELS[upcoming] : null;
 
@@ -190,15 +200,25 @@ export function MilestoneTracker({
                   <p className="mt-1 text-sm text-muted-foreground">
                     {MILESTONE_SUMMARIES[milestone]}
                   </p>
-                  {state === "current" && advanceOnCurrent && nextLabel && (
+                  {state === "current" && confirmOnCurrent && nextLabel && (
                     <div className="mt-3 flex flex-col items-start gap-3">
+                      <BuilderPaymentDetailsForm
+                        initial={paymentDetails}
+                        variant="embedded"
+                      />
                       <Button
-                        onClick={advanceStage}
+                        type="button"
+                        onClick={confirmPayment}
                         disabled={loading}
                         className="h-12 rounded-full px-8"
                       >
-                        {loading ? "Updating…" : `Advance to ${nextLabel}`}
+                        {loading ? "Confirming…" : "Confirm payment received"}
                       </Button>
+                      <p className="max-w-xl text-sm text-muted-foreground">
+                        This records that you received payment for{" "}
+                        {MILESTONE_LABELS[stage]}. The build then moves to {nextLabel}.
+                        Velu does not transfer the money.
+                      </p>
                       {error && (
                         <p className="text-sm text-destructive" role="alert">
                           {error}
@@ -258,9 +278,11 @@ export function MilestoneTracker({
       {variant === "timeline" && !complete && (
         <div className="rounded-xl bg-muted px-4 py-3 text-sm">
           <p>
-            Current stage is {MILESTONE_LABELS[stage]}. Advance it
-            {upcoming ? ` to ${MILESTONE_LABELS[upcoming]}` : ""}, one stage at
-            a time. {buyer} can view this page and cannot advance a stage.
+            Current stage is {MILESTONE_LABELS[stage]}. Confirm you received
+            payment for this stage
+            {upcoming ? ` to move it to ${MILESTONE_LABELS[upcoming]}` : ""}. Velu
+            does not transfer the money. {buyer} can view the details you supplied
+            and cannot confirm payment or move a stage.
           </p>
         </div>
       )}
@@ -271,24 +293,6 @@ export function MilestoneTracker({
         </p>
       )}
 
-      {canAdvance && upcoming && !advanceOnCurrent && (
-        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-          <Button
-            onClick={advanceStage}
-            disabled={loading}
-            className="h-12 rounded-full px-8"
-          >
-            {loading
-              ? "Updating…"
-              : `Advance to ${MILESTONE_LABELS[upcoming]}`}
-          </Button>
-          {error && (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }
