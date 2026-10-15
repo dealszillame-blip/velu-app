@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { navItemActive } from "@/lib/nav-active";
 import { cn } from "@/lib/utils";
 
 type TabItem = { href: string; label: string };
@@ -12,7 +13,7 @@ type MobileTabBarProps = {
 
 export function MobileTabBar({ items }: MobileTabBarProps) {
   const pathname = usePathname();
-  const roomy = items.length <= 3;
+  const roomy = items.length <= 4;
 
   return (
     <nav
@@ -21,15 +22,15 @@ export function MobileTabBar({ items }: MobileTabBarProps) {
     >
       <div className="mx-auto flex h-14 max-w-lg items-stretch justify-around px-2">
         {items.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active = navItemActive(item.href, pathname);
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 roomy
-                  ? "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-sm font-semibold transition-colors"
-                  : "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-xs font-semibold transition-colors",
+                  ? "flex flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap px-1 text-sm font-semibold transition-colors"
+                  : "flex flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap px-1 text-xs font-semibold transition-colors",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >

@@ -76,7 +76,7 @@ export interface BuilderProfile {
 
 export const ROLE_HOME: Record<UserRole, string> = {
   buyer: "/buyer/map",
-  builder: "/builder/dashboard",
+  builder: "/builder/leads",
   agent: "/agent/listings",
   admin: "/admin/dashboard",
   pending_agent: "/agent/listings",

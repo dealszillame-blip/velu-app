@@ -37,9 +37,10 @@ export default async function BuilderProposalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">My proposals</h1>
+        <p className="label-caps">2 · Proposals</p>
+        <h1 className="text-2xl font-semibold">Proposals</h1>
         <p className="text-muted-foreground">
-          Track proposals you have submitted to buyers.
+          Packages you have sent. When a buyer accepts one, it moves to Builds.
         </p>
       </div>
 

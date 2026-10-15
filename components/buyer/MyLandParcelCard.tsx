@@ -6,7 +6,6 @@ import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
 import { ArchitectHirePanel } from "@/components/buyer/ArchitectHirePanel";
 import { ExistingLandSiteReports } from "@/components/buyer/ExistingLandSiteReports";
 import { NearbyBuildersPanel } from "@/components/buyer/NearbyBuildersPanel";
-import { WorkspacePanel } from "@/components/buyer/WorkspacePanel";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -20,7 +19,7 @@ import {
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
 import { cn } from "@/lib/utils";
 
-type ParcelTab = "overview" | "builders" | "reports" | "architects" | "workspace";
+type ParcelTab = "overview" | "builders" | "reports" | "architects";
 
 type MyLandParcelCardProps = {
   parcel: BuyerOwnedLand;
@@ -63,7 +62,6 @@ export function MyLandParcelCard({
             { value: "reports", label: "Site reports" },
             { value: "builders", label: "Builders" },
             { value: "architects", label: "Architects" },
-            { value: "workspace", label: "Workspace" },
           ]}
           value={tab}
           onChange={setTab}
@@ -96,8 +94,6 @@ export function MyLandParcelCard({
           />
         ) : tab === "architects" ? (
           <ArchitectHirePanel listingId={parcel.id} />
-        ) : tab === "workspace" ? (
-          <WorkspacePanel />
         ) : (
           <NearbyBuildersPanel parcel={parcel} />
         )}

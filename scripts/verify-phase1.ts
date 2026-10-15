@@ -43,8 +43,8 @@ assert(
   `next=/ for builder must be ${ROLE_HOME.builder}, got ${builderHome}`
 );
 assert(
-  getPostLoginPath(new URLSearchParams(), "builder") === "/builder/dashboard",
-  "missing next uses builder dashboard"
+  getPostLoginPath(new URLSearchParams(), "builder") === "/builder/leads",
+  "missing next uses builder leads"
 );
 assert(
   getPostLoginPath(new URLSearchParams("next=/builder/leads"), "builder") ===
