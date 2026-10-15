@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { BuyerOwnedLandForm } from "@/components/buyer/BuyerOwnedLandForm";
 import { MyLandParcelCard } from "@/components/buyer/MyLandParcelCard";
 import {
   Card,
   CardContent,
 } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
+import { cn } from "@/lib/utils";
 
 export function MyLandDashboard() {
   const [parcels, setParcels] = useState<BuyerOwnedLand[]>([]);
@@ -40,6 +43,17 @@ export function MyLandDashboard() {
             <p className="text-sm text-muted-foreground">
               Next, review builders for this block and invite the ones you want to price it.
             </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link href="/buyer/requirements" className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
+                Brief
+              </Link>
+              <Link
+                href="/buyer/map"
+                className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
+              >
+                Find a lot
+              </Link>
+            </div>
           </div>
           <div className="grid gap-4">
             {parcels.map((parcel) => (

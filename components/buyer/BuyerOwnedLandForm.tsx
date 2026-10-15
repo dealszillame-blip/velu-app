@@ -159,12 +159,12 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setSiteReportNotes("");
     setLoading(false);
     onSuccess?.();
-    router.push("/buyer/compare");
+    router.push("/buyer/builders");
     router.refresh();
   }
 
   return (
-    <Card>
+    <Card className="lg:max-w-3xl">
       <CardHeader>
         <CardTitle>Register your block</CardTitle>
         <CardDescription>

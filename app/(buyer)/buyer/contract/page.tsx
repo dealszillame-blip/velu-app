@@ -1,7 +1,9 @@
 import { BuyerContracts } from "@/components/buyer/BuyerContracts";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { redirectUnlessBuyerStep } from "@/lib/buyer-steps";
 
-export default function BuyerContractPage() {
+export default async function BuyerContractPage() {
+  await redirectUnlessBuyerStep("contract");
   return (
     <div className="space-y-8">
       <PageHeader

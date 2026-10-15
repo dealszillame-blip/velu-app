@@ -1,7 +1,9 @@
 import { ProposalComparator } from "@/components/proposals/ProposalComparator";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { redirectUnlessBuyerStep } from "@/lib/buyer-steps";
 
-export default function BuyerComparePage() {
+export default async function BuyerComparePage() {
+  await redirectUnlessBuyerStep("proposals");
   return (
     <div className="space-y-8">
       <PageHeader

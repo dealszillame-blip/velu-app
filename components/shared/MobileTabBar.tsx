@@ -15,6 +15,8 @@ export function MobileTabBar({ items }: MobileTabBarProps) {
   const pathname = usePathname();
   const roomy = items.length <= 4;
 
+  if (items.length < 2) return null;
+
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden"

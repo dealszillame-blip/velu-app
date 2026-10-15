@@ -1,8 +1,10 @@
 import { Suspense } from "react";
 import { MessagesInbox } from "@/components/messages/MessagesInbox";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { redirectUnlessBuyerStep } from "@/lib/buyer-steps";
 
-export default function BuyerMessagesPage() {
+export default async function BuyerMessagesPage() {
+  await redirectUnlessBuyerStep("messages");
   return (
     <div className="space-y-8">
       <PageHeader
