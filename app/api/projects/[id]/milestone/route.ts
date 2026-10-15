@@ -2,27 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ConstructionMilestone } from "@/lib/types";
+import {
+  CONSTRUCTION_STAGES,
+  type ConstructionMilestone,
+} from "@/lib/types";
 
 const schema = z.object({
-  stage: z.enum([
-    "contract",
-    "slab",
-    "frame",
-    "lockup",
-    "fixing",
-    "completion",
-  ]),
+  stage: z.enum(CONSTRUCTION_STAGES),
 });
 
-const STAGE_ORDER: ConstructionMilestone[] = [
-  "contract",
-  "slab",
-  "frame",
-  "lockup",
-  "fixing",
-  "completion",
-];
+const STAGE_ORDER: readonly ConstructionMilestone[] = CONSTRUCTION_STAGES;
 
 export async function PATCH(
   request: Request,

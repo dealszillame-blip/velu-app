@@ -62,7 +62,7 @@ export function NotificationBell() {
       return `/builder/project/${item.metadata.project_id}`;
     }
     if (item.type === "milestone_update" && item.metadata?.project_id) {
-      return `/buyer/project/${item.metadata.project_id}`;
+      return `/buyer/project/${item.metadata.project_id}/milestones`;
     }
     return null;
   }

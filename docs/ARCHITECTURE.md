@@ -135,6 +135,7 @@ flowchart TB
     CMP["/buyer/compare"]
     MSG["/buyer/messages"]
     PRJ["/buyer/project/:id"]
+    PML["/buyer/project/:id/milestones"]
   end
 
   subgraph Builder["Builder hub"]
@@ -145,6 +146,7 @@ flowchart TB
     BPR["/builder/proposals"]
     BM["/builder/messages"]
     BPJ["/builder/project/:id"]
+    BPM["/builder/project/:id/milestones"]
   end
 
   subgraph Agent["Agent hub"]
@@ -169,6 +171,8 @@ flowchart TB
   MAP --> LAND
   LAND --> CMP
   CMP --> PRJ
+  PRJ --> PML
+  BPJ --> BPM
   BL --> BLD
   BLD --> BPR
   CMP --> MSG
@@ -183,7 +187,8 @@ flowchart TB
 | `/buyer/requirements` | Saved brief (beds, baths, storeys, granny flat, construction grade, builder types, measurements) |
 | `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
 | `/buyer/messages` | In-app threads with builders (no phone/email shared) |
-| `/buyer/project/:id` | Milestone tracker after accept |
+| `/buyer/project/:id` | Project after accept; links to the milestone timeline |
+| `/buyer/project/:id/milestones` | Done trail, current stage only, next stage locked; finished state after Handover |
 
 ### Builder surfaces
 
@@ -195,7 +200,8 @@ flowchart TB
 | `/builder/leads/:listingId` | Submit a package (specs, breakdown, inclusions) |
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
-| `/builder/project/:id` | Shared milestone tracker |
+| `/builder/project/:id` | Shared project; builder advances stages |
+| `/builder/project/:id/milestones` | Full stage timeline; one advance on the current stage; finished state after Handover |
 
 ### Report provider surfaces
 

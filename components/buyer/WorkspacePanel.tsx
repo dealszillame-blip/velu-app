@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Hammer, MessageSquare } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { isBuildComplete } from "@/lib/milestones";
+import { MILESTONE_LABELS, type ConstructionMilestone } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type WorkspaceProject = {
@@ -16,6 +18,13 @@ function listingLabel(row: WorkspaceProject["land_listings"]) {
   const listing = Array.isArray(row) ? row[0] : row;
   if (!listing) return "Your project";
   return [listing.address, listing.suburb].filter(Boolean).join(", ");
+}
+
+function stageLine(stage: string) {
+  if (!(stage in MILESTONE_LABELS)) return "Open the milestone timeline";
+  const current = stage as ConstructionMilestone;
+  if (isBuildComplete(current)) return "Build complete";
+  return `Stage: ${MILESTONE_LABELS[current]}`;
 }
 
 export function WorkspacePanel() {
@@ -80,12 +89,12 @@ export function WorkspacePanel() {
           {projects.map((project) => (
             <Link
               key={project.id}
-              href={`/buyer/project/${project.id}`}
+              href={`/buyer/project/${project.id}/milestones`}
               className="block rounded-xl border border-border p-4 hover:bg-muted/40"
             >
               <p className="font-medium">{listingLabel(project.land_listings)}</p>
-              <p className="text-sm capitalize text-muted-foreground">
-                Stage: {project.current_stage.replace("_", " ")}
+              <p className="text-sm text-muted-foreground">
+                {stageLine(project.current_stage)}
               </p>
             </Link>
           ))}

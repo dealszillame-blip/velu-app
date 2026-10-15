@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
-import type { ConstructionMilestone } from "@/lib/types";
-import { MILESTONE_LABELS } from "@/lib/types";
+import { buttonVariants } from "@/components/ui/button";
+import { MILESTONE_LABELS, type ConstructionMilestone } from "@/lib/types";
+import { isBuildComplete } from "@/lib/milestones";
+import { cn } from "@/lib/utils";
 
 type WorkspaceProject = {
   id: string;
@@ -55,39 +56,46 @@ export function CompareMilestonesPanel() {
       <div className="rounded-xl border border-dashed border-border p-6">
         <p className="font-medium">No build started yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Accept a proposal on Compare and the milestone tracker (Contract →
-          Handover) will appear here.
+          Accept a proposal on Compare and the milestone page (Contract through
+          Handover) will be linked here.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {projects.map((project) => (
-        <div key={project.id} className="rounded-xl border border-border p-5">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="label-caps">After proposal</p>
-              <h2 className="text-lg font-medium">{listingLabel(project.land_listings)}</h2>
-              <p className="text-sm text-muted-foreground">
-                Current stage: {MILESTONE_LABELS[project.current_stage]}
-              </p>
+    <div className="space-y-4">
+      {projects.map((project) => {
+        const complete = isBuildComplete(project.current_stage);
+        const milestonesHref = `/buyer/project/${project.id}/milestones`;
+        return (
+          <div key={project.id} className="rounded-xl border border-border p-5">
+            <p className="label-caps">After proposal</p>
+            <h2 className="mt-1 text-lg font-medium">
+              {listingLabel(project.land_listings)}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {complete
+                ? "Build complete. Handover is done and every stage is finished."
+                : `Current stage: ${MILESTONE_LABELS[project.current_stage]}. You can view the timeline and cannot advance a stage.`}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <Link
+                href={milestonesHref}
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+              >
+                {complete ? "View finished build" : "View milestones"}
+              </Link>
+              <Link
+                href={`/buyer/project/${project.id}`}
+                className="text-sm font-medium underline-offset-2 hover:underline"
+              >
+                Open project
+              </Link>
             </div>
-            <Link
-              href={`/buyer/project/${project.id}`}
-              className="text-sm font-medium underline-offset-2 hover:underline"
-            >
-              Open project
-            </Link>
           </div>
-          <MilestoneTracker
-            projectId={project.id}
-            currentStage={project.current_stage}
-            canAdvance={false}
-          />
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

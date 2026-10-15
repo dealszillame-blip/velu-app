@@ -8,13 +8,16 @@ export type UserRole =
 
 export type ListingStatus = "available" | "under_offer" | "sold";
 
-export type ConstructionMilestone =
-  | "contract"
-  | "slab"
-  | "frame"
-  | "lockup"
-  | "fixing"
-  | "completion";
+export const CONSTRUCTION_STAGES = [
+  "contract",
+  "slab",
+  "frame",
+  "lockup",
+  "fixing",
+  "completion",
+] as const;
+
+export type ConstructionMilestone = (typeof CONSTRUCTION_STAGES)[number];
 
 export type ProposalStatus =
   | "draft"
@@ -80,4 +83,13 @@ export const MILESTONE_LABELS: Record<ConstructionMilestone, string> = {
   lockup: "Lock-up",
   fixing: "Fixing",
   completion: "Handover",
+};
+
+export const MILESTONE_SUMMARIES: Record<ConstructionMilestone, string> = {
+  contract: "The build contract is in place and work can start.",
+  slab: "The concrete slab is poured.",
+  frame: "The structural frame is standing.",
+  lockup: "The home is closed in: roof, walls, and windows.",
+  fixing: "Internals, fixtures, and finishes are underway.",
+  completion: "Practical completion. The home is handed over.",
 };
