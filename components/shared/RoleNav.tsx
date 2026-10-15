@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -25,36 +26,36 @@ export function RoleNav({ items, userName }: RoleNavProps) {
     router.refresh();
   }
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const firstName = userName.split(" ")[0];
   const homeHref =
     items[0]?.href.split("/").slice(0, 3).join("/") ?? "/";
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   return (
     <header className="glass-nav sticky top-0 z-40">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
         <VeluLogo href={homeHref} size="sm" />
 
-        <nav className="hidden items-center gap-1 sm:flex">
-          {items.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="hidden items-center gap-1 lg:flex">
+          {items.map((item) => (
+            <NavLink key={item.href} item={item} pathname={pathname} />
+          ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
+          <button
+            type="button"
+            className="touch-target rounded-full px-3 text-sm font-medium text-foreground lg:hidden"
+            aria-expanded={menuOpen}
+            aria-controls="role-nav-menu"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? "Close" : "Menu"}
+          </button>
           <NotificationBell />
           <span className="hidden text-sm text-muted-foreground md:inline">
             {firstName}
@@ -68,6 +69,51 @@ export function RoleNav({ items, userName }: RoleNavProps) {
           </button>
         </div>
       </div>
+
+      {menuOpen ? (
+        <nav
+          id="role-nav-menu"
+          className="border-t border-border px-2 py-2 lg:hidden"
+          aria-label="Pages"
+        >
+          <ul>
+            {items.map((item) => (
+              <li key={item.href}>
+                <NavLink item={item} pathname={pathname} stacked />
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
     </header>
+  );
+}
+
+function NavLink({
+  item,
+  pathname,
+  stacked = false,
+}: {
+  item: NavItem;
+  pathname: string;
+  stacked?: boolean;
+}) {
+  const active = pathname.startsWith(item.href);
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "block text-sm font-medium transition-colors",
+        stacked
+          ? "rounded-lg px-3 py-3"
+          : "rounded-full px-4 py-2",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "text-foreground hover:bg-muted"
+      )}
+      aria-current={active ? "page" : undefined}
+    >
+      {item.label}
+    </Link>
   );
 }
