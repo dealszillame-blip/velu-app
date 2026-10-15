@@ -19,7 +19,7 @@ export function MobileTabBar({ items }: MobileTabBarProps) {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
       aria-label="Main navigation"
     >
       <div className="mx-auto flex h-14 max-w-lg items-stretch justify-around px-2">

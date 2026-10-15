@@ -42,7 +42,7 @@ export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
         <VeluLogo href={homeHref} size="sm" />
 
-        <nav className="hidden min-w-0 items-center gap-5 lg:flex" aria-label="Steps">
+        <nav className="hidden min-w-0 items-center gap-4 md:flex" aria-label="Steps">
           {items.map((item, index) => (
             <NavLink
               key={item.href}
@@ -51,13 +51,16 @@ export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
               index={index + 1}
             />
           ))}
+          {trailing.map((item) => (
+            <NavLink key={item.href} item={item} pathname={pathname} />
+          ))}
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-3">
           <button
             type="button"
             className={cn(
-              "touch-target rounded-full px-3 text-sm font-medium text-foreground lg:hidden",
+              "touch-target rounded-full px-3 text-sm font-medium text-foreground md:hidden",
               items.length + trailing.length < 2 && "hidden"
             )}
             aria-expanded={menuOpen}
@@ -66,13 +69,8 @@ export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
           >
             {menuOpen ? "Close" : "Menu"}
           </button>
-          <div className="hidden items-center gap-5 lg:flex">
-            {trailing.map((item) => (
-              <NavLink key={item.href} item={item} pathname={pathname} />
-            ))}
-          </div>
           <NotificationBell />
-          <span className="hidden text-sm text-muted-foreground md:inline">
+          <span className="hidden text-sm text-muted-foreground lg:inline">
             {firstName}
           </span>
           <button
@@ -88,7 +86,7 @@ export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
       {menuOpen ? (
         <nav
           id="role-nav-menu"
-          className="border-t border-border px-2 py-2 lg:hidden"
+          className="border-t border-border px-2 py-2 md:hidden"
           aria-label="Pages"
         >
           <ul>
