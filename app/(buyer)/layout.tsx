@@ -29,7 +29,7 @@ export default async function BuyerLayout({
   return (
     <div className="flex min-h-full flex-col bg-background">
       <RoleNav items={steps} trailing={trailing} userName={profile.full_name} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 lg:pb-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 md:pb-10">
         {children}
       </main>
       <MobileTabBar items={steps} />
