@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { requireRole } from "@/lib/auth";
 import { readCounterpartyProfile } from "@/lib/inquiries";
+import { formatAuDate } from "@/lib/defects";
 import { milestoneProgress, projectPartyName } from "@/lib/milestones";
 import { paymentDetailsFromRow, type BuilderPaymentDetails } from "@/lib/payment-details";
 import { createClient } from "@/lib/supabase/server";
@@ -63,7 +64,7 @@ export async function MilestonePageContent({
   const buyerName =
     projectPartyName(buyerProfile, "buyer") ??
     (project.buyer_id === user.id ? projectPartyName(profile, "buyer") : null);
-  const updated = formatUpdated(project.stage_updated_at);
+  const updated = formatAuDate(project.stage_updated_at);
   const paymentDetails = progress.complete
     ? null
     : await readProjectPaymentDetails(supabase, project.id);
@@ -227,15 +228,4 @@ async function readProjectPaymentDetails(
   });
   const row = Array.isArray(data) ? data[0] : data;
   return paymentDetailsFromRow(row);
-}
-
-function formatUpdated(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString("en-AU", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
