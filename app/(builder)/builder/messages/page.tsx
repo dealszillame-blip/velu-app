@@ -6,9 +6,9 @@ export default function BuilderMessagesPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Private chat"
+        eyebrow="4 · Messages"
         title="Messages"
-        description="Reach out to buyers about their block before submitting a formal proposal — contact details stay on Velu."
+        description="Talk with a buyer about a lead, a proposal, or a build. Phone numbers stay off Velu."
       />
       <Suspense
         fallback={

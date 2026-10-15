@@ -3,17 +3,10 @@ import { MobileTabBar } from "@/components/shared/MobileTabBar";
 import { RoleNav } from "@/components/shared/RoleNav";
 
 const NAV = [
-  { href: "/buyer/map", label: "Map" },
-  { href: "/buyer/my-land", label: "My land" },
-  { href: "/buyer/requirements", label: "Requirements" },
-  { href: "/buyer/compare", label: "Compare" },
-  { href: "/buyer/builds", label: "Builds" },
-  { href: "/buyer/messages", label: "Messages" },
-];
-
-const PHONE_NAV = [
-  { href: "/buyer/map", label: "Map" },
-  { href: "/buyer/builds", label: "Builds" },
+  { href: "/buyer/map", label: "Land" },
+  { href: "/buyer/requirements", label: "Brief" },
+  { href: "/buyer/compare", label: "Proposals" },
+  { href: "/buyer/builds", label: "Build" },
   { href: "/buyer/messages", label: "Messages" },
 ];
 
@@ -30,7 +23,7 @@ export default async function BuyerLayout({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {children}
       </main>
-      <MobileTabBar items={PHONE_NAV} />
+      <MobileTabBar items={NAV} />
     </div>
   );
 }

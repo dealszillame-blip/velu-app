@@ -3,12 +3,14 @@ import { MobileTabBar } from "@/components/shared/MobileTabBar";
 import { RoleNav } from "@/components/shared/RoleNav";
 
 const NAV = [
-  { href: "/builder/dashboard", label: "Home" },
-  { href: "/builder/profile", label: "Profile" },
   { href: "/builder/leads", label: "Leads" },
   { href: "/builder/proposals", label: "Proposals" },
+  { href: "/builder/builds", label: "Builds" },
   { href: "/builder/messages", label: "Messages" },
+  { href: "/builder/profile", label: "Profile" },
 ];
+
+const PHONE_NAV = NAV.filter((item) => item.href !== "/builder/profile");
 
 export default async function BuilderLayout({
   children,
@@ -23,7 +25,7 @@ export default async function BuilderLayout({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8">
         {children}
       </main>
-      <MobileTabBar items={NAV} />
+      <MobileTabBar items={PHONE_NAV} />
     </div>
   );
 }

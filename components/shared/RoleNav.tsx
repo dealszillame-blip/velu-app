@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { VeluLogo } from "@/components/shared/VeluLogo";
+import { navItemActive } from "@/lib/nav-active";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string };
@@ -98,7 +99,7 @@ function NavLink({
   pathname: string;
   stacked?: boolean;
 }) {
-  const active = pathname.startsWith(item.href);
+  const active = navItemActive(item.href, pathname);
   return (
     <Link
       href={item.href}

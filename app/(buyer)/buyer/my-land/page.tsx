@@ -5,9 +5,9 @@ export default function BuyerMyLandPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Already own land?"
-        title="My land"
-        description="Register a block you already hold and we'll connect you with licensed builders in your area — no agent listing required."
+        eyebrow="1 · Land"
+        title="Land you own"
+        description="Register a block you already hold. It uses the same brief, proposals, and build as a lot you find on the map."
       />
       <MyLandDashboard />
     </div>

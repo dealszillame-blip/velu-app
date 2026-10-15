@@ -5,9 +5,9 @@ export default function BuyerRequirementsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Your brief"
-        title="Build requirements"
-        description="House type, settlement, land measurements, bedrooms and bathrooms — shared with builders when you register land or receive proposals."
+        eyebrow="2 · Brief"
+        title="Brief"
+        description="Beds, baths, storeys, and the block. Builders see this when they price your land."
       />
       <BuyerRequirementsEditor />
     </div>

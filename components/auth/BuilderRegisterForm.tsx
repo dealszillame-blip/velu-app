@@ -94,7 +94,7 @@ export function BuilderRegisterForm() {
     }
 
     router.refresh();
-    window.location.assign("/builder/dashboard");
+    window.location.assign("/builder/leads");
   }
 
   if (needsVerification) {

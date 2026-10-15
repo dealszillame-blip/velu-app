@@ -4,7 +4,7 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const ROLE_HOME: Record<string, string> = {
   buyer: "/buyer/map",
-  builder: "/builder/dashboard",
+  builder: "/builder/leads",
   agent: "/agent/listings",
   admin: "/admin/dashboard",
   pending_agent: "/agent/listings",
