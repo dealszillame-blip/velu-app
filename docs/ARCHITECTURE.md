@@ -188,20 +188,20 @@ flowchart TB
 | `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
 | `/buyer/messages` | In-app threads with builders (no phone/email shared) |
 | `/buyer/project/:id` | Project after accept; links to the milestone timeline |
-| `/buyer/project/:id/milestones` | Done trail, current stage only, next stage locked; finished state after Handover |
+| `/buyer/project/:id/milestones` | Done trail, current stage only (builder bank details and an off-platform payment disclaimer), next stage locked; finished state after Handover |
 
 ### Builder surfaces
 
 | Route | What it is |
 | --- | --- |
 | `/builder/dashboard` | Leads and proposal snapshot |
-| `/builder/profile` | Licence, radius, insurance, public profile |
+| `/builder/profile` | Licence, radius, insurance, public profile, builder-supplied payment details |
 | `/builder/leads` | Sold / buyer-owned lots in range |
 | `/builder/leads/:listingId` | Submit a package (specs, breakdown, inclusions) |
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
-| `/builder/project/:id` | Shared project; builder advances stages |
-| `/builder/project/:id/milestones` | Full stage timeline; one advance on the current stage; finished state after Handover |
+| `/builder/project/:id` | Shared project; payment confirmation on the milestone page moves a stage |
+| `/builder/project/:id/milestones` | Full stage timeline; confirm payment received moves one stage; finished state after Handover |
 
 ### Report provider surfaces
 
@@ -297,11 +297,12 @@ erDiagram
 | --- | --- |
 | `profiles` | Role, name, company; 1:1 with `auth.users` |
 | `buyer_profiles` | `build_requirements` JSON (brief for recommend + tender) |
-| `builder_profiles` | Licence, radius, insurance, onboarding |
+| `builder_profiles` | Licence, radius, insurance, onboarding, builder-supplied account name / BSB / account number |
 | `land_listings` | Vacant lots + PostGIS point |
 | `builder_proposals` | Package price, specs, breakdown, inclusions, status |
 | `builder_proposal_templates` | Reusable builder packages |
 | `construction_projects` | Milestone after accept |
+| `milestone_payment_confirmations` | Builder says they received payment for one stage. Velu does not move the money. |
 | `builder_inquiries` + `inquiry_messages` | In-app chat |
 | `site_report_definitions` + `site_report_requests` | Soil report / site survey add-ons |
 | `architect_directory` + `architect_requests` | Architect intro requests |
@@ -348,10 +349,11 @@ APIs are App Router `route.ts` files. They return JSON. Auth is cookie session u
 | POST | `/api/proposals` | Submit package |
 | GET/POST | `/api/proposals/templates` | Saved templates |
 | GET/PUT | `/api/builder/profile` | Builder profile |
+| GET/PUT | `/api/builder/payment-details` | Builder-supplied account name, BSB, account number |
 | GET | `/api/builders/map` | Builders on the map |
 | GET | `/api/builders/:id/profile` | Public profile |
 | GET | `/api/builders/published-packages` | Catalogue |
-| PATCH | `/api/projects/:id/milestone` | Advance stage |
+| PATCH | `/api/projects/:id/milestone` | Builder confirms payment received for the current stage, then the stage moves one step. Velu does not transfer money. |
 
 ### Platform / admin / ingest
 

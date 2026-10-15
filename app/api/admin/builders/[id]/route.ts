@@ -49,7 +49,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { data: authUser } = await auth.admin.auth.admin.getUserById(id);
 
   return NextResponse.json({
-    ...builder,
+    ...withoutPaymentDetails(builder),
     profile: profile
       ? {
           ...profile,
@@ -89,5 +89,13 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(withoutPaymentDetails(data));
+}
+
+function withoutPaymentDetails(row: object) {
+  const copy: Record<string, unknown> = { ...(row as Record<string, unknown>) };
+  delete copy.account_name;
+  delete copy.bsb;
+  delete copy.account_number;
+  return copy;
 }
