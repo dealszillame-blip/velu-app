@@ -5,6 +5,7 @@ import { notifyBuildersOnSold } from "@/lib/leads/notify-on-sold";
 import {
   briefSaveBlocked,
   buildRequirementsSchema,
+  purposeSaveBlocked,
 } from "@/lib/buyer-requirements";
 import { assertPublishableLandPrice } from "@/lib/land-price";
 import { isSiteReportsSchemaError } from "@/lib/site-reports";
@@ -110,6 +111,11 @@ export async function POST(request: Request) {
   const body = schema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const purposeBlocked = purposeSaveBlocked(body.data.build_requirements);
+  if (purposeBlocked) {
+    return NextResponse.json({ error: purposeBlocked }, { status: 400 });
   }
 
   const blocked = briefSaveBlocked(body.data.build_requirements);

@@ -26,6 +26,8 @@ type BuyerBuildRequirementsFieldsProps = {
   onChange: (value: BuyerBuildRequirements) => void;
   idPrefix?: string;
   hideLandMeasurements?: boolean;
+  hideIntro?: boolean;
+  hideBuilderTypes?: boolean;
 };
 
 export function BuyerBuildRequirementsFields({
@@ -33,6 +35,8 @@ export function BuyerBuildRequirementsFields({
   onChange,
   idPrefix = "req",
   hideLandMeasurements = false,
+  hideIntro = false,
+  hideBuilderTypes = false,
 }: BuyerBuildRequirementsFieldsProps) {
   function patch(partial: Partial<BuyerBuildRequirements>) {
     onChange({ ...value, ...partial });
@@ -58,10 +62,11 @@ export function BuyerBuildRequirementsFields({
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Tell builders the land, settlement, and house you want so quotes match
-        the brief. Storeys is the field they quote against.
-      </p>
+      {hideIntro ? null : (
+        <p className="text-sm text-muted-foreground">
+          Storeys is the field quotes are matched against.
+        </p>
+      )}
       <StoreyBriefBanner value={value} onChange={onChange} allowConfirm />
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -101,9 +106,11 @@ export function BuyerBuildRequirementsFields({
 
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-storeys`}>Storeys</Label>
-          <p className="text-xs text-muted-foreground">
-            Builders quote against this field.
-          </p>
+          {hideBuilderTypes ? null : (
+            <p className="text-xs text-muted-foreground">
+              Quotes are matched against this field.
+            </p>
+          )}
           <Select
             items={selectItems(STOREY_OPTIONS)}
             value={value.storeys}
@@ -153,40 +160,42 @@ export function BuyerBuildRequirementsFields({
           </Select>
         </div>
 
-        <div className="space-y-2 sm:col-span-2">
-          <Label>Builder types</Label>
-          <p className="text-xs text-muted-foreground">
-            Choose who should quote: bulk, semi-custom, custom, or designers.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {BUILDER_TYPE_OPTIONS.map((opt) => {
-              const selected = (value.preferred_builder_types ?? []).includes(
-                opt.value
-              );
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    const current = value.preferred_builder_types ?? [];
-                    patch({
-                      preferred_builder_types: selected
-                        ? current.filter((item) => item !== opt.value)
-                        : [...current, opt.value],
-                    });
-                  }}
-                  className={
-                    selected
-                      ? "rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
-                      : "rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground"
-                  }
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
+        {hideBuilderTypes ? null : (
+          <div className="space-y-2 sm:col-span-2">
+            <Label>Builder types</Label>
+            <p className="text-xs text-muted-foreground">
+              Choose who should quote: bulk, semi-custom, custom, or designers.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {BUILDER_TYPE_OPTIONS.map((opt) => {
+                const selected = (value.preferred_builder_types ?? []).includes(
+                  opt.value
+                );
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      const current = value.preferred_builder_types ?? [];
+                      patch({
+                        preferred_builder_types: selected
+                          ? current.filter((item) => item !== opt.value)
+                          : [...current, opt.value],
+                      });
+                    }}
+                    className={
+                      selected
+                        ? "rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+                        : "rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground"
+                    }
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-granny`}>Granny flat</Label>

@@ -45,6 +45,15 @@ export const CONSTRUCTION_GRADE_OPTIONS = [
 
 export type ConstructionGrade = (typeof CONSTRUCTION_GRADE_OPTIONS)[number]["value"];
 
+export const LAND_PURPOSE_OPTIONS = [
+  { value: "personal", label: "Personal" },
+  { value: "investment", label: "Investment" },
+] as const;
+
+export type LandPurpose = (typeof LAND_PURPOSE_OPTIONS)[number]["value"];
+
+export const MAX_REQUIREMENT_SETS = 6;
+
 export interface BuyerBuildRequirements {
   storeys: StoreyPreference;
   house_type?: HouseTypePreference;
@@ -66,6 +75,10 @@ export interface BuyerBuildRequirements {
   additional_notes?: string;
   /** Buyer confirmed a remaining storey/notes mismatch so save can proceed. */
   brief_contradiction_acknowledged?: boolean;
+  /** Whether the block is a home to live in or an investment. */
+  purpose?: LandPurpose;
+  /** Further briefs for the same block. The first brief stays the one used for matching. */
+  additional_requirements?: BuyerBuildRequirements[];
 }
 
 export const defaultBuildRequirements = (): BuyerBuildRequirements => ({
@@ -88,7 +101,7 @@ const optionalPositive = z.preprocess(
   z.number().positive().optional()
 );
 
-export const buildRequirementsSchema = z.object({
+const requirementSetSchema = z.object({
   storeys: z.enum(["ground_only", "ground_plus_one", "two_storey", "not_sure"]),
   house_type: z
     .enum([
@@ -122,15 +135,92 @@ export const buildRequirementsSchema = z.object({
   brief_contradiction_acknowledged: z.boolean().optional(),
 });
 
+export const buildRequirementsSchema = requirementSetSchema.extend({
+  purpose: z.enum(["personal", "investment"]).optional(),
+  additional_requirements: z.array(requirementSetSchema).max(5).optional(),
+});
+
+function asRecord(raw: unknown): Record<string, unknown> {
+  return raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+}
+
+function parseRequirementSet(raw: unknown): BuyerBuildRequirements | null {
+  const parsed = requirementSetSchema.safeParse({
+    ...defaultBuildRequirements(),
+    ...asRecord(raw),
+  });
+  return parsed.success ? parsed.data : null;
+}
+
 export function normalizeBuildRequirements(
   raw: unknown
 ): BuyerBuildRequirements {
-  const merged = {
-    ...defaultBuildRequirements(),
-    ...(raw && typeof raw === "object" ? raw : {}),
+  const source = asRecord(raw);
+  const { additional_requirements: extras, purpose, ...rest } = source;
+  const primary = parseRequirementSet(rest) ?? defaultBuildRequirements();
+  const additional = Array.isArray(extras)
+    ? extras
+        .map((item) => parseRequirementSet(item))
+        .filter((item): item is BuyerBuildRequirements => item != null)
+        .slice(0, MAX_REQUIREMENT_SETS - 1)
+    : [];
+  const parsedPurpose =
+    purpose === "personal" || purpose === "investment" ? purpose : undefined;
+
+  return {
+    ...primary,
+    ...(parsedPurpose ? { purpose: parsedPurpose } : {}),
+    ...(additional.length ? { additional_requirements: additional } : {}),
   };
-  const parsed = buildRequirementsSchema.safeParse(merged);
-  return parsed.success ? parsed.data : defaultBuildRequirements();
+}
+
+export function purposeLabel(value?: LandPurpose): string {
+  if (!value) return "Not chosen";
+  return LAND_PURPOSE_OPTIONS.find((option) => option.value === value)?.label ?? value;
+}
+
+export function purposeSaveBlocked(req: BuyerBuildRequirements): string | null {
+  if (req.purpose !== "personal" && req.purpose !== "investment") {
+    return "Choose whether this land is for personal use or an investment.";
+  }
+  return null;
+}
+
+function withoutNestedBrief(req: BuyerBuildRequirements): BuyerBuildRequirements {
+  const fields = { ...req };
+  delete fields.purpose;
+  delete fields.additional_requirements;
+  return fields;
+}
+
+export function splitRequirementSets(
+  req: BuyerBuildRequirements
+): BuyerBuildRequirements[] {
+  return [
+    { ...defaultBuildRequirements(), ...withoutNestedBrief(req) },
+    ...(req.additional_requirements ?? []).map((set) => ({
+      ...defaultBuildRequirements(),
+      ...withoutNestedBrief(set),
+    })),
+  ];
+}
+
+export function composeBuildRequirements(
+  purpose: LandPurpose | "",
+  sets: BuyerBuildRequirements[]
+): BuyerBuildRequirements {
+  const [primary = defaultBuildRequirements(), ...rest] = sets;
+  const additional = rest.slice(0, MAX_REQUIREMENT_SETS - 1).map((set) => ({
+    ...defaultBuildRequirements(),
+    ...withoutNestedBrief(set),
+  }));
+
+  return {
+    ...defaultBuildRequirements(),
+    ...withoutNestedBrief(primary),
+    ...(purpose === "personal" || purpose === "investment" ? { purpose } : {}),
+    ...(additional.length ? { additional_requirements: additional } : {}),
+  };
 }
 
 export function storeyLabel(value: StoreyPreference): string {
@@ -171,10 +261,10 @@ export function storeyBriefContradiction(
   const structured = wantedStoreyCount(req);
   const notes = req.additional_notes;
   if (structured === 2 && notesIndicateSingleLevel(notes)) {
-    return "Structured storeys are G+1 / two-storey, but your notes say single-level living. Confirm one brief before builders quote.";
+    return "Structured storeys are G+1 / two-storey, but your notes say single-level living.";
   }
   if (structured === 1 && notesIndicateTwoStorey(notes)) {
-    return "Structured storeys are single-level, but your notes describe a two-storey home. Confirm one brief before builders quote.";
+    return "Structured storeys are single-level, but your notes describe a two-storey home.";
   }
   if (
     req.storeys === "ground_only" &&
@@ -187,6 +277,17 @@ export function storeyBriefContradiction(
     req.house_type === "single_storey"
   ) {
     return "House type is single storey, but storeys is G+1 / two-storey.";
+  }
+  return null;
+}
+
+function requirementSetBlocked(
+  req: BuyerBuildRequirements,
+  label: string
+): string | null {
+  const contradiction = storeyBriefContradiction(req);
+  if (contradiction && !req.brief_contradiction_acknowledged) {
+    return `${label}: ${contradiction} Confirm one brief before saving.`;
   }
   return null;
 }
@@ -241,9 +342,11 @@ export function applyNotesToStoreys(
 }
 
 export function briefSaveBlocked(req: BuyerBuildRequirements): string | null {
-  const contradiction = storeyBriefContradiction(req);
-  if (contradiction && !req.brief_contradiction_acknowledged) {
-    return contradiction;
+  const primary = requirementSetBlocked(req, "Requirement 1");
+  if (primary) return primary;
+  for (const [index, extra] of (req.additional_requirements ?? []).entries()) {
+    const blocked = requirementSetBlocked(extra, `Requirement ${index + 2}`);
+    if (blocked) return blocked;
   }
   return null;
 }
@@ -298,6 +401,7 @@ export function formatBuildRequirementsSummary(
   req: BuyerBuildRequirements
 ): string {
   const parts = [
+    ...(req.purpose ? [purposeLabel(req.purpose)] : []),
     houseTypeLabel(req.house_type),
     storeyLabel(req.storeys),
     grannyFlatLabel(req.granny_flat),

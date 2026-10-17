@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
+import { BuyerRequirementSets } from "@/components/buyer/BuyerRequirementSets";
 import { SiteReportAddonSelector } from "@/components/buyer/SiteReportAddonSelector";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  defaultBuildRequirements,
   briefSaveBlocked,
+  composeBuildRequirements,
+  defaultBuildRequirements,
+  purposeSaveBlocked,
+  splitRequirementSets,
   type BuyerBuildRequirements,
+  type LandPurpose,
 } from "@/lib/buyer-requirements";
 import {
   DEFAULT_SITE_REPORT_DEFINITIONS,
@@ -35,8 +39,11 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [frontage, setFrontage] = useState("");
   const [depth, setDepth] = useState("");
   const [landValue, setLandValue] = useState("");
-  const [buildRequirements, setBuildRequirements] =
-    useState<BuyerBuildRequirements>(defaultBuildRequirements());
+  const [purpose, setPurpose] = useState<LandPurpose | "">("");
+  const [requirementSets, setRequirementSets] = useState<BuyerBuildRequirements[]>([
+    defaultBuildRequirements(),
+  ]);
+  const [saved, setSaved] = useState(false);
   const [siteReportDefinitions, setSiteReportDefinitions] = useState<
     SiteReportDefinition[]
   >(DEFAULT_SITE_REPORT_DEFINITIONS);
@@ -54,7 +61,8 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
       .then((res) => res.json())
       .then((data) => {
         if (data.build_requirements) {
-          setBuildRequirements(data.build_requirements);
+          setPurpose(data.build_requirements.purpose ?? "");
+          setRequirementSets(splitRequirementSets(data.build_requirements));
         }
       })
       .catch(() => undefined);
@@ -113,6 +121,20 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     const depthMeters = depth ? Number(depth) : undefined;
     const value = landValue ? Number(landValue) : undefined;
 
+    const buildRequirements = composeBuildRequirements(purpose, requirementSets);
+    buildRequirements.land_size_sqm = size;
+    buildRequirements.frontage_meters = front;
+    if (depthMeters != null) {
+      buildRequirements.depth_meters = depthMeters;
+    }
+
+    const purposeBlocked = purposeSaveBlocked(buildRequirements);
+    if (purposeBlocked) {
+      setError(purposeBlocked);
+      setLoading(false);
+      return;
+    }
+
     const blocked = briefSaveBlocked(buildRequirements);
     if (blocked) {
       setError(`${blocked} Resolve or confirm the mismatch before saving.`);
@@ -128,12 +150,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
         land_size_sqm: size,
         frontage_meters: front,
         land_value: value,
-        build_requirements: {
-          ...buildRequirements,
-          land_size_sqm: size,
-          frontage_meters: front,
-          depth_meters: depthMeters ?? buildRequirements.depth_meters,
-        },
+        build_requirements: buildRequirements,
         site_report_keys: selectedSiteReportKeys,
         site_report_notes:
           selectedSiteReportKeys.length > 0
@@ -157,19 +174,18 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setLandValue("");
     setSelectedSiteReportKeys([]);
     setSiteReportNotes("");
+    setSaved(true);
     setLoading(false);
     onSuccess?.();
-    router.push("/buyer/builders");
     router.refresh();
   }
 
   return (
     <Card className="lg:max-w-3xl">
       <CardHeader>
-        <CardTitle>Register your block</CardTitle>
+        <CardTitle>Land details</CardTitle>
         <CardDescription>
-          Tell us about the land you already own and what you want to build.
-          We geocode your address and notify matched builders in your area.
+          Address, size, and what you want built on this block.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -243,15 +259,14 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
           </div>
 
           <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5">
-            <p className="mb-1 text-sm font-medium">Your build requirements</p>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Help builders understand what you want to build on this block.
-            </p>
-            <BuyerBuildRequirementsFields
-              value={buildRequirements}
-              onChange={setBuildRequirements}
+            <BuyerRequirementSets
+              purpose={purpose}
+              onPurposeChange={setPurpose}
+              sets={requirementSets}
+              onSetsChange={setRequirementSets}
               idPrefix="owned-land"
               hideLandMeasurements
+              hideBuilderTypes
             />
           </div>
 
@@ -271,9 +286,14 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
               {error}
             </p>
           )}
+          {saved && (
+            <p className="text-sm text-primary" role="status">
+              Land registered. You can add another block on this page.
+            </p>
+          )}
 
           <Button type="submit" disabled={loading}>
-            {loading ? "Registering…" : "Find builders for my land"}
+            {loading ? "Registering…" : "Register your land"}
           </Button>
         </form>
       </CardContent>

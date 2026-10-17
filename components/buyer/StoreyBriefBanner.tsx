@@ -36,7 +36,7 @@ export function StoreyBriefBanner({
     >
       <p>{contradiction}</p>
       <p className="text-amber-800">
-        Builders quote against <strong>Storeys</strong> ({storeyLabel(value.storeys)}
+        Quotes match <strong>Storeys</strong> ({storeyLabel(value.storeys)}
         ). House type is the product (knockdown, dual occ, custom) — not a second
         storey field.
       </p>
