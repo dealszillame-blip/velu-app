@@ -110,7 +110,7 @@ function MapListingItem({
   );
 }
 
-export function LandMap() {
+export function LandMap({ showBuilders = false }: { showBuilders?: boolean }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -281,12 +281,12 @@ export function LandMap() {
   }, []);
 
   useEffect(() => {
-    if (layer === "land") {
+    if (!showBuilders || layer === "land") {
       loadListings();
     } else {
       loadBuilders();
     }
-  }, [layer, loadListings, loadBuilders]);
+  }, [layer, loadListings, loadBuilders, showBuilders]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -350,15 +350,17 @@ export function LandMap() {
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
       <div className="space-y-4">
-        <SegmentControl
-          options={[
-            { value: "land", label: "Land" },
-            { value: "builders", label: "Builders" },
-          ]}
-          value={layer}
-          onChange={setLayer}
-        />
-        {layer === "land" ? (
+        {showBuilders ? (
+          <SegmentControl
+            options={[
+              { value: "land", label: "Land" },
+              { value: "builders", label: "Builders" },
+            ]}
+            value={layer}
+            onChange={setLayer}
+          />
+        ) : null}
+        {!showBuilders || layer === "land" ? (
         <>
         <MapFiltersPanel
           filters={filters}

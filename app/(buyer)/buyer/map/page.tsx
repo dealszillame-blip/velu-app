@@ -9,14 +9,14 @@ export default function BuyerMapPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="1 · Add land"
-        title="Find a lot"
-        description="Choose a vacant lot, then register it. That is the same first step as land you already own."
+        title="Vacant lots"
+        description="Look through vacant lots without registering a block. Register your land when you are ready."
         action={
           <Link
             href="/buyer/my-land"
             className={cn(buttonVariants({ variant: "outline" }), "rounded-full")}
           >
-            Add land
+            Register your land
           </Link>
         }
       />

@@ -7,7 +7,7 @@ export default function BuyerRequirementsPage() {
       <PageHeader
         eyebrow="1 · Add land"
         title="Brief"
-        description="Beds, baths, and storeys for the block you added. Builders see this when you invite them."
+        description="Purpose, rooms, and storeys for the block you added. Add another requirement if you want more than one brief."
       />
       <BuyerRequirementsEditor />
     </div>

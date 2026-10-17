@@ -16,6 +16,7 @@ import {
   formatSettlementDate,
   grannyFlatLabel,
   houseTypeLabel,
+  purposeLabel,
   storeyBriefContradiction,
   storeyLabel,
 } from "@/lib/buyer-requirements";
@@ -64,6 +65,13 @@ export function BuyerRequirementsSummary({
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="surface-subtle flex items-start gap-3 p-4">
+        <Home className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <div>
+          <p className="label-caps mb-1">Purpose</p>
+          <p className="text-sm font-medium">{purposeLabel(requirements.purpose)}</p>
+        </div>
+      </div>
       <div className="surface-subtle flex items-start gap-3 p-4">
         <Home className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <div>
@@ -176,6 +184,18 @@ export function BuyerRequirementsSummary({
               </p>
             ) : null}
           </div>
+        </div>
+      ) : null}
+      {requirements.additional_requirements?.length ? (
+        <div className="surface-subtle p-4 sm:col-span-2 lg:col-span-3">
+          <p className="label-caps mb-2">Other requirements</p>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {requirements.additional_requirements.map((set, index) => (
+              <li key={index}>
+                Requirement {index + 2}: {formatBuildRequirementsSummary(set)}
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
       {requirements.additional_notes?.trim() && (

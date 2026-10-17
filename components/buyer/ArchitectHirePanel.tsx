@@ -165,7 +165,7 @@ export function ArchitectHirePanel({ listingId }: ArchitectHirePanelProps) {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">
         <Compass className="h-3.5 w-3.5" />
-        Custom houses still go through licensed builders for construction.
+        A custom design is still built under a construction contract.
       </p>
     </div>
   );

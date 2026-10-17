@@ -3,6 +3,7 @@ import {
   briefSaveBlocked,
   buildRequirementsSchema,
   normalizeBuildRequirements,
+  purposeSaveBlocked,
 } from "@/lib/buyer-requirements";
 import { createClient } from "@/lib/supabase/server";
 
@@ -47,6 +48,11 @@ export async function PUT(request: Request) {
   const body = buildRequirementsSchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const purposeBlocked = purposeSaveBlocked(body.data);
+  if (purposeBlocked) {
+    return NextResponse.json({ error: purposeBlocked }, { status: 400 });
   }
 
   const blocked = briefSaveBlocked(body.data);

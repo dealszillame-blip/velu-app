@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { BuyerBuildRequirementsFields } from "@/components/buyer/BuyerBuildRequirementsFields";
+import { BuyerRequirementSets } from "@/components/buyer/BuyerRequirementSets";
 import { BuyerRequirementsSummary } from "@/components/buyer/BuyerRequirementsSummary";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,9 +13,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  defaultBuildRequirements,
   briefSaveBlocked,
+  composeBuildRequirements,
+  defaultBuildRequirements,
+  purposeSaveBlocked,
+  splitRequirementSets,
   type BuyerBuildRequirements,
+  type LandPurpose,
 } from "@/lib/buyer-requirements";
 
 export function BuyerRequirementsEditor() {
@@ -49,6 +53,13 @@ export function BuyerRequirementsEditor() {
     setSaving(true);
     setError(null);
     setSuccess(false);
+
+    const purposeBlocked = purposeSaveBlocked(requirements);
+    if (purposeBlocked) {
+      setError(purposeBlocked);
+      setSaving(false);
+      return;
+    }
 
     const blocked = briefSaveBlocked(requirements);
     if (blocked) {
@@ -94,7 +105,7 @@ export function BuyerRequirementsEditor() {
           <div>
             <CardTitle>Your build requirements</CardTitle>
             <CardDescription>
-              Builders see this when reviewing your land or proposals.
+              Saved with your land. The first requirement is the one used for matching.
             </CardDescription>
           </div>
           <Button
@@ -125,14 +136,21 @@ export function BuyerRequirementsEditor() {
           {hasSaved ? "Update build requirements" : "Your build requirements"}
         </CardTitle>
         <CardDescription>
-          Help builders understand what you want before they submit a proposal.
+          Choose personal or investment, then add each requirement for this block.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSave} className="space-y-4">
-          <BuyerBuildRequirementsFields
-            value={requirements}
-            onChange={setRequirements}
+          <BuyerRequirementSets
+            purpose={requirements.purpose ?? ""}
+            onPurposeChange={(purpose: LandPurpose) =>
+              setRequirements(composeBuildRequirements(purpose, splitRequirementSets(requirements)))
+            }
+            sets={splitRequirementSets(requirements)}
+            onSetsChange={(sets) =>
+              setRequirements(composeBuildRequirements(requirements.purpose ?? "", sets))
+            }
+            idPrefix="brief"
           />
           {error && (
             <p className="text-sm text-destructive" role="alert">
