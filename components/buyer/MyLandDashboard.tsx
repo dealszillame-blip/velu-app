@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { BuyerOwnedLandForm } from "@/components/buyer/BuyerOwnedLandForm";
 import { MyLandParcelCard } from "@/components/buyer/MyLandParcelCard";
 import {
@@ -10,6 +11,7 @@ import {
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
 
 export function MyLandDashboard() {
+  const router = useRouter();
   const [parcels, setParcels] = useState<BuyerOwnedLand[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,6 +49,10 @@ export function MyLandDashboard() {
                 key={parcel.id}
                 parcel={parcel}
                 onReportsUpdated={load}
+                onDeleted={() => {
+                  load();
+                  router.refresh();
+                }}
               />
             ))}
           </div>

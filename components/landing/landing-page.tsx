@@ -205,7 +205,7 @@ export function LandingPage() {
             <a href="#trust">Why Velu</a>
           </li>
         </ul>
-        <Link href="/register/buyer" className="nav-cta">
+        <Link href="/login" className="nav-cta">
           Get early access
         </Link>
       </nav>
@@ -235,10 +235,10 @@ export function LandingPage() {
             the moment you&apos;re ready to build.
           </p>
           <div className="hero-actions">
-            <Link href="/register/buyer" className="btn-green">
-              Find vacant land
+            <Link href="/login" className="btn-green">
+              Register your land
             </Link>
-            <Link href="/register/buyer?intent=own-land" className="btn-outline">
+            <Link href="/login" className="btn-outline">
               I already own land
             </Link>
             <Link href="/builders/join" className="btn-outline">
@@ -527,7 +527,7 @@ export function LandingPage() {
                   ))}
                 </ul>
                 <Link
-                  href="/register/buyer"
+                  href="/login"
                   className={`cc-btn ${p.cta}`}
                 >
                   {p.ctaLabel}
@@ -833,8 +833,8 @@ export function LandingPage() {
           </Reveal>
           <Reveal delay={3}>
             <div className="cta-actions">
-              <Link href="/register/buyer" className="btn-green">
-                Find vacant land
+              <Link href="/login" className="btn-green">
+                Register your land
               </Link>
               <Link href="/builders/join" className="btn-outline">
                 Register builder interest
