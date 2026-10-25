@@ -1,4 +1,9 @@
-import type { BuyerBuildRequirements, LandPurpose } from "@/lib/buyer-requirements";
+import type {
+  BoundarySideInput,
+  BuyerBuildRequirements,
+  LandPurpose,
+  SiteDocumentKey,
+} from "@/lib/buyer-requirements";
 
 const START_KEY = "velu.buyerStart";
 const DRAFT_KEY = "velu.landDraft";
@@ -17,6 +22,8 @@ export type LandDraft = {
   landValue: string;
   purpose: LandPurpose | "";
   requirementSets: BuyerBuildRequirements[];
+  boundarySides?: BoundarySideInput[];
+  siteDocuments?: SiteDocumentKey[];
 };
 
 function readJson<T>(key: string): T | null {

@@ -47,12 +47,12 @@ export function BuyerRequirementSets({
     <div className="space-y-6">
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">
-          Is this land for personal use or investment?
+          Is this land for personal use, investment, or a knock-down rebuild?
         </legend>
         <p className="text-sm text-muted-foreground">
-          Personal means you will live here. Investment means the block is for a return.
+          Personal means you will live here. Investment means the block is for a return. Knock-down rebuild replaces a house already on the site.
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {LAND_PURPOSE_OPTIONS.map((option) => {
             const selected = purpose === option.value;
             return (

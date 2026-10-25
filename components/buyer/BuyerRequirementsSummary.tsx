@@ -17,6 +17,7 @@ import {
   grannyFlatLabel,
   houseTypeLabel,
   purposeLabel,
+  siteDocumentLabel,
   storeyBriefContradiction,
   storeyLabel,
 } from "@/lib/buyer-requirements";
@@ -184,6 +185,29 @@ export function BuyerRequirementsSummary({
               </p>
             ) : null}
           </div>
+        </div>
+      ) : null}
+      {requirements.boundary_sides?.length ? (
+        <div className="surface-subtle p-4 sm:col-span-2 lg:col-span-3">
+          <p className="label-caps mb-1">Side lengths</p>
+          <p className="text-sm font-medium">
+            {requirements.boundary_sides
+              .map((side) => `${side.label} ${side.length_meters} m`)
+              .join(" · ")}
+          </p>
+        </div>
+      ) : null}
+      {requirements.site_documents?.length ? (
+        <div className="surface-subtle p-4 sm:col-span-2 lg:col-span-3">
+          <p className="label-caps mb-1">Site documents</p>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {requirements.site_documents.map((document) => (
+              <li key={document.key}>
+                {siteDocumentLabel(document.key)}
+                {document.file_name ? ` · ${document.file_name}` : ""}
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
       {requirements.additional_requirements?.length ? (

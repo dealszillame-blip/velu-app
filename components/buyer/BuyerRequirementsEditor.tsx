@@ -136,7 +136,7 @@ export function BuyerRequirementsEditor() {
           {hasSaved ? "Update build requirements" : "Your build requirements"}
         </CardTitle>
         <CardDescription>
-          Choose personal or investment, then add each requirement for this block.
+          Choose personal, investment, or knock-down rebuild, then add each requirement for this block.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -144,11 +144,15 @@ export function BuyerRequirementsEditor() {
           <BuyerRequirementSets
             purpose={requirements.purpose ?? ""}
             onPurposeChange={(purpose: LandPurpose) =>
-              setRequirements(composeBuildRequirements(purpose, splitRequirementSets(requirements)))
+              setRequirements(
+                composeBuildRequirements(purpose, splitRequirementSets(requirements), requirements)
+              )
             }
             sets={splitRequirementSets(requirements)}
             onSetsChange={(sets) =>
-              setRequirements(composeBuildRequirements(requirements.purpose ?? "", sets))
+              setRequirements(
+                composeBuildRequirements(requirements.purpose ?? "", sets, requirements)
+              )
             }
             idPrefix="brief"
           />

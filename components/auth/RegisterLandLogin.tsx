@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BuyerRequirementSets } from "@/components/buyer/BuyerRequirementSets";
+import { LandBoundarySides } from "@/components/buyer/LandBoundarySides";
+import { SiteDocumentChecklist } from "@/components/buyer/SiteDocumentChecklist";
 import { VeluLogo } from "@/components/shared/VeluLogo";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,11 +27,17 @@ import {
 import {
   briefSaveBlocked,
   composeBuildRequirements,
+  defaultBoundaryInputs,
   defaultBuildRequirements,
+  measurementsFromSides,
+  parseBoundarySides,
   purposeSaveBlocked,
+  type BoundarySideInput,
   type BuyerBuildRequirements,
   type LandPurpose,
+  type SiteDocumentKey,
 } from "@/lib/buyer-requirements";
+import { uploadSiteDocuments } from "@/lib/site-documents-upload";
 
 type AccountMode = "create" | "signin";
 
@@ -40,8 +48,9 @@ export function RegisterLandLogin() {
   const [ready, setReady] = useState(false);
   const [address, setAddress] = useState("");
   const [landSize, setLandSize] = useState("");
-  const [frontage, setFrontage] = useState("");
-  const [depth, setDepth] = useState("");
+  const [boundarySides, setBoundarySides] = useState<BoundarySideInput[]>(defaultBoundaryInputs());
+  const [siteDocuments, setSiteDocuments] = useState<SiteDocumentKey[]>([]);
+  const [siteFiles, setSiteFiles] = useState<Partial<Record<SiteDocumentKey, File>>>({});
   const [landValue, setLandValue] = useState("");
   const [purpose, setPurpose] = useState<LandPurpose | "">("");
   const [requirementSets, setRequirementSets] = useState<BuyerBuildRequirements[]>([
@@ -69,9 +78,11 @@ export function RegisterLandLogin() {
     return {
       address,
       landSize,
-      frontage,
-      depth,
+      frontage: boundarySides[0]?.length ?? "",
+      depth: boundarySides[2]?.length ?? "",
       landValue,
+      boundarySides,
+      siteDocuments,
       purpose,
       requirementSets,
     };
@@ -79,15 +90,22 @@ export function RegisterLandLogin() {
 
   async function registerLand() {
     const size = Number(landSize);
-    const front = Number(frontage);
-    const depthMeters = depth ? Number(depth) : undefined;
     const value = landValue ? Number(landValue) : undefined;
-    const buildRequirements = composeBuildRequirements(purpose, requirementSets);
-    buildRequirements.land_size_sqm = size;
-    buildRequirements.frontage_meters = front;
-    if (depthMeters != null) {
-      buildRequirements.depth_meters = depthMeters;
+    const parsedSides = parseBoundarySides(boundarySides);
+    if ("error" in parsedSides) {
+      setError(parsedSides.error);
+      return false;
     }
+    const measurements = measurementsFromSides(parsedSides.sides);
+    const buildRequirements = composeBuildRequirements(purpose, requirementSets, {
+      boundary_sides: parsedSides.sides,
+      site_documents: siteDocuments.map((key) => ({ key })),
+    });
+    buildRequirements.land_size_sqm = size;
+    buildRequirements.frontage_meters = measurements.frontage_meters;
+    buildRequirements.left_side_meters = measurements.left_side_meters;
+    buildRequirements.depth_meters = measurements.depth_meters;
+    buildRequirements.right_side_meters = measurements.right_side_meters;
 
     const purposeBlocked = purposeSaveBlocked(buildRequirements);
     if (purposeBlocked) {
@@ -106,7 +124,7 @@ export function RegisterLandLogin() {
       body: JSON.stringify({
         address,
         land_size_sqm: size,
-        frontage_meters: front,
+        frontage_meters: measurements.frontage_meters,
         land_value: value,
         build_requirements: buildRequirements,
       }),
@@ -116,7 +134,7 @@ export function RegisterLandLogin() {
       setError(data.error ?? "Could not register this land.");
       return false;
     }
-    return true;
+    return String(data.id);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -184,7 +202,13 @@ export function RegisterLandLogin() {
         setLoading(false);
         return;
       }
+      const uploadError = await uploadSiteDocuments(saved, siteFiles);
       clearBuyerStart();
+      if (uploadError) {
+        setError(`${uploadError} The block itself is saved.`);
+        setLoading(false);
+        return;
+      }
       window.location.assign("/buyer/my-land");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -235,29 +259,11 @@ export function RegisterLandLogin() {
                 onChange={(e) => setLandSize(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="land-frontage">Frontage (m)</Label>
-              <Input
-                id="land-frontage"
-                type="number"
-                min={1}
-                step="0.01"
-                required
-                placeholder="15.5"
-                value={frontage}
-                onChange={(e) => setFrontage(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="land-depth">Depth (m)</Label>
-              <Input
-                id="land-depth"
-                type="number"
-                min={1}
-                step="0.01"
-                placeholder="30"
-                value={depth}
-                onChange={(e) => setDepth(e.target.value)}
+            <div className="space-y-2 sm:col-span-2">
+              <LandBoundarySides
+                sides={boundarySides}
+                onChange={setBoundarySides}
+                idPrefix="login-sides"
               />
             </div>
             <div className="space-y-2">
@@ -273,9 +279,48 @@ export function RegisterLandLogin() {
             </div>
           </div>
 
+          <SiteDocumentChecklist
+            idPrefix="login-docs"
+            selected={siteDocuments}
+            files={siteFiles}
+            onToggle={(key) => {
+              setSiteDocuments((current) =>
+                current.includes(key)
+                  ? current.filter((item) => item !== key)
+                  : [...current, key]
+              );
+              if (siteDocuments.includes(key)) {
+                setSiteFiles((current) => {
+                  const next = { ...current };
+                  delete next[key];
+                  return next;
+                });
+              }
+            }}
+            onFile={(key, file) =>
+              setSiteFiles((current) => {
+                const next = { ...current };
+                if (file) next[key] = file;
+                else delete next[key];
+                return next;
+              })
+            }
+          />
+
           <BuyerRequirementSets
             purpose={purpose}
-            onPurposeChange={setPurpose}
+            onPurposeChange={(next) => {
+              setPurpose(next);
+              if (next === "knockdown_rebuild") {
+                setRequirementSets((sets) =>
+                  sets.map((set, index) =>
+                    index === 0 && (!set.house_type || set.house_type === "not_sure")
+                      ? { ...set, house_type: "knockdown_rebuild" }
+                      : set
+                  )
+                );
+              }
+            }}
             sets={requirementSets}
             onSetsChange={setRequirementSets}
             idPrefix="login-land"

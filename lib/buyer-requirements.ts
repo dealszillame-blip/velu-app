@@ -13,7 +13,7 @@ export type StoreyPreference = (typeof STOREY_OPTIONS)[number]["value"];
 export const HOUSE_TYPE_OPTIONS = [
   { value: "single_storey", label: "Single storey" },
   { value: "double_storey", label: "Double storey" },
-  { value: "knockdown_rebuild", label: "Knockdown rebuild" },
+  { value: "knockdown_rebuild", label: "Knock-down rebuild" },
   { value: "custom", label: "Custom / architect designed" },
   { value: "dual_occupancy", label: "Dual occupancy" },
   { value: "not_sure", label: "Not sure yet" },
@@ -48,11 +48,68 @@ export type ConstructionGrade = (typeof CONSTRUCTION_GRADE_OPTIONS)[number]["val
 export const LAND_PURPOSE_OPTIONS = [
   { value: "personal", label: "Personal" },
   { value: "investment", label: "Investment" },
+  { value: "knockdown_rebuild", label: "Knock-down rebuild" },
 ] as const;
 
 export type LandPurpose = (typeof LAND_PURPOSE_OPTIONS)[number]["value"];
 
 export const MAX_REQUIREMENT_SETS = 6;
+
+export const BOUNDARY_SIDE_LABELS = [
+  "Front",
+  "Left",
+  "Rear",
+  "Right",
+  "Side 5",
+  "Side 6",
+  "Side 7",
+  "Side 8",
+] as const;
+
+export const MIN_BOUNDARY_SIDES = 4;
+export const MAX_BOUNDARY_SIDES = BOUNDARY_SIDE_LABELS.length;
+
+export type BoundarySide = {
+  label: string;
+  length_meters: number;
+};
+
+export type BoundarySideInput = {
+  label: string;
+  length: string;
+};
+
+export const SITE_DOCUMENT_OPTIONS = [
+  { key: "land_drawings", label: "Land drawings" },
+  { key: "site_drawings", label: "Site drawings" },
+  { key: "certificate_10_7", label: "Certificate 10.7" },
+  { key: "contour_plan", label: "Contour plan, if available" },
+] as const;
+
+export type SiteDocumentKey = (typeof SITE_DOCUMENT_OPTIONS)[number]["key"];
+
+export type SiteDocumentRecord = {
+  key: SiteDocumentKey;
+  file_name?: string;
+};
+
+export function defaultBoundaryInputs(count = MIN_BOUNDARY_SIDES): BoundarySideInput[] {
+  return BOUNDARY_SIDE_LABELS.slice(0, count).map((label) => ({
+    label,
+    length: "",
+  }));
+}
+
+export function resizeBoundaryInputs(
+  current: BoundarySideInput[],
+  count: number
+): BoundarySideInput[] {
+  const nextCount = Math.min(MAX_BOUNDARY_SIDES, Math.max(MIN_BOUNDARY_SIDES, count));
+  return BOUNDARY_SIDE_LABELS.slice(0, nextCount).map((label, index) => ({
+    label: current[index]?.label?.trim() || label,
+    length: current[index]?.length ?? "",
+  }));
+}
 
 export interface BuyerBuildRequirements {
   storeys: StoreyPreference;
@@ -75,8 +132,12 @@ export interface BuyerBuildRequirements {
   additional_notes?: string;
   /** Buyer confirmed a remaining storey/notes mismatch so save can proceed. */
   brief_contradiction_acknowledged?: boolean;
-  /** Whether the block is a home to live in or an investment. */
+  /** Whether the block is a home to live in, an investment, or a knock-down rebuild. */
   purpose?: LandPurpose;
+  /** Length of each boundary, starting at 4 sides. */
+  boundary_sides?: BoundarySide[];
+  /** Drawings and certificates the buyer already holds. */
+  site_documents?: SiteDocumentRecord[];
   /** Further briefs for the same block. The first brief stays the one used for matching. */
   additional_requirements?: BuyerBuildRequirements[];
 }
@@ -135,8 +196,20 @@ const requirementSetSchema = z.object({
   brief_contradiction_acknowledged: z.boolean().optional(),
 });
 
+const boundarySideSchema = z.object({
+  label: z.string().trim().min(1).max(40),
+  length_meters: z.number().positive(),
+});
+
+const siteDocumentSchema = z.object({
+  key: z.enum(["land_drawings", "site_drawings", "certificate_10_7", "contour_plan"]),
+  file_name: z.string().trim().min(1).max(180).optional(),
+});
+
 export const buildRequirementsSchema = requirementSetSchema.extend({
-  purpose: z.enum(["personal", "investment"]).optional(),
+  purpose: z.enum(["personal", "investment", "knockdown_rebuild"]).optional(),
+  boundary_sides: z.array(boundarySideSchema).min(4).max(8).optional(),
+  site_documents: z.array(siteDocumentSchema).max(4).optional(),
   additional_requirements: z.array(requirementSetSchema).max(5).optional(),
 });
 
@@ -156,7 +229,13 @@ export function normalizeBuildRequirements(
   raw: unknown
 ): BuyerBuildRequirements {
   const source = asRecord(raw);
-  const { additional_requirements: extras, purpose, ...rest } = source;
+  const {
+    additional_requirements: extras,
+    purpose,
+    boundary_sides: rawSides,
+    site_documents: rawDocuments,
+    ...rest
+  } = source;
   const primary = parseRequirementSet(rest) ?? defaultBuildRequirements();
   const additional = Array.isArray(extras)
     ? extras
@@ -165,11 +244,21 @@ export function normalizeBuildRequirements(
         .slice(0, MAX_REQUIREMENT_SETS - 1)
     : [];
   const parsedPurpose =
-    purpose === "personal" || purpose === "investment" ? purpose : undefined;
+    purpose === "personal" || purpose === "investment" || purpose === "knockdown_rebuild"
+      ? purpose
+      : undefined;
+  const boundarySides = z.array(boundarySideSchema).max(8).safeParse(rawSides);
+  const siteDocuments = z.array(siteDocumentSchema).max(4).safeParse(rawDocuments);
 
   return {
     ...primary,
     ...(parsedPurpose ? { purpose: parsedPurpose } : {}),
+    ...(boundarySides.success && boundarySides.data.length >= MIN_BOUNDARY_SIDES
+      ? { boundary_sides: boundarySides.data }
+      : {}),
+    ...(siteDocuments.success && siteDocuments.data.length
+      ? { site_documents: siteDocuments.data }
+      : {}),
     ...(additional.length ? { additional_requirements: additional } : {}),
   };
 }
@@ -180,16 +269,55 @@ export function purposeLabel(value?: LandPurpose): string {
 }
 
 export function purposeSaveBlocked(req: BuyerBuildRequirements): string | null {
-  if (req.purpose !== "personal" && req.purpose !== "investment") {
-    return "Choose whether this land is for personal use or an investment.";
+  if (
+    req.purpose !== "personal" &&
+    req.purpose !== "investment" &&
+    req.purpose !== "knockdown_rebuild"
+  ) {
+    return "Choose personal, investment, or knock-down rebuild.";
   }
   return null;
+}
+
+export function parseBoundarySides(
+  inputs: BoundarySideInput[]
+): { sides: BoundarySide[] } | { error: string } {
+  if (inputs.length < MIN_BOUNDARY_SIDES) {
+    return { error: "Add the length of at least 4 sides." };
+  }
+  const sides: BoundarySide[] = [];
+  for (const [index, input] of inputs.entries()) {
+    const length = Number(input.length);
+    if (!input.length.trim() || !Number.isFinite(length) || length <= 0) {
+      return { error: `Enter the length of ${input.label || `side ${index + 1}`}.` };
+    }
+    sides.push({
+      label: input.label.trim() || BOUNDARY_SIDE_LABELS[index] || `Side ${index + 1}`,
+      length_meters: length,
+    });
+  }
+  return { sides };
+}
+
+export function measurementsFromSides(sides: BoundarySide[]) {
+  return {
+    frontage_meters: sides[0]?.length_meters,
+    left_side_meters: sides[1]?.length_meters,
+    depth_meters: sides[2]?.length_meters,
+    right_side_meters: sides[3]?.length_meters,
+  };
+}
+
+export function siteDocumentLabel(key: SiteDocumentKey): string {
+  return SITE_DOCUMENT_OPTIONS.find((option) => option.key === key)?.label ?? key;
 }
 
 function withoutNestedBrief(req: BuyerBuildRequirements): BuyerBuildRequirements {
   const fields = { ...req };
   delete fields.purpose;
   delete fields.additional_requirements;
+  delete fields.boundary_sides;
+  delete fields.site_documents;
   return fields;
 }
 
@@ -207,18 +335,32 @@ export function splitRequirementSets(
 
 export function composeBuildRequirements(
   purpose: LandPurpose | "",
-  sets: BuyerBuildRequirements[]
+  sets: BuyerBuildRequirements[],
+  carry?: Pick<BuyerBuildRequirements, "boundary_sides" | "site_documents">
 ): BuyerBuildRequirements {
   const [primary = defaultBuildRequirements(), ...rest] = sets;
   const additional = rest.slice(0, MAX_REQUIREMENT_SETS - 1).map((set) => ({
     ...defaultBuildRequirements(),
     ...withoutNestedBrief(set),
   }));
+  const brief = withoutNestedBrief(primary);
+  if (
+    purpose === "knockdown_rebuild" &&
+    (!brief.house_type || brief.house_type === "not_sure")
+  ) {
+    brief.house_type = "knockdown_rebuild";
+  }
 
   return {
     ...defaultBuildRequirements(),
-    ...withoutNestedBrief(primary),
-    ...(purpose === "personal" || purpose === "investment" ? { purpose } : {}),
+    ...brief,
+    ...(purpose === "personal" ||
+    purpose === "investment" ||
+    purpose === "knockdown_rebuild"
+      ? { purpose }
+      : {}),
+    ...(carry?.boundary_sides?.length ? { boundary_sides: carry.boundary_sides } : {}),
+    ...(carry?.site_documents?.length ? { site_documents: carry.site_documents } : {}),
     ...(additional.length ? { additional_requirements: additional } : {}),
   };
 }
