@@ -23,6 +23,7 @@ import {
   type BuyerBuildRequirements,
   type LandPurpose,
 } from "@/lib/buyer-requirements";
+import { clearBuyerStart, readBuyerStart, readLandDraft } from "@/lib/buyer-start";
 import {
   DEFAULT_SITE_REPORT_DEFINITIONS,
   type SiteReportDefinition,
@@ -57,9 +58,28 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const start = readBuyerStart();
+    const draft = readLandDraft();
+    if (draft?.address) {
+      setAddress(draft.address);
+      setLandSize(draft.landSize);
+      setFrontage(draft.frontage);
+      setDepth(draft.depth);
+      setLandValue(draft.landValue);
+      setPurpose(draft.purpose);
+      if (draft.requirementSets?.length) {
+        setRequirementSets(draft.requirementSets);
+      }
+    } else if (start?.plotAddress) {
+      setAddress(start.plotAddress);
+    }
+  }, []);
+
+  useEffect(() => {
     fetch("/api/buyer/requirements")
       .then((res) => res.json())
       .then((data) => {
+        if (readLandDraft()) return;
         if (data.build_requirements) {
           setPurpose(data.build_requirements.purpose ?? "");
           setRequirementSets(splitRequirementSets(data.build_requirements));
@@ -176,6 +196,7 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
     setSiteReportNotes("");
     setSaved(true);
     setLoading(false);
+    clearBuyerStart();
     onSuccess?.();
     router.refresh();
   }

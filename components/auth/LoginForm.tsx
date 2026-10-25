@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl, getPostLoginPath } from "@/lib/auth-redirect";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { SegmentControl } from "@/components/shared/SegmentControl";
+import { VeluLogo } from "@/components/shared/VeluLogo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -22,7 +23,11 @@ import { Label } from "@/components/ui/label";
 type LoginMode = "password" | "email";
 type EmailStep = "email" | "sent";
 
-export function LoginForm() {
+type LoginFormProps = {
+  onStart?: () => void;
+};
+
+export function LoginForm({ onStart }: LoginFormProps) {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [mode, setMode] = useState<LoginMode>("password");
@@ -159,9 +164,14 @@ export function LoginForm() {
 
   return (
     <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
-      <CardHeader>
-        <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>Welcome back to Velu</CardDescription>
+      <CardHeader className="space-y-4">
+        <VeluLogo size="lg" href="/login" />
+        <div>
+          <CardTitle className="text-2xl">Sign in</CardTitle>
+          <CardDescription>
+            Velu keeps your block, your brief, and the build in one place.
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         <SegmentControl
@@ -331,9 +341,15 @@ export function LoginForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           New here?{" "}
-          <Link href="/register/buyer" className="text-link">
-            Create account
-          </Link>
+          {onStart ? (
+            <button type="button" className="text-link" onClick={onStart}>
+              Start with your name and plot
+            </button>
+          ) : (
+            <Link href="/login" className="text-link">
+              Start with your name and plot
+            </Link>
+          )}
         </p>
       </CardContent>
     </Card>

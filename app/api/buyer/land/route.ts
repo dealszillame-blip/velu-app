@@ -312,3 +312,84 @@ export async function GET() {
     )
   );
 }
+
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "buyer") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id || !z.string().uuid().safeParse(id).success) {
+    return NextResponse.json({ error: "Choose a block to delete." }, { status: 400 });
+  }
+
+  const { data: listing, error: lookupError } = await supabase
+    .from("land_listings")
+    .select("id")
+    .eq("id", id)
+    .eq("buyer_id", user.id)
+    .eq("source", "buyer_owned")
+    .maybeSingle();
+
+  if (lookupError) {
+    return NextResponse.json({ error: lookupError.message }, { status: 500 });
+  }
+  if (!listing) {
+    return NextResponse.json({ error: "That block is not on your account." }, { status: 404 });
+  }
+
+  const projectCheck = await supabase
+    .from("construction_projects")
+    .select("id", { count: "exact", head: true })
+    .eq("land_listing_id", id)
+    .eq("buyer_id", user.id);
+
+  if (!projectCheck.error && (projectCheck.count ?? 0) > 0) {
+    return NextResponse.json(
+      { error: "This block is part of a build, so it stays on your account." },
+      { status: 409 }
+    );
+  }
+
+  const removed = await supabase
+    .from("land_listings")
+    .delete()
+    .eq("id", id)
+    .eq("buyer_id", user.id)
+    .eq("source", "buyer_owned")
+    .select("id");
+
+  if (removed.error || !removed.data?.length) {
+    const message = removed.error?.message ?? "";
+    const needsPolicy =
+      !removed.error ||
+      message.toLowerCase().includes("policy") ||
+      message.toLowerCase().includes("permission") ||
+      removed.error?.code === "42501";
+    return NextResponse.json(
+      {
+        error: needsPolicy
+          ? "Deleting land is not set up yet. Run migrations/mvp/034_buyer_delete_land.sql in the Supabase SQL Editor."
+          : message,
+      },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ ok: true });
+}

@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { VeluLogo } from "@/components/shared/VeluLogo";
 
 type AuthShellProps = {
@@ -13,6 +16,9 @@ export function AuthShell({
   title,
   description,
 }: AuthShellProps) {
+  const pathname = usePathname();
+  const wide = pathname.startsWith("/login/land");
+
   return (
     <div className="flex min-h-full flex-col lg:min-h-screen lg:grid lg:grid-cols-2">
       <aside className="velu-auth-aside relative flex flex-col justify-between overflow-hidden px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-14">
@@ -70,7 +76,7 @@ export function AuthShell({
       </aside>
 
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8 sm:py-12">
-        <div className="w-full max-w-md">{children}</div>
+        <div className={wide ? "w-full max-w-3xl" : "w-full max-w-md"}>{children}</div>
       </div>
     </div>
   );
