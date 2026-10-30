@@ -112,8 +112,8 @@ Public prefixes: `/`, `/login`, `/register/*`, `/builders/*`, `/builders/join`, 
 | Role | Home | Shell nav |
 | --- | --- | --- |
 | Guest | `/` | Landing CTAs only |
-| Buyer | `/buyer/map` | Map · My land · Requirements · Compare · Messages |
-| Builder | `/builder/dashboard` | Home · Profile · Leads · Proposals · Messages |
+| Buyer | `/buyer/my-land` | Land · Builders · Proposals · Contract · Build, then Messages once a thread can exist. Each step appears only after the previous one is done. The phone bottom bar is those open steps; Messages is in Menu. |
+| Builder | `/builder/leads` | Leads · Proposals · Builds · Messages · Profile. `/builder/dashboard` redirects to Leads. The phone bar omits Profile. |
 | Agent / pending_agent | `/agent/listings` | Listings · New listing |
 | Report provider | `/provider/reports` | Reports |
 | Admin | `/admin/dashboard` | Dashboard · Listings · Users · Agent approvals · Builders · Builder interest · Inquiries · Proposals · Settings · Data |
@@ -129,22 +129,25 @@ flowchart TB
   end
 
   subgraph Buyer["Buyer hub"]
-    MAP["/buyer/map"]
     LAND["/buyer/my-land"]
-    REQ["/buyer/requirements"]
+    BLD2["/buyer/builders"]
     CMP["/buyer/compare"]
+    CON["/buyer/contract"]
+    BUILDS["/buyer/builds"]
+    MAP["/buyer/map"]
+    REQ["/buyer/requirements"]
     MSG["/buyer/messages"]
     PRJ["/buyer/project/:id"]
     PML["/buyer/project/:id/milestones"]
   end
 
   subgraph Builder["Builder hub"]
-    BD["/builder/dashboard"]
-    BP["/builder/profile"]
     BL["/builder/leads"]
-    BLD["/builder/leads/:listingId"]
     BPR["/builder/proposals"]
+    BB["/builder/builds"]
     BM["/builder/messages"]
+    BP["/builder/profile"]
+    BLD["/builder/leads/:listingId"]
     BPJ["/builder/project/:id"]
     BPM["/builder/project/:id/milestones"]
   end
@@ -165,12 +168,14 @@ flowchart TB
   L --> LOGIN
   L --> REG
   L --> JOIN
-  REG --> MAP
-  REG --> BD
+  REG --> LAND
+  REG --> BL
   REG --> AL
-  MAP --> LAND
-  LAND --> CMP
-  CMP --> PRJ
+  LAND --> BLD2
+  BLD2 --> CMP
+  CMP --> CON
+  CON --> BUILDS
+  BUILDS --> PRJ
   PRJ --> PML
   BPJ --> BPM
   BL --> BLD
@@ -182,11 +187,14 @@ flowchart TB
 
 | Route | What it is |
 | --- | --- |
-| `/buyer/map` | MapLibre map of vacant lots; Land / Builders toggle |
-| `/buyer/my-land` | Register an owned block; site-report add-ons; nearby NSW-register + onboarded builders; architects; workspace |
-| `/buyer/requirements` | Saved brief (beds, baths, storeys, granny flat, construction grade, builder types, measurements) |
-| `/buyer/compare` | Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates |
-| `/buyer/messages` | In-app threads with builders (no phone/email shared) |
+| `/buyer/my-land` | Home. Register an owned block: 4–8 side lengths, purpose (personal / investment / knock-down rebuild), up to six briefs, site-document checklist. Site-report add-ons and architects stay on the parcel. Delete is allowed until a construction project exists. |
+| `/buyer/builders` | Nearby NSW-register and onboarded builders. Opens after a block is registered. |
+| `/buyer/compare` | Proposals. Pending packages, side-by-side table, **Recommend**, tender report, **Milestones**, published designs, upcoming estates. Opens after an invite or a proposal. |
+| `/buyer/contract` | Accepted proposals, treated as the contract. No PDF. |
+| `/buyer/builds` | One card per construction project, with the open stage and the stages already done. |
+| `/buyer/map` | MapLibre map of vacant lots; Land / Builders toggle. Linked from Land as “Continue as guest”, not a header step. |
+| `/buyer/requirements` | Saved brief, including purpose, side lengths, and site documents. Not a header step; Land stays highlighted. |
+| `/buyer/messages` | In-app threads with builders (no phone/email shared). Shown after an invite, a proposal, or a project. |
 | `/buyer/project/:id` | Project after accept; links to the milestone timeline. After Handover, defects and the statutory warranty note |
 | `/buyer/project/:id/milestones` | Done trail, current stage only (builder bank details and an off-platform payment disclaimer), next stage locked; finished state after Handover, then defects and the statutory warranty note |
 
@@ -194,9 +202,9 @@ flowchart TB
 
 | Route | What it is |
 | --- | --- |
-| `/builder/dashboard` | Leads and proposal snapshot |
+| `/builder/leads` | Home. Sold / buyer-owned lots in range. `/builder/dashboard` redirects here. |
+| `/builder/builds` | Accepted jobs. Confirming a received payment moves the open stage by one. |
 | `/builder/profile` | Licence, radius, insurance, public profile, builder-supplied payment details |
-| `/builder/leads` | Sold / buyer-owned lots in range |
 | `/builder/leads/:listingId` | Submit a package (specs, breakdown, inclusions) |
 | `/builder/proposals` | Templates and sent packages |
 | `/builder/messages` | Threads with buyers |
@@ -329,7 +337,8 @@ APIs are App Router `route.ts` files. They return JSON. Auth is cookie session u
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/api/listings` | Map lots |
-| GET/POST | `/api/buyer/land` | Owned parcels |
+| GET/POST/DELETE | `/api/buyer/land` | Owned parcels. Delete refuses a block that already has a construction project. |
+| POST | `/api/buyer/land/documents` | Upload one site document (PDF, JPEG, PNG, or WebP, 10 MB) for the signed-in buyer. |
 | GET/POST | `/api/buyer/land/:id/site-reports` | Site report add-ons |
 | GET/POST | `/api/buyer/land/:id/builders` | Nearby builders |
 | GET/POST | `/api/buyer/land/:id/architects` | Architect requests |

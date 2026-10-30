@@ -61,16 +61,32 @@ Sixth role: `report_provider` (column **Provider**). Home is `/provider/reports`
 
 ## Buyer
 
-**Home:** `/buyer/map`  
-**Nav:** Map · My land · Requirements · Compare · Messages  
+**Home:** `/buyer/my-land`  
+**Header steps (numbered, shown only once the previous step is done):** Land · Builders · Proposals · Contract · Build  
+**Trailing link:** Messages, once a builder has been invited, a proposal exists, or a project exists  
+**Phone:** the open steps sit in the bottom bar. Messages is in the Menu list, not the bottom bar.  
 **Also:** notification bell, sign out, `/buyer/project/:id` after accept, public `/builders/:id`
+
+A locked step is left out of the header and the bottom bar. Opening its URL sends the buyer to the furthest step that is already open.
+
+| Step | Route | Opens when |
+| --- | --- | --- |
+| Land | `/buyer/my-land` | Always |
+| Builders | `/buyer/builders` | At least one buyer-owned block |
+| Proposals | `/buyer/compare` | A block, plus an invite or a proposal |
+| Contract | `/buyer/contract` | An accepted proposal or a construction project |
+| Build | `/buyer/builds` | A construction project |
+| Messages | `/buyer/messages` | An invite, a proposal, or a project |
 
 ### Account
 
 - Register and sign in; sign out from the header.
-- After signup, land on the map (or My land if they chose “already own land”).
+- `/login` asks for name, phone, and plot address. `/login/land` collects the block (sides, documents, purpose, briefs) together with email and password. The account is created or signed in first, the block is saved next, and the buyer opens Land. If email confirmation is on and there is no session yet, the block waits. Name, phone, and plot address stay on the device.
+- A signed-in buyer opens **Land**. `/register/buyer` still exists; `?intent=own-land` returns to My land, and the other path still opens the map.
 
 ### Map (`/buyer/map`)
+
+The vacant-lot map is still there. It is not a header step. Land links to it as **Continue as guest**. While Map or Brief is open, the header treats **Land** as the current step.
 
 - Switch **Land** vs **Builders**.
 - Filter lots by status (Available / Under contract / Sold), suburb, price, and land size.
@@ -79,35 +95,49 @@ Sixth role: `report_provider` (column **Provider**). Home is `/provider/reports`
 
 **Cannot from the map:** mark a lot sold, buy a lot, message an agent, save a search, or see lot-boundary / zoning overlays. Compare copy says “mark the lot as sold on the map” — that action is **agent / Domain sync only**.
 
-### My land (`/buyer/my-land`)
+### Land (`/buyer/my-land`)
 
-- **Register a block** they already hold: address (must geocode in NSW), size, frontage, depth, optional land value, optional site-report add-ons. Zoning is **not** collected on the form (database still defaults R2).
+- **Register a block** they already hold: address (must geocode in NSW), size, **4 to 8 side lengths** (the control starts at 4: Front, Left, Rear, Right, then Side 5–8), optional land value, a required purpose, up to six briefs, and a site-document checklist. Zoning is **not** collected on the form (database still defaults R2).
+- Purpose is **Personal**, **Investment**, or **Knock-down rebuild**. Knock-down rebuild also sets the house type to knock-down rebuild.
+- Site documents are land drawings, site drawings, Certificate 10.7, and a contour plan if one is available. Each ticked item can take a PDF, JPEG, PNG, or WebP up to 10 MB. The checklist is stored on the brief. The file itself goes to the private `buyer-site-documents` bucket, which needs `migrations/mvp/035_buyer_site_documents.sql` in the Supabase SQL Editor.
 - A price that looks about **10×** too high for the lot size (or above a sane $/m²) is rejected. It is not auto-corrected.
 - The same address for one buyer is **one parcel**. “Circuit” and “Cct” copies collapse, so a duplicate lead does not render twice.
-- Submit **Find builders for my land** — creates a `buyer_owned` lot (treated as sold), notifies onboarded builders in range, then sends them to Compare.
-- Register more than one block. **Cannot edit or delete** a parcel after it is created.
+- Submit **Register your land** — creates a `buyer_owned` lot (treated as sold) and notifies onboarded builders in range. The buyer stays on Land and can add another block. The **Builders** step appears in the header once the block exists.
+- Register more than one block.
+- **Delete** a block after a confirm. A block that already has a construction project stays. Address, size, and side lengths cannot be edited in place after create.
 
 On each registered parcel:
 
 | Tab | Can do |
 | --- | --- |
-| Overview | See proposal count; jump to Compare |
+| Overview | See that the block is registered |
 | Site reports | Request soil, site survey, 3rd-party inspection, BAL, acoustic, and/or legal check; see status (requested → delivered) |
-| Builders | See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded Velu builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. Placeholder licences and names (UUU, AAAAA, and similar) are hidden. **Invite to review land** only for onboarded Velu accounts — register-only rows are not users. |
 | Architects | Pick from the directory, add notes, send a request |
-| Workspace | Shortcuts to Messages and Compare; list active build projects |
+
+Nearby builders live on the **Builders** step, not on this card.
 
 Site-report and architect requests are **request + status only** for the buyer. Providers quote and attach a deliverable; there is still no in-app payment. Nearby register rows are a **directory**, not quotes — a package still requires an onboarded builder.
 
-### Requirements (`/buyer/requirements`)
+### Brief (`/buyer/requirements`)
 
-- Save a build brief: house type, storeys, granny flat, beds, baths, cars, living rooms, ensuite, **construction grade** (ground / medium / luxury), **preferred builder types** (bulk / semi-custom / custom / designer), settlement date, land measurements, notes.
+Not a header step. The header keeps **Land** highlighted on this page.
+
+- Save a build brief: purpose, house type, storeys, granny flat, beds, baths, cars, living rooms, ensuite, **construction grade** (ground / medium / luxury), **preferred builder types** (bulk / semi-custom / custom / designer), settlement date, side lengths, site documents, notes.
+- Add further briefs for the same block, up to **six**. The first brief is the one **Recommend**, **Tender report**, and the builder’s lead page use.
 - Edit or replace the saved brief.
-- Save is **blocked** when storeys and notes contradict (G+1 or two-storey vs notes that clearly say single-level, or the reverse) until the buyer aligns them or confirms the contradiction.
+- Save is **blocked** until purpose is chosen, and when storeys and notes contradict (G+1 or two-storey vs notes that clearly say single-level, or the reverse) until the buyer aligns them or confirms the contradiction.
 - Shown beside a lot, **listing** size, frontage, and depth win over the brief. The Figtree parcel is 518 m², 13.5 m frontage, 20 m depth.
-- This brief is what **Recommend**, **Tender report**, and the builder’s lead page use.
 
-### Compare (`/buyer/compare`)
+### Builders (`/buyer/builders`)
+
+Step 2, after a block is registered.
+
+- See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded Velu builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. Placeholder licences and names (UUU, AAAAA, and similar) are hidden.
+- **Invite to review land** only for onboarded Velu accounts. Register-only rows are not users.
+
+### Proposals (`/buyer/compare`)
+
+Step 3. The URL is still `/buyer/compare`. The page title is **Proposals**. Accept takes that package to contract finalisation.
 
 Six tabs:
 
@@ -123,8 +153,24 @@ Six tabs:
 **Accept** creates a construction project, declines the other pending packages on that lot, and opens `/buyer/project/:id`.  
 **Do not accept a live demo proposal** unless you intend to change that buyer’s production state.
 
+### Contract (`/buyer/contract`)
+
+Step 4, after a proposal is accepted or a project exists.
+
+- List each accepted proposal: package name, price, contract type, builder, address, and the accept date in Sydney time.
+- Open the build when a project exists for that lot.
+- The accepted proposal is the contract on this page. There is no contract PDF and no separate signing step.
+
+### Build (`/buyer/builds`)
+
+Step 5, once a construction project exists.
+
+- One card per project: address, builder, the date the project was created (Sydney time), the stages already done, and the stage that is open.
+- Open the project milestone page. Finished builds say the build is finished.
+
 ### Messages (`/buyer/messages`)
 
+- The link appears only after an invite, a proposal, or a project. On a phone it is in **Menu**, not the bottom bar.
 - List threads; open a thread; send replies.
 - Start a thread from a proposal card or “Invite to review land”.
 - First message must be at least 10 characters. Phone numbers and emails are blocked.
@@ -162,10 +208,12 @@ Six tabs:
 
 ## Builder
 
-**Home:** `/builder/dashboard`  
-**Nav:** Home · Profile · Leads · Proposals · Messages  
+**Home:** `/builder/leads`  
+**Nav:** Leads · Proposals · Builds · Messages · Profile  
+**Phone:** Leads · Proposals · Builds · Messages. Profile stays in the desktop header and the Menu list.  
+`/builder/dashboard` redirects to Leads.  
 **Signup:** `/register/builder` sets them **onboarded immediately** (no admin approval in the signup path).  
-**Sign-in:** a missing `next`, or `next=/`, opens `/builder/dashboard`.
+**Sign-in:** a missing `next`, or `next=/`, opens `/builder/leads`.
 
 ### Can do
 
@@ -179,6 +227,7 @@ Six tabs:
 - A second live package for the same lot is rejected until the first is withdrawn or expired.
 - **Pending** or **viewed** packages can be edited in place, or withdrawn so a new package can be sent. An **accepted** package cannot be edited or withdrawn.
 - List sent packages and their status (`/builder/proposals`).
+- Open **Builds** (`/builder/builds`) for jobs a buyer has accepted, then confirm the payment received on the open stage.
 - Message buyers on those sold leads.
 - After a buyer **accepts**: open `/builder/project/:id` or `/builder/project/:id/milestones`. The milestone page keeps the full timeline. On the current stage the builder can edit the payment details stored on their profile, then **Confirm payment received**. That records that the builder says they received payment for the current stage and moves exactly one stage. There is no bare advance button. Velu does not transfer the money. After Handover it shows the same finished state as the buyer page, with no payment form and no confirm button. The same defects list and statutory warranty note appear on the project page and the milestone page. The builder marks an open defect fixed. The builder cannot report a defect, cannot approve one, and there is no warranty approval button.
 
@@ -322,7 +371,7 @@ Direct answers to the live walkthrough. Migrations **028**, **029**, and **030**
 | 11 | No Fixed Price vs Cost Plus | Shipped as a required contract type (fixed price, cost plus, or hybrid). Not an HIA contract PDF. |
 | 12 | Free-text line items, not a normalised schedule | Partial. Catalog categories plus line kind: lump sum, prime cost, provisional sum, or allowance. Not a full HIA PC/PS schedule. |
 | 13 | No edit or withdraw after submit | Partial. Pending or viewed quotes can be edited or withdrawn and resubmitted. An accepted quote cannot. A variation register after Accept is not built. |
-| 14 | Builder login lands on `/` | Fixed. A missing `next`, or `next=/`, opens `/builder/dashboard`. |
+| 14 | Builder login lands on `/` | Fixed. A missing `next`, or `next=/`, opens `/builder/leads`. `/builder/dashboard` only redirects there. |
 
 **Not built** (audit Phase 2–3 and the regulated layer): icare HBCF gate, Velu Trust Score, holding deposits or escrow, open banking, DA / Planning Portal, builder CRM, and retention. Do not describe those as live. A post-handover defects list is live after the build is finished: the buyer reports, the builder marks it fixed, and the buyer approves or sends it back. There is no retention amount. The statutory warranty note is a record of the NSW Home Building Act between the buyer and the builder. Velu does not lodge claims or decide disputes. Off-platform stage payment is live: the builder types account details and confirms they received the money before a stage moves. Velu still does not hold or transfer that money.
 
@@ -330,11 +379,11 @@ Direct answers to the live walkthrough. Migrations **028**, **029**, and **030**
 
 ## Typical happy path (what works end to end)
 
-1. Buyer registers a block on **My land** (or an agent marks their listing **Sold**).
-2. My land → **Builders** lists nearby NSW-licensed contractors (directory) and onboarded Velu builders.
+1. Buyer gives a name, phone, and plot address on **login**, then on the next page creates or signs into the account and registers the block (sides, documents, purpose, briefs). A buyer who is already signed in does the same on **Land**. An agent can still mark their own listing **Sold**.
+2. **Builders** lists nearby NSW-licensed contractors (directory) and onboarded Velu builders.
 3. Onboarded builders in range see the lot on **Leads** and send a package.
-4. Buyer opens **Compare**, optionally **Recommend** (brief-fit score; Gemini write-up only if a server key is set) / **Tender report** / **Milestones**.
-5. Buyer **Accepts** one package.
+4. Buyer opens **Proposals**, optionally **Recommend** (brief-fit score; Gemini write-up only if a server key is set) / **Tender report** / **Milestones**.
+5. Buyer **Accepts** one package. **Contract** lists that accepted proposal. **Build** lists the project.
 6. Both sides open the **project** and the **milestone page**. The buyer sees the builder’s payment details and pays outside Velu. The builder confirms they received that payment, which moves one stage. After Handover the page shows the build as finished, then the defects list and the statutory warranty note.
 7. Either side can **message** the other on that lot (no phone/email in the thread).
 
