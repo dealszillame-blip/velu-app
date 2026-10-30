@@ -100,7 +100,7 @@ export function ResetPasswordForm() {
       <CardHeader>
         <CardTitle className="text-2xl">Choose a new password</CardTitle>
         <CardDescription>
-          Enter a new password for your Velu account.
+          Enter a new password for your bldwise account.
         </CardDescription>
       </CardHeader>
       <CardContent>

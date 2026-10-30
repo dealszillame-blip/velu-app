@@ -8,7 +8,7 @@ export default function BuilderProfilePage() {
       <PageHeader
         eyebrow="Account"
         title="Profile"
-        description="Create a LinkedIn-style profile with portfolio, reviews, and photos for buyers to discover you on Velu. Payment details you type here are shown on your projects. Velu does not verify them or move the money."
+        description="Create a LinkedIn-style profile with portfolio, reviews, and photos for buyers to discover you on bldwise. Payment details you type here are shown on your projects. bldwise does not verify them or move the money."
       />
       <BuilderPaymentDetailsForm />
       <BuilderProfileEditor />

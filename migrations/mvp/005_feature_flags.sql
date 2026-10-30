@@ -1,4 +1,4 @@
--- Velu MVP — feature flag seed data
+-- bldwise MVP — feature flag seed data
 
 INSERT INTO public.feature_flags (key, module, description, enabled) VALUES
   ('HIA_TENDER_PDF',        'module2', 'Full HIA tender form + PDF generation',                 FALSE),

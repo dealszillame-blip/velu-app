@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 
 type AuthShellProps = {
   children: React.ReactNode;
@@ -21,15 +21,15 @@ export function AuthShell({
 
   return (
     <div className="flex min-h-full flex-col lg:min-h-screen lg:grid lg:grid-cols-2">
-      <aside className="velu-auth-aside relative flex flex-col justify-between overflow-hidden px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-14">
-        <div className="velu-grid-bg pointer-events-none absolute inset-0 opacity-80" aria-hidden />
+      <aside className="bldwise-auth-aside relative flex flex-col justify-between overflow-hidden px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-14">
+        <div className="bldwise-grid-bg pointer-events-none absolute inset-0 opacity-80" aria-hidden />
         <div
-          className="velu-auth-glow pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          className="bldwise-auth-glow pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full"
           aria-hidden
         />
 
         <div className="relative z-10">
-          <VeluLogo variant="light" size="md" />
+          <BldwiseLogo variant="light" size="md" />
         </div>
 
         <div className="relative z-10 mt-10 lg:mt-0">
@@ -71,7 +71,7 @@ export function AuthShell({
         </div>
 
         <p className="relative z-10 mt-8 hidden text-xs text-white/25 lg:block">
-          © 2026 Velu Pty Ltd · Ingleburn NSW
+          © 2026 bldwise Pty Ltd · Ingleburn NSW
         </p>
       </aside>
 

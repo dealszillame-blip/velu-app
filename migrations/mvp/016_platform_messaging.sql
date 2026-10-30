@@ -1,4 +1,4 @@
--- Velu MVP — in-platform buyer ↔ builder messaging (no contact details shared)
+-- bldwise MVP — in-platform buyer ↔ builder messaging (no contact details shared)
 
 ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'message_received';
 

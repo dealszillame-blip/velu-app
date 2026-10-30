@@ -314,8 +314,8 @@ export type DemoUser = {
 
 export const DEMO_USERS: DemoUser[] = [
   {
-    email: "demo.buyer@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.buyer@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "buyer",
     fullName: "Alex Morgan",
     phone: "0412 345 678",
@@ -325,8 +325,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 25,
   },
   {
-    email: "demo.buyer2@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.buyer2@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "buyer",
     fullName: "Sam Chen",
     phone: "0423 456 789",
@@ -336,8 +336,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 25,
   },
   {
-    email: "demo.builder@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.builder@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "builder",
     fullName: "James Whitfield",
     companyName: "Apex Homes Pty Ltd",
@@ -355,8 +355,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 30,
   },
   {
-    email: "demo.builder2@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.builder2@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "builder",
     fullName: "Maria Santos",
     companyName: "Meridian Building Co",
@@ -374,8 +374,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 25,
   },
   {
-    email: "demo.builder3@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.builder3@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "builder",
     fullName: "David Nguyen",
     companyName: "SouthWest Living",
@@ -393,8 +393,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 35,
   },
   {
-    email: "demo.dhursan@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.dhursan@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "builder",
     fullName: "Dhursan Homes",
     companyName: "Dhursan Homes Pty Ltd",
@@ -412,8 +412,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 45,
   },
   {
-    email: "demo.soil@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.soil@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "report_provider",
     fullName: "SW Soil & BAL",
     companyName: "South West Geotech",
@@ -425,8 +425,8 @@ export const DEMO_USERS: DemoUser[] = [
     serviceRadiusKm: 40,
   },
   {
-    email: "demo.survey@velu.dev",
-    password: "VeluDemo123!",
+    email: "demo.survey@bldwise.dev",
+    password: "bldwiseDemo123!",
     role: "report_provider",
     fullName: "Metro Survey & Acoustic",
     companyName: "Metro Site Services",
@@ -459,7 +459,7 @@ export type DemoBuyerOwnedLand = {
 export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
   {
     key: "alex-mount-annan",
-    buyerEmail: "demo.buyer@velu.dev",
+    buyerEmail: "demo.buyer@bldwise.dev",
     address: "14 Banksia Cres",
     suburb: "Mount Annan",
     postcode: "2567",
@@ -473,7 +473,7 @@ export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
   },
   {
     key: "sam-oran-park",
-    buyerEmail: "demo.buyer2@velu.dev",
+    buyerEmail: "demo.buyer2@bldwise.dev",
     address: "8 Figtree Blvd",
     suburb: "Oran Park",
     postcode: "2570",
@@ -488,7 +488,7 @@ export const DEMO_BUYER_OWNED_LAND: DemoBuyerOwnedLand[] = [
   },
   {
     key: "sam-gledswood",
-    buyerEmail: "demo.buyer2@velu.dev",
+    buyerEmail: "demo.buyer2@bldwise.dev",
     address: "2 Acacia Dr",
     suburb: "Gledswood Hills",
     postcode: "2557",
@@ -546,7 +546,7 @@ function ownedProposalFromTemplate(
 export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
   {
     landKey: "alex-mount-annan",
-    builderEmail: "demo.builder3@velu.dev",
+    builderEmail: "demo.builder3@bldwise.dev",
     packageName: "Annandale 4-Bed",
     basePrice: 478_000,
     estimatedBuildWeeks: 27,
@@ -578,7 +578,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
   },
   {
     landKey: "sam-oran-park",
-    builderEmail: "demo.builder2@velu.dev",
+    builderEmail: "demo.builder2@bldwise.dev",
     packageName: "Oran Park Family 5",
     basePrice: 525_000,
     estimatedBuildWeeks: 31,
@@ -610,17 +610,17 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
   },
   ownedProposalFromTemplate(
     "sam-oran-park",
-    "demo.builder@velu.dev",
+    "demo.builder@bldwise.dev",
     "value_single_studio"
   ),
   ownedProposalFromTemplate(
     "sam-oran-park",
-    "demo.builder3@velu.dev",
+    "demo.builder3@bldwise.dev",
     "family_five_premium"
   ),
   {
     landKey: "sam-oran-park",
-    builderEmail: "demo.dhursan@velu.dev",
+    builderEmail: "demo.dhursan@bldwise.dev",
     packageName: "Dhursan Oran Park Dual Living",
     basePrice: 529_000,
     estimatedBuildWeeks: 30,
@@ -654,12 +654,12 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
   },
   ownedProposalFromTemplate(
     "alex-mount-annan",
-    "demo.builder@velu.dev",
+    "demo.builder@bldwise.dev",
     "double_storey_value"
   ),
   ownedProposalFromTemplate(
     "alex-mount-annan",
-    "demo.builder2@velu.dev",
+    "demo.builder2@bldwise.dev",
     "family_five_premium",
     "viewed"
   ),
@@ -668,7 +668,7 @@ export const DEMO_BUYER_OWNED_PROPOSALS: DemoOwnedProposal[] = [
 export const DEMO_PROPOSALS = [
   {
     listingDomainId: "DEMO-013",
-    builderEmail: "demo.builder@velu.dev",
+    builderEmail: "demo.builder@bldwise.dev",
     packageName: "Modern 4-Bed Package",
     basePrice: 485_000,
     estimatedBuildWeeks: 28,
@@ -679,7 +679,7 @@ export const DEMO_PROPOSALS = [
   },
   {
     listingDomainId: "DEMO-013",
-    builderEmail: "demo.builder2@velu.dev",
+    builderEmail: "demo.builder2@bldwise.dev",
     packageName: "Family 5-Bed Package",
     basePrice: 512_000,
     estimatedBuildWeeks: 32,
@@ -689,7 +689,7 @@ export const DEMO_PROPOSALS = [
   },
   {
     listingDomainId: "DEMO-014",
-    builderEmail: "demo.builder@velu.dev",
+    builderEmail: "demo.builder@bldwise.dev",
     packageName: "The Campbell 220",
     basePrice: 468_000,
     estimatedBuildWeeks: 26,
@@ -699,7 +699,7 @@ export const DEMO_PROPOSALS = [
   },
   {
     listingDomainId: "DEMO-014",
-    builderEmail: "demo.builder3@velu.dev",
+    builderEmail: "demo.builder3@bldwise.dev",
     packageName: "Premium 4-Bed + Study",
     basePrice: 495_000,
     estimatedBuildWeeks: 30,

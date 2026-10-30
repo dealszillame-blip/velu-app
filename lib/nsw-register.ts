@@ -1,6 +1,6 @@
 /**
  * NSW Fair Trading public register (the same API Verify NSW uses in the browser).
- * These records are licensed contractors, not Velu-onboarded users.
+ * These records are licensed contractors, not bldwise-onboarded users.
  */
 
 export const NSW_TRADES_ADV_QUERY =
@@ -149,7 +149,7 @@ export async function searchNswBuilders(
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      "User-Agent": "Velu/1.0 (NSW public register collector)",
+      "User-Agent": "bldwise/1.0 (NSW public register collector)",
     },
     body: JSON.stringify({
       licenceGroup: "Trades",
@@ -192,7 +192,7 @@ export async function fetchNswLicenceDetails(
   const res = await fetch(url, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "Velu/1.0 (NSW public register collector)",
+      "User-Agent": "bldwise/1.0 (NSW public register collector)",
     },
   });
   if (res.status === 404) return null;

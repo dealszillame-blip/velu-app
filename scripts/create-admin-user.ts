@@ -1,5 +1,5 @@
 /**
- * Create or promote a Velu admin user.
+ * Create or promote a bldwise admin user.
  *
  * Usage:
  *   npm run create:admin -- --email you@example.com --password 'YourSecurePass123!'
@@ -20,7 +20,7 @@ function readArg(flag: string): string | undefined {
 
 const email = readArg("--email")?.trim().toLowerCase();
 const password = readArg("--password");
-const fullName = readArg("--name") ?? "Velu Admin";
+const fullName = readArg("--name") ?? "bldwise Admin";
 
 if (!email) {
   console.error(

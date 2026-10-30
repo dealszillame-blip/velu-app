@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl, getPostLoginPath } from "@/lib/auth-redirect";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { SegmentControl } from "@/components/shared/SegmentControl";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -165,11 +165,11 @@ export function LoginForm({ onStart }: LoginFormProps) {
   return (
     <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader className="space-y-4">
-        <VeluLogo size="lg" href="/login" />
+        <BldwiseLogo size="lg" href="/login" />
         <div>
           <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>
-            Velu keeps your block, your brief, and the build in one place.
+            bldwise keeps your block, your brief, and the build in one place.
           </CardDescription>
         </div>
       </CardHeader>

@@ -1,4 +1,4 @@
--- Velu MVP — approvals, site clearance, and excavation
+-- bldwise MVP — approvals, site clearance, and excavation
 -- SQL only. Paste this file into the Supabase SQL Editor. This is not an npm command.
 -- Adds three labels to construction_milestone. Does not update any project.
 -- A build already on slab, frame, lockup, fixing, or completion stays on that stage.

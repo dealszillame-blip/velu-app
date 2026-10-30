@@ -1,4 +1,4 @@
--- Velu MVP — builder pre-launch expression of interest
+-- bldwise MVP — builder pre-launch expression of interest
 
 CREATE TABLE IF NOT EXISTS public.builder_prelaunch_interest (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),

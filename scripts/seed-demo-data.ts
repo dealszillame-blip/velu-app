@@ -85,7 +85,7 @@ async function ensureProfile(user: (typeof DEMO_USERS)[number], userId: string) 
 async function ensureBuilderProfile(user: (typeof DEMO_USERS)[number], userId: string) {
   if (user.role !== "builder" || !user.licenseNumber) return;
 
-  const isDhursan = user.email === "demo.dhursan@velu.dev";
+  const isDhursan = user.email === "demo.dhursan@bldwise.dev";
   const { error } = await supabase.from("builder_profiles").upsert({
     id: userId,
     license_number: user.licenseNumber,
@@ -176,7 +176,7 @@ async function ensureProviderProfile(user: (typeof DEMO_USERS)[number], userId: 
 
 async function seedBuyerRequirements(userIds: Map<string, string>) {
   const samples: Record<string, object> = {
-    "demo.buyer@velu.dev": {
+    "demo.buyer@bldwise.dev": {
       storeys: "ground_plus_one",
       granny_flat: "no",
       bedrooms: 4,
@@ -184,7 +184,7 @@ async function seedBuyerRequirements(userIds: Map<string, string>) {
       car_spaces: 2,
       additional_notes: "Open-plan living, study nook, covered alfresco.",
     },
-    "demo.buyer2@velu.dev": {
+    "demo.buyer2@bldwise.dev": {
       storeys: "ground_only",
       house_type: "single_storey",
       granny_flat: "yes",
@@ -320,9 +320,9 @@ async function seedSiteReportRequests(
   userIds: Map<string, string>
 ) {
   const listingId = ownedIds.get("sam-oran-park");
-  const buyerId = userIds.get("demo.buyer2@velu.dev");
-  const soilId = userIds.get("demo.soil@velu.dev");
-  const surveyId = userIds.get("demo.survey@velu.dev");
+  const buyerId = userIds.get("demo.buyer2@bldwise.dev");
+  const soilId = userIds.get("demo.soil@bldwise.dev");
+  const surveyId = userIds.get("demo.survey@bldwise.dev");
 
   if (!listingId || !buyerId) {
     warn("Skipping site report seed — missing Oran Park listing or buyer");
@@ -463,7 +463,7 @@ async function seedProposals(
 }
 
 async function main() {
-  console.log("\nVelu — demo data seed\n");
+  console.log("\nbldwise — demo data seed\n");
 
   const userIds = new Map<string, string>();
 
@@ -475,7 +475,7 @@ async function main() {
     await ensureProviderProfile(user, id);
   }
 
-  const buyerId = userIds.get("demo.buyer@velu.dev")!;
+  const buyerId = userIds.get("demo.buyer@bldwise.dev")!;
   const listingIds = await seedListings(buyerId);
   const ownedIds = await seedBuyerOwnedLand(userIds);
   await seedBuyerRequirements(userIds);
@@ -484,20 +484,20 @@ async function main() {
   await seedSiteReportRequests(ownedIds, userIds);
   await seedNswLicensedBuilders();
 
-  console.log("\n── Demo login credentials (password for all: VeluDemo123!) ──\n");
-  console.log("  Buyer:    demo.buyer@velu.dev");
-  console.log("  Buyer 2:  demo.buyer2@velu.dev");
-  console.log("  Builder:  demo.builder@velu.dev      (Apex Homes)");
-  console.log("  Builder:  demo.builder2@velu.dev     (Meridian Building Co)");
-  console.log("  Builder:  demo.builder3@velu.dev     (SouthWest Living)");
-  console.log("  Builder:  demo.dhursan@velu.dev      (Dhursan Homes · NSW 369795C)");
-  console.log("  Provider: demo.soil@velu.dev         (soil / BAL / legal)");
-  console.log("  Provider: demo.survey@velu.dev       (survey / acoustic / inspection)");
+  console.log("\n── Demo login credentials (password for all: bldwiseDemo123!) ──\n");
+  console.log("  Buyer:    demo.buyer@bldwise.dev");
+  console.log("  Buyer 2:  demo.buyer2@bldwise.dev");
+  console.log("  Builder:  demo.builder@bldwise.dev      (Apex Homes)");
+  console.log("  Builder:  demo.builder2@bldwise.dev     (Meridian Building Co)");
+  console.log("  Builder:  demo.builder3@bldwise.dev     (SouthWest Living)");
+  console.log("  Builder:  demo.dhursan@bldwise.dev      (Dhursan Homes · NSW 369795C)");
+  console.log("  Provider: demo.soil@bldwise.dev         (soil / BAL / legal)");
+  console.log("  Provider: demo.survey@bldwise.dev       (survey / acoustic / inspection)");
   console.log("\n── Test the core loop ──\n");
-  console.log("  1. Sign in as demo.buyer@velu.dev → /buyer/my-land (Mount Annan block)");
-  console.log("  2. Sign in as demo.buyer2@velu.dev → /buyer/my-land (2 registered blocks)");
-  console.log("  3. Sign in as demo.buyer@velu.dev → /buyer/compare (proposals on Leumeah + Mount Annan)");
-  console.log("  4. Sign in as demo.builder@velu.dev → /builder/leads (sold + buyer-owned leads)");
+  console.log("  1. Sign in as demo.buyer@bldwise.dev → /buyer/my-land (Mount Annan block)");
+  console.log("  2. Sign in as demo.buyer2@bldwise.dev → /buyer/my-land (2 registered blocks)");
+  console.log("  3. Sign in as demo.buyer@bldwise.dev → /buyer/compare (proposals on Leumeah + Mount Annan)");
+  console.log("  4. Sign in as demo.builder@bldwise.dev → /builder/leads (sold + buyer-owned leads)");
   console.log("  5. /buyer/map → available listings (buyer-owned hidden from map)\n");
 }
 

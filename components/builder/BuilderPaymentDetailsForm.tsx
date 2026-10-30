@@ -173,7 +173,7 @@ export function BuilderPaymentDetailsForm({
         <div>
           <p className="text-sm font-medium">Payment details you supply</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Not verified by Velu. Velu does not process, hold, or transfer the money.
+            Not verified by bldwise. bldwise does not process, hold, or transfer the money.
             Buyers are told to call you and read the account name, BSB, and account
             number back before they transfer anything.
           </p>
@@ -189,7 +189,7 @@ export function BuilderPaymentDetailsForm({
         <CardTitle>Payment details you supply</CardTitle>
         <CardDescription>
           Buyers on your projects see these on the current milestone. Not verified
-          by Velu. Velu does not process, hold, or transfer the money.
+          by bldwise. bldwise does not process, hold, or transfer the money.
         </CardDescription>
       </CardHeader>
       <CardContent>{fields}</CardContent>

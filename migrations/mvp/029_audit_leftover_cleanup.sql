@@ -464,7 +464,7 @@ BEGIN
 END $$;
 
 -- 2. Unpublished AAAAA / UUU leftover. 028 only set profile_published = FALSE.
--- Do not delete auth.users / profiles (Velu login). Do not touch Apex, Meridian,
+-- Do not delete auth.users / profiles (bldwise login). Do not touch Apex, Meridian,
 -- SouthWest, or Dhursan. Drop the placeholder builder_profiles row so it cannot
 -- reappear in the directory.
 UPDATE public.builder_profiles bp
@@ -486,10 +486,10 @@ WHERE bp.id = p.id
     SELECT 1 FROM auth.users u
     WHERE u.id = bp.id
       AND lower(u.email) IN (
-        'demo.builder@velu.dev',
-        'demo.builder2@velu.dev',
-        'demo.builder3@velu.dev',
-        'demo.dhursan@velu.dev'
+        'demo.builder@bldwise.dev',
+        'demo.builder2@bldwise.dev',
+        'demo.builder3@bldwise.dev',
+        'demo.dhursan@bldwise.dev'
       )
   );
 
@@ -509,10 +509,10 @@ WHERE bp.id = p.id
     SELECT 1 FROM auth.users u
     WHERE u.id = bp.id
       AND lower(u.email) IN (
-        'demo.builder@velu.dev',
-        'demo.builder2@velu.dev',
-        'demo.builder3@velu.dev',
-        'demo.dhursan@velu.dev'
+        'demo.builder@bldwise.dev',
+        'demo.builder2@bldwise.dev',
+        'demo.builder3@bldwise.dev',
+        'demo.dhursan@bldwise.dev'
       )
   );
 

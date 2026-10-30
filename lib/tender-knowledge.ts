@@ -129,7 +129,7 @@ export function compareAgainstStoredTenders(
   if (matches.length > 0) {
     summary =
       expensive > 0
-        ? `Compared ${matches.length} live package${matches.length === 1 ? "" : "s"} to the Velu knowledge base. ${expensive} sit above the stored cohort.`
+        ? `Compared ${matches.length} live package${matches.length === 1 ? "" : "s"} to the bldwise knowledge base. ${expensive} sit above the stored cohort.`
         : `Compared ${matches.length} live package${matches.length === 1 ? "" : "s"} to stored SW Sydney tenders. Prices sit inside the historical range.`;
   }
 

@@ -94,7 +94,7 @@ export async function BuyerContracts() {
             {contract.when ? ` Accepted ${contract.when}.` : ""}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            This is the contract between you and the builder. Velu does not sign it or hold the money.
+            This is the contract between you and the builder. bldwise does not sign it or hold the money.
           </p>
           {contract.projectId ? (
             <Link

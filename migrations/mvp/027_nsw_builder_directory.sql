@@ -1,5 +1,5 @@
 -- Licensed NSW builders from the public Fair Trading / Verify NSW register.
--- These are directory records, not Velu user accounts.
+-- These are directory records, not bldwise user accounts.
 --
 -- Run ONLY this file in the Supabase SQL Editor.
 -- Do not paste "npm run sync:nsw-builders" here — that is a terminal command

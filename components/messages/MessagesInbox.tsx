@@ -167,7 +167,7 @@ export function MessagesInbox({ role, basePath }: MessagesInboxProps) {
               {role === "buyer"
                 ? "Message builder on a proposal"
                 : "Contact buyer on a lead"}{" "}
-              to start chatting on Velu.
+              to start chatting on bldwise.
             </p>
           ) : (
             threads.map((thread) => (

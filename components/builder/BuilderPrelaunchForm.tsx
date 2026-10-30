@@ -75,7 +75,7 @@ export function BuilderPrelaunchForm() {
           <CardTitle className="text-2xl">You&apos;re on the list</CardTitle>
           <CardDescription>
             Thanks for registering your interest. We&apos;ll contact you before
-            Velu opens to verified builders in your area.
+            bldwise opens to verified builders in your area.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -98,7 +98,7 @@ export function BuilderPrelaunchForm() {
       <CardHeader>
         <CardTitle className="text-2xl">Register builder interest</CardTitle>
         <CardDescription>
-          Velu connects verified builders with land buyers at the exact moment
+          bldwise connects verified builders with land buyers at the exact moment
           of settlement. When a buyer registers their new block, you&apos;re
           notified in real time and your verified profile and current packages
           go straight to them. No more waiting for walk-ins — reach motivated

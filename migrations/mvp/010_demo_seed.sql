@@ -1,4 +1,4 @@
--- Velu MVP — demo seed data (run AFTER creating auth users via register flow)
+-- bldwise MVP — demo seed data (run AFTER creating auth users via register flow)
 -- Creates sample listings for map demo and one sold listing for the core loop test.
 -- Safe to re-run: uses fixed addresses as natural keys.
 

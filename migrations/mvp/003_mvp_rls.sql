@@ -1,4 +1,4 @@
--- Velu MVP — row-level security
+-- bldwise MVP — row-level security
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 

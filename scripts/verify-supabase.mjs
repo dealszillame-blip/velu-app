@@ -39,7 +39,7 @@ if (!anonKey || anonKey === "your-anon-key") {
 
 const supabase = createClient(url, anonKey);
 
-console.log("\nVelu — Supabase verification\n");
+console.log("\nbldwise — Supabase verification\n");
 console.log(`Project: ${url}\n`);
 
 const { error: authError } = await supabase.auth.getSession();

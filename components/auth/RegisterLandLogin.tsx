@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { BuyerRequirementSets } from "@/components/buyer/BuyerRequirementSets";
 import { LandBoundarySides } from "@/components/buyer/LandBoundarySides";
 import { SiteDocumentChecklist } from "@/components/buyer/SiteDocumentChecklist";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -223,7 +223,7 @@ export function RegisterLandLogin() {
   return (
     <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader className="space-y-4">
-        <VeluLogo size="md" href="/login" />
+        <BldwiseLogo size="md" href="/login" />
         <div className="space-y-2">
           <CardTitle className="text-2xl">Register your land</CardTitle>
           <CardDescription>

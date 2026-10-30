@@ -173,7 +173,7 @@ export async function MilestonePageContent({
             {progress.complete
               ? "Every stage from Contract to Handover is done. Defects and the statutory warranty are below."
               : isBuilder
-                ? "The full timeline stays visible. Confirm the payment you received to move the current stage by one step. Velu does not transfer the money."
+                ? "The full timeline stays visible. Confirm the payment you received to move the current stage by one step. bldwise does not transfer the money."
                 : "Done stages stay short. Only the current stage is open, including the payment details the builder supplied."}
           </p>
         </div>

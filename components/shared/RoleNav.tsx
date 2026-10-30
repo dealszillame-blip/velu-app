@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 import { navItemActive } from "@/lib/nav-active";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +40,7 @@ export function RoleNav({ items, trailing = [], userName }: RoleNavProps) {
   return (
     <header className="glass-nav sticky top-0 z-40">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
-        <VeluLogo href={homeHref} size="sm" />
+        <BldwiseLogo href={homeHref} size="sm" />
 
         <nav className="hidden min-w-0 items-center gap-4 md:flex" aria-label="Steps">
           {items.map((item, index) => (

@@ -1,4 +1,4 @@
--- Velu MVP — LinkedIn-style builder public profile
+-- bldwise MVP — LinkedIn-style builder public profile
 
 ALTER TABLE public.builder_profiles
   ADD COLUMN IF NOT EXISTS headline TEXT,

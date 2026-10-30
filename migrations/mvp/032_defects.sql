@@ -1,11 +1,11 @@
--- Velu MVP — post-handover defects
+-- bldwise MVP — post-handover defects
 -- SQL only. Paste this file into the Supabase SQL Editor. This is not an npm command.
 -- Re-runnable. It does not seed data and does not update construction projects.
 --
 -- Defects exist only after the build is at Handover (current_stage = completion).
 -- The buyer reports one. The builder marks it fixed. The buyer approves it or sends it back.
 -- Statuses: open → completed_by_builder → approved. Sending it back returns it to open.
--- Velu does not lodge warranty claims, hold retention, or decide disputes.
+-- bldwise does not lodge warranty claims, hold retention, or decide disputes.
 -- There is no warranty table and no retention amount.
 
 CREATE TABLE IF NOT EXISTS public.project_defects (
@@ -249,4 +249,4 @@ REVOKE ALL ON TABLE public.project_defects FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.project_defects TO authenticated;
 
 COMMENT ON TABLE public.project_defects IS
-  'Post-handover defects between the buyer and the builder. Velu does not lodge warranty claims, hold retention, or decide disputes.';
+  'Post-handover defects between the buyer and the builder. bldwise does not lodge warranty claims, hold retention, or decide disputes.';

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Structured payload an LLM (or a person) should return so Velu can
+ * Structured payload an LLM (or a person) should return so bldwise can
  * collect and update builder / tender records without free-form dumps.
  */
 export const llmBuilderIngestSchema = z.object({
@@ -57,7 +57,7 @@ export const llmIngestSchema = z.discriminatedUnion("kind", [
 
 export type LlmIngestPayload = z.infer<typeof llmIngestSchema>;
 
-export const LLM_COLLECT_PROMPT = `You extract NSW residential-builder facts for Velu.
+export const LLM_COLLECT_PROMPT = `You extract NSW residential-builder facts for bldwise.
 Return JSON only. Use one of these shapes:
 
 {"kind":"builder","company_name":"...","license_number":"...","license_verify_url":"https://verify.licence.nsw.gov.au/results?searchTerm=...","is_license_valid":true,"google_rating":4.8,"google_review_count":85,"builder_type":"bulk","last_property_sold_address":"...","last_property_sold_at":"2026-08-01","avg_delay_weeks":0,"headline":"...","website_url":"https://...","anchor_address":"...","service_radius_km":40,"notices":[{"title":"...","body":"...","severity":"warning"}]}
@@ -72,7 +72,7 @@ If a field is unknown, omit it.`;
 export const TENDER_NARRATOR =
   "You compare NSW house packages against stored past tenders. Be factual. Three short sentences max.";
 
-export const RECOMMEND_NARRATOR = `You are Velu's NSW new-home advisor for South West Sydney buyers.
+export const RECOMMEND_NARRATOR = `You are bldwise's NSW new-home advisor for South West Sydney buyers.
 
 The numbered brief-fit score is only a rules check of bedrooms, bathrooms, storeys, granny flat, car spaces and price. It is not the recommendation. Form an independent view from the brief, package specs, inclusions, programme and layout.
 
@@ -87,7 +87,7 @@ Write 3–5 short paragraphs in Australian English:
 3. What the score cannot see — site/soil, dual occupancy approval, inclusion quality, whether a variation is realistic.
 4. Specific questions or variations to send in writing before anyone accepts.
 
-Do not invent prices, specs or inclusions. Do not open with “Velu recommends … (96/100 fit)”. Do not use markdown headings. Keep any list to at most four short items.`;
+Do not invent prices, specs or inclusions. Do not open with “bldwise recommends … (96/100 fit)”. Do not use markdown headings. Keep any list to at most four short items.`;
 
 export function geminiKey(): string | null {
   return (

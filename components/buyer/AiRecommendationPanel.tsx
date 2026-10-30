@@ -97,7 +97,7 @@ export function AiRecommendationPanel({
       <div className="mb-6 rounded-2xl border border-border bg-foreground p-5 text-background">
         <p className="label-caps mb-2 text-[color:rgba(255,255,255,0.55)]">
           <Sparkles className="mr-1.5 inline h-3.5 w-3.5" />
-          Velu recommendation
+          bldwise recommendation
           <span className="ml-2 font-normal normal-case tracking-normal text-[color:rgba(255,255,255,0.45)]">
             {source}
           </span>
@@ -139,7 +139,7 @@ export function AiRecommendationPanel({
       <div className="rounded-2xl border border-border bg-foreground p-6 text-background">
         <p className="label-caps mb-3 text-[color:rgba(255,255,255,0.55)]">
           <Sparkles className="mr-1.5 inline h-3.5 w-3.5" />
-          Velu recommendation
+          bldwise recommendation
           <span className="ml-2 font-normal normal-case tracking-normal text-[color:rgba(255,255,255,0.45)]">
             {source}
           </span>

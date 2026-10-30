@@ -84,7 +84,7 @@ async function resolveUserIds(): Promise<Map<string, string>> {
 }
 
 async function main() {
-  console.log("\nVelu — buyer-owned land seed\n");
+  console.log("\nbldwise — buyer-owned land seed\n");
 
   const userIds = await resolveUserIds();
   const ownedIds = new Map<string, string>();
@@ -172,8 +172,8 @@ async function main() {
   }
 
   console.log("\n── Sign in to view registered land ──\n");
-  console.log("  demo.buyer@velu.dev  → /buyer/my-land (Mount Annan)");
-  console.log("  demo.buyer2@velu.dev → /buyer/my-land (Oran Park + Gledswood Hills)\n");
+  console.log("  demo.buyer@bldwise.dev  → /buyer/my-land (Mount Annan)");
+  console.log("  demo.buyer2@bldwise.dev → /buyer/my-land (Oran Park + Gledswood Hills)\n");
 }
 
 main().catch((err) => {

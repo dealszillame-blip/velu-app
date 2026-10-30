@@ -1,4 +1,4 @@
--- Velu MVP — expanded demo seed (listings only, SQL-only fallback)
+-- bldwise MVP — expanded demo seed (listings only, SQL-only fallback)
 -- For full demo (users + proposals): run `npm run seed:demo` instead.
 -- Safe to re-run: uses domain_listing_id as natural key via upsert RPC.
 

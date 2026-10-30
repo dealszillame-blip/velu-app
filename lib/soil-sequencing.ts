@@ -4,7 +4,7 @@ export const SITE_COSTS_PROVISIONAL_COPY =
   "Site costs are an estimate until a soil report is delivered. Indicative quotes are still allowed — this is not a hard block.";
 
 export const ACCEPT_COOLING_OFF_COPY =
-  "This is not a building contract. Confirm cooling-off, deposits, and contract terms with your solicitor and NSW Fair Trading before you pay anything. Velu does not collect deposits.";
+  "This is not a building contract. Confirm cooling-off, deposits, and contract terms with your solicitor and NSW Fair Trading before you pay anything. bldwise does not collect deposits.";
 
 type SoilRequestLike = {
   report_definition_key?: string | null;

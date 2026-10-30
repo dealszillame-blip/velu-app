@@ -90,7 +90,7 @@ export function BuilderPublicProfileView({
                   {profile.insurance_verified && (
                     <Badge variant="outline" className="rounded-full gap-1">
                       <ShieldCheck className="h-3 w-3" />
-                      Velu verified
+                      bldwise verified
                     </Badge>
                   )}
                 </div>

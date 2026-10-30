@@ -1,10 +1,10 @@
-# How Velu collects licensed builders and Google reviews
+# How bldwise collects licensed builders and Google reviews
 
-Nearby builders on My land come from the **NSW Fair Trading public register**, not from Velu-onboarded accounts.
+Nearby builders on My land come from the **NSW Fair Trading public register**, not from bldwise-onboarded accounts.
 
 ## 1. NSW licence register
 
-Velu calls the same public API as [Verify NSW](https://verify.licence.nsw.gov.au/):
+bldwise calls the same public API as [Verify NSW](https://verify.licence.nsw.gov.au/):
 
 `POST https://verify.licence.nsw.gov.au/publicregisterapi/api/v1/licence/search/advQuery`
 
@@ -15,7 +15,7 @@ Filters:
 - Status `Current`
 - Greater Sydney postcodes / coordinates
 
-A snapshot of **10,193** current Greater Sydney contractor-builder licences is stored in `scripts/data/nsw-sydney-builders.json.gz` (collected 15 Sep 2026). That file is a cache of public register rows (name, licence number, suburb, expiry, ABN). It is **not** a Velu user list.
+A snapshot of **10,193** current Greater Sydney contractor-builder licences is stored in `scripts/data/nsw-sydney-builders.json.gz` (collected 15 Sep 2026). That file is a cache of public register rows (name, licence number, suburb, expiry, ABN). It is **not** a bldwise user list.
 
 ### Load into Supabase
 
@@ -30,7 +30,7 @@ Live refresh (Admin → Refresh from Verify NSW) re-queries the public register 
 
 ## 2. Weekly licence check + Google reviews
 
-Every Sunday at 20:00 UTC Velu refreshes the directory:
+Every Sunday at 20:00 UTC bldwise refreshes the directory:
 
 1. Discover new/updated Greater Sydney contractor-builder licences from Verify NSW
 2. Recheck stored licences (oldest `last_synced_at` first), including Expired / Cancelled / Suspended / Surrendered. Nearby only shows `Current`. Missing licences are marked `Not found` and drop off the map
@@ -53,7 +53,7 @@ Optional env: `WEEKLY_LICENCE_RECHECK_LIMIT`, `WEEKLY_GOOGLE_REFRESH_LIMIT`.
 
 ## 3. Google reviews
 
-Velu does **not** scrape google.com. It uses the [Google Places API (New)](https://developers.google.com/maps/documentation/places/web-service/text-search) text search:
+bldwise does **not** scrape google.com. It uses the [Google Places API (New)](https://developers.google.com/maps/documentation/places/web-service/text-search) text search:
 
 - Env: `GOOGLE_PLACES_API_KEY` (or `GOOGLE_MAPS_API_KEY`)
 - Query: `{licensee} builder {suburb} {postcode} NSW Australia`

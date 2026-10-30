@@ -16,7 +16,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Velu — Vacant land marketplace",
+  title: "bldwise — Vacant land marketplace",
   description:
     "Connect home buyers, builders, and land agents across South West Sydney.",
 };

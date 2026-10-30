@@ -1,4 +1,4 @@
--- Velu MVP — buyer-owned land onboarding (already holding a block)
+-- bldwise MVP — buyer-owned land onboarding (already holding a block)
 
 ALTER TABLE public.land_listings
   DROP CONSTRAINT IF EXISTS land_listings_source_check;

@@ -6,10 +6,10 @@ export const NSW_STATUTORY_WARRANTY =
 
 /**
  * Shown to the buyer and the builder after handover.
- * A record of the Act between those two parties. Not a Velu product and not a claim form.
+ * A record of the Act between those two parties. Not a bldwise product and not a claim form.
  */
 export const HANDOVER_STATUTORY_WARRANTY =
-  "The statutory warranty is between the buyer and the builder under the NSW Home Building Act: 6 years for major defects and 2 years for other defects, starting when the build reached handover. Velu does not lodge claims, hold retention, or decide disputes.";
+  "The statutory warranty is between the buyer and the builder under the NSW Home Building Act: 6 years for major defects and 2 years for other defects, starting when the build reached handover. bldwise does not lodge claims, hold retention, or decide disputes.";
 
 export function isWarrantyInclusion(item: InclusionItem): boolean {
   return (

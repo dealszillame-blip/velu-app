@@ -1,4 +1,4 @@
--- Velu MVP — buyer-facing nearby builders for owned land
+-- bldwise MVP — buyer-facing nearby builders for owned land
 
 CREATE OR REPLACE FUNCTION public.get_public_builders_near_listing(p_listing_id UUID)
 RETURNS JSONB

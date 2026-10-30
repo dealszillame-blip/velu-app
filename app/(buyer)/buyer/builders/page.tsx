@@ -12,7 +12,7 @@ export default async function BuyerBuildersPage() {
       <PageHeader
         eyebrow="2 · Review builders"
         title="Builders"
-        description="The 10 nearest Velu verified builders for your block, closest first. Open a name to see their profile, inclusions, offers, and photos."
+        description="The 10 nearest bldwise verified builders for your block, closest first. Open a name to see their profile, inclusions, offers, and photos."
         action={
           <Link
             href="/buyer/milestones"

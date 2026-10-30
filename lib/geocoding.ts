@@ -48,7 +48,7 @@ export async function geocodeAddress(
 
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "Velu/1.0 (https://velu.au; land marketplace MVP)",
+      "User-Agent": "bldwise/1.0 (https://bldwise.au; land marketplace MVP)",
       Accept: "application/json",
     },
     next: { revalidate: 86400 },

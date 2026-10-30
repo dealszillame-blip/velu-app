@@ -1,7 +1,7 @@
--- Velu — promote an existing account to admin
+-- bldwise — promote an existing account to admin
 --
 -- BEFORE RUNNING:
--- 1. The person must already have a Velu account (signed up via /register/buyer etc.)
+-- 1. The person must already have a bldwise account (signed up via /register/buyer etc.)
 --    OR exist in Supabase → Authentication → Users
 -- 2. Replace the email below with the account you want to promote
 --
