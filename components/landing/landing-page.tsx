@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import "./landing.css";
@@ -182,13 +181,6 @@ export function LandingPage() {
     <div className="landing">
       <nav id="nav" className={navScrolled ? "scrolled" : undefined}>
         <Link href="/" className="nav-brand">
-          <Image
-            src="/bldwise-logo-nav.png"
-            alt="bldwise logo"
-            width={34}
-            height={34}
-            priority
-          />
           <span>bldwise</span>
         </Link>
         <ul className="nav-links">
@@ -214,14 +206,6 @@ export function LandingPage() {
         <div className="hero-grid" aria-hidden />
         <div className="hero-glow" aria-hidden />
         <div className="hero-content">
-          <Image
-            src="/bldwise-logo-hero.png"
-            alt="bldwise"
-            width={450}
-            height={360}
-            className="hero-logo"
-            priority
-          />
           <h1>
             <span className="ln">You bring the land.</span>
             <span className="ln">
@@ -810,15 +794,6 @@ export function LandingPage() {
         <div className="cta-glow" aria-hidden />
         <div className="cta-content">
           <Reveal delay={1}>
-            <Image
-              src="/bldwise-logo-cta.png"
-              alt="bldwise"
-              width={120}
-              height={107}
-              className="cta-logo"
-            />
-          </Reveal>
-          <Reveal delay={1}>
             <h2 className="cta-h">
               Building a home should
               <br />
@@ -850,12 +825,6 @@ export function LandingPage() {
       <footer>
         <div className="footer-inner">
           <div className="footer-brand">
-            <Image
-              src="/bldwise-logo-nav.png"
-              alt="bldwise logo"
-              width={30}
-              height={30}
-            />
             <span>bldwise</span>
           </div>
           <ul className="footer-links">
