@@ -94,7 +94,34 @@ function NearbyBuilderCard({
               )}
             </div>
             <div className="min-w-0">
-              <CardTitle className="text-base">{name}</CardTitle>
+              <CardTitle className="text-base">
+                <Link
+                  href={`/builders/${builder.id}`}
+                  className="underline-offset-4 hover:underline"
+                >
+                  {name}
+                </Link>
+              </CardTitle>
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium">
+                <Link
+                  href={`/builders/${builder.id}#inclusions`}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Inclusions
+                </Link>
+                <Link
+                  href={`/builders/${builder.id}#offers`}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Offers
+                </Link>
+                <Link
+                  href={`/builders/${builder.id}#photos`}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Photos
+                </Link>
+              </div>
               {builder.headline && (
                 <CardDescription className="mt-1 line-clamp-2">
                   {builder.headline}
@@ -117,15 +144,10 @@ function NearbyBuilderCard({
                     {builder.distance_km} km away
                   </Badge>
                 ) : null}
-                {builder.source === "nsw_register" ? (
-                  <Badge variant="outline" className="rounded-full text-[10px]">
-                    NSW register
-                  </Badge>
-                ) : builder.source === "onboarded" ? (
-                  <Badge variant="outline" className="rounded-full text-[10px]">
-                    On Velu
-                  </Badge>
-                ) : null}
+                <Badge className="rounded-full gap-1 text-[10px]">
+                  <ShieldCheck className="h-3 w-3" />
+                  Velu verified
+                </Badge>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <CriteriaRow
@@ -362,11 +384,10 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
     return (
       <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
         <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-        <p className="text-sm font-medium">No licensed builders in range yet</p>
+        <p className="text-sm font-medium">No Velu verified builders in range yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Current NSW contractor-builder licences near {parcel.suburb} will
-          appear here from the Fair Trading register, with Google ratings when
-          they have been matched.
+          The 10 nearest Velu verified builders for {parcel.suburb} will appear
+          here, closest first.
         </p>
       </div>
     );
@@ -375,10 +396,9 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {builders.length} licensed builder{builders.length === 1 ? "" : "s"} near{" "}
-        {parcel.suburb} from the NSW register (not Velu accounts). Last-sale and
-        delay facts are shown only when collected — they are not placeholder
-        defaults.
+        {builders.length} Velu verified builder{builders.length === 1 ? "" : "s"}{" "}
+        nearest to {parcel.suburb}, closest first. A name opens that builder’s
+        profile, inclusions, offers, and photos.
       </p>
       {builders.map((builder) => (
         <NearbyBuilderCard key={builder.id} builder={builder} parcel={parcel} />

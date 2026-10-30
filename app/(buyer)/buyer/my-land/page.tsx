@@ -10,7 +10,7 @@ export default function BuyerMyLandPage() {
       <PageHeader
         eyebrow="1 · Add land"
         title="Register your land"
-        description="Add the block and what you want built, or continue as a guest and look at vacant lots."
+        description="Add the address, size, purpose, and what you want built. Add-on services are on the next page. Guests can look at vacant lots."
         action={
           <Link
             href="/buyer/map"

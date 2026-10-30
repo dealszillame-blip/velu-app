@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { BuyerRequirementSets } from "@/components/buyer/BuyerRequirementSets";
 import { LandBoundarySides } from "@/components/buyer/LandBoundarySides";
 import { SiteDocumentChecklist } from "@/components/buyer/SiteDocumentChecklist";
-import { SiteReportAddonSelector } from "@/components/buyer/SiteReportAddonSelector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,10 +31,6 @@ import {
 } from "@/lib/buyer-requirements";
 import { clearBuyerStart, readBuyerStart, readLandDraft } from "@/lib/buyer-start";
 import { uploadSiteDocuments } from "@/lib/site-documents-upload";
-import {
-  DEFAULT_SITE_REPORT_DEFINITIONS,
-  type SiteReportDefinition,
-} from "@/lib/site-reports";
 
 type BuyerOwnedLandFormProps = {
   onSuccess?: () => void;
@@ -53,16 +48,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [requirementSets, setRequirementSets] = useState<BuyerBuildRequirements[]>([
     defaultBuildRequirements(),
   ]);
-  const [saved, setSaved] = useState(false);
-  const [siteReportDefinitions, setSiteReportDefinitions] = useState<
-    SiteReportDefinition[]
-  >(DEFAULT_SITE_REPORT_DEFINITIONS);
-  const [siteReportsLoading, setSiteReportsLoading] = useState(true);
-  const [siteReportsError, setSiteReportsError] = useState<string | null>(null);
-  const [selectedSiteReportKeys, setSelectedSiteReportKeys] = useState<
-    string[]
-  >([]);
-  const [siteReportNotes, setSiteReportNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -103,49 +88,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
       })
       .catch(() => undefined);
   }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch("/api/buyer/site-reports")
-      .then(async (res) => {
-        const data = await res.json().catch(() => []);
-
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to load add-on services.");
-        }
-
-        return Array.isArray(data) && data.length > 0
-          ? data
-          : DEFAULT_SITE_REPORT_DEFINITIONS;
-      })
-      .then((data) => {
-        if (!isMounted) return;
-        setSiteReportDefinitions(data);
-        setSiteReportsError(null);
-      })
-      .catch((err: Error) => {
-        if (!isMounted) return;
-        setSiteReportDefinitions(DEFAULT_SITE_REPORT_DEFINITIONS);
-        setSiteReportsError(err.message);
-      })
-      .finally(() => {
-        if (!isMounted) return;
-        setSiteReportsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  function toggleSiteReport(reportKey: string) {
-    setSelectedSiteReportKeys((current) =>
-      current.includes(reportKey)
-        ? current.filter((key) => key !== reportKey)
-        : [...current, reportKey]
-    );
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -195,11 +137,6 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
         frontage_meters: measurements.frontage_meters,
         land_value: value,
         build_requirements: buildRequirements,
-        site_report_keys: selectedSiteReportKeys,
-        site_report_notes:
-          selectedSiteReportKeys.length > 0
-            ? siteReportNotes.trim() || undefined
-            : undefined,
       }),
     });
 
@@ -211,21 +148,13 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
       return;
     }
 
-    const uploadError = await uploadSiteDocuments(String(data.id), siteFiles);
+    const listingId = String(data.id);
+    const uploadError = await uploadSiteDocuments(listingId, siteFiles);
 
-    setAddress("");
-    setLandSize("");
-    setBoundarySides(defaultBoundaryInputs());
-    setSiteDocuments([]);
-    setSiteFiles({});
-    setLandValue("");
-    setSelectedSiteReportKeys([]);
-    setSiteReportNotes("");
-    setSaved(true);
-    if (uploadError) setError(uploadError);
-    setLoading(false);
     clearBuyerStart();
     onSuccess?.();
+    const docs = uploadError ? "&docs=1" : "";
+    router.push(`/buyer/milestones?listing=${encodeURIComponent(listingId)}${docs}`);
     router.refresh();
   }
 
@@ -339,25 +268,9 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
             }
           />
 
-          <SiteReportAddonSelector
-            idPrefix="owned-land"
-            definitions={siteReportDefinitions}
-            loading={siteReportsLoading}
-            error={siteReportsError}
-            selectedKeys={selectedSiteReportKeys}
-            onToggle={toggleSiteReport}
-            notes={siteReportNotes}
-            onNotesChange={setSiteReportNotes}
-          />
-
           {error && (
             <p className="text-sm text-destructive" role="alert">
               {error}
-            </p>
-          )}
-          {saved && (
-            <p className="text-sm text-primary" role="status">
-              Land registered. You can add another block on this page.
             </p>
           )}
 

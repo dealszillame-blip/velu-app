@@ -13,6 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { BuilderPublicProfile } from "@/lib/builder-profile";
 import { displayBuilderName } from "@/lib/builder-profile";
 import { ratingDisplay } from "@/lib/builder-ratings";
+import { formatProposalPrice } from "@/lib/proposals";
 import { cn } from "@/lib/utils";
 
 type BuilderPublicProfileViewProps = {
@@ -89,9 +90,20 @@ export function BuilderPublicProfileView({
                   {profile.insurance_verified && (
                     <Badge variant="outline" className="rounded-full gap-1">
                       <ShieldCheck className="h-3 w-3" />
-                      Verified
+                      Velu verified
                     </Badge>
                   )}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm font-medium">
+                  <a href="#inclusions" className="text-primary underline-offset-2 hover:underline">
+                    Inclusions
+                  </a>
+                  <a href="#offers" className="text-primary underline-offset-2 hover:underline">
+                    Offers
+                  </a>
+                  <a href="#photos" className="text-primary underline-offset-2 hover:underline">
+                    Photos
+                  </a>
                 </div>
               </div>
             </div>
@@ -213,6 +225,120 @@ export function BuilderPublicProfileView({
         </div>
       </div>
 
+      <section id="inclusions" className="scroll-mt-6">
+        <p className="label-caps mb-4">Inclusions</p>
+        {(profile.inclusions ?? []).length > 0 ? (
+          <div className="space-y-4">
+            {(profile.inclusions ?? []).map((group) => {
+              const included = group.items.filter((item) => item.included !== false);
+              const excluded = group.items.filter((item) => item.included === false);
+              return (
+                <article key={group.id} className="surface-subtle p-5">
+                  <h2 className="font-semibold tracking-tight">{group.title}</h2>
+                  {group.summary ? (
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {group.summary}
+                    </p>
+                  ) : null}
+                  {included.length > 0 ? (
+                    <ul className="mt-3 space-y-2 text-sm">
+                      {included.map((item) => (
+                        <li key={`${group.id}-${item.category}-${item.item}`}>
+                          <span className="font-medium">{item.item}</span>
+                          {item.detail ? (
+                            <span className="text-muted-foreground"> — {item.detail}</span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {excluded.length > 0 ? (
+                    <div className="mt-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Exclusions
+                      </p>
+                      <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                        {excluded.map((item) => (
+                          <li key={`${group.id}-ex-${item.category}-${item.item}`}>
+                            {item.item}
+                            {item.detail ? ` — ${item.detail}` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Inclusions from this builder’s quotes appear here, including anything
+            they have marked as excluded.
+          </p>
+        )}
+      </section>
+
+      <section id="offers" className="scroll-mt-6">
+        <p className="label-caps mb-4">Offers</p>
+        {(profile.offers ?? []).length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {(profile.offers ?? []).map((offer) => (
+              <article key={offer.id} className="surface-subtle p-5">
+                <h2 className="font-semibold tracking-tight">{offer.name}</h2>
+                {offer.meta ? (
+                  <p className="mt-1 text-sm text-muted-foreground">{offer.meta}</p>
+                ) : null}
+                {offer.description ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {offer.description}
+                  </p>
+                ) : null}
+                {offer.price != null ? (
+                  <p className="mt-3 text-sm font-medium">
+                    From {formatProposalPrice(offer.price)}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            This builder has not published offers yet.
+          </p>
+        )}
+      </section>
+
+      <section id="photos" className="scroll-mt-6">
+        <p className="label-caps mb-4">Photos</p>
+        {profile.gallery.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {profile.gallery.map((photo) => (
+              <figure key={photo.id ?? photo.image_url} className="surface-subtle overflow-hidden">
+                <div className="relative aspect-square bg-muted">
+                  <Image
+                    src={photo.image_url}
+                    alt={photo.caption ?? "Gallery photo"}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                {photo.caption && (
+                  <figcaption className="p-2 text-xs text-muted-foreground">
+                    {photo.caption}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No photos published yet.
+          </p>
+        )}
+      </section>
+
       {profile.portfolio.length > 0 && (
         <section>
           <p className="label-caps mb-4">Portfolio</p>
@@ -249,32 +375,6 @@ export function BuilderPublicProfileView({
                   )}
                 </div>
               </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {profile.gallery.length > 0 && (
-        <section>
-          <p className="label-caps mb-4">Photos</p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {profile.gallery.map((photo) => (
-              <figure key={photo.id ?? photo.image_url} className="surface-subtle overflow-hidden">
-                <div className="relative aspect-square bg-muted">
-                  <Image
-                    src={photo.image_url}
-                    alt={photo.caption ?? "Gallery photo"}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-                {photo.caption && (
-                  <figcaption className="p-2 text-xs text-muted-foreground">
-                    {photo.caption}
-                  </figcaption>
-                )}
-              </figure>
             ))}
           </div>
         </section>

@@ -204,12 +204,10 @@ export function RegisterLandLogin() {
       }
       const uploadError = await uploadSiteDocuments(saved, siteFiles);
       clearBuyerStart();
-      if (uploadError) {
-        setError(`${uploadError} The block itself is saved.`);
-        setLoading(false);
-        return;
-      }
-      window.location.assign("/buyer/my-land");
+      const docs = uploadError ? "&docs=1" : "";
+      window.location.assign(
+        `/buyer/milestones?listing=${encodeURIComponent(saved)}${docs}`
+      );
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);

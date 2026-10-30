@@ -26,6 +26,12 @@ export default function PublicBuilderProfilePage({
             return;
           }
           setProfile(data);
+          const hash = window.location.hash;
+          if (hash) {
+            window.setTimeout(() => {
+              document.querySelector(hash)?.scrollIntoView({ block: "start" });
+            }, 0);
+          }
         })
         .catch(() => setError("Failed to load profile."));
     });
