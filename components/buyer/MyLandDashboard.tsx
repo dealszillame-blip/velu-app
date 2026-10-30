@@ -48,7 +48,6 @@ export function MyLandDashboard() {
               <MyLandParcelCard
                 key={parcel.id}
                 parcel={parcel}
-                onReportsUpdated={load}
                 onDeleted={() => {
                   load();
                   router.refresh();

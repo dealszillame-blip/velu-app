@@ -39,6 +39,22 @@ export interface GalleryImage {
 }
 
 import type { BuilderComplianceNotice } from "@/lib/builder-map";
+import type { InclusionItem } from "@/lib/proposal-breakdown";
+
+export interface BuilderPublicOffer {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  meta: string | null;
+}
+
+export interface BuilderPublicInclusion {
+  id: string;
+  title: string;
+  summary: string | null;
+  items: InclusionItem[];
+}
 
 export interface BuilderPublicProfile {
   id: string;
@@ -64,6 +80,8 @@ export interface BuilderPublicProfile {
   google_reviews: GoogleReviewHighlight[];
   product_reviews: ProductReview[];
   gallery: GalleryImage[];
+  offers?: BuilderPublicOffer[];
+  inclusions?: BuilderPublicInclusion[];
 }
 
 export interface BuilderProfileInput {

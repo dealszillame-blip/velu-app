@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { ArchitectHirePanel } from "@/components/buyer/ArchitectHirePanel";
-import { ExistingLandSiteReports } from "@/components/buyer/ExistingLandSiteReports";
 import { SegmentControl } from "@/components/shared/SegmentControl";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,24 +15,21 @@ import {
 } from "@/components/ui/card";
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
 
-type ParcelTab = "overview" | "reports" | "architects";
+type ParcelTab = "overview" | "architects";
 
 type MyLandParcelCardProps = {
   parcel: BuyerOwnedLand;
-  onReportsUpdated?: () => void;
   onDeleted?: () => void;
 };
 
 export function MyLandParcelCard({
   parcel,
-  onReportsUpdated,
   onDeleted,
 }: MyLandParcelCardProps) {
   const [tab, setTab] = useState<ParcelTab>("overview");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const siteReports = parcel.site_reports ?? [];
 
   async function deleteLand() {
     setDeleting(true);
@@ -82,7 +79,6 @@ export function MyLandParcelCard({
           className="mt-4"
           options={[
             { value: "overview", label: "Overview" },
-            { value: "reports", label: "Site reports" },
             { value: "architects", label: "Architects" },
           ]}
           value={tab}
@@ -123,15 +119,15 @@ export function MyLandParcelCard({
           </div>
         ) : null}
         {tab === "overview" ? (
-          <p className="text-sm text-muted-foreground">
-            This block is registered.
-          </p>
-        ) : tab === "reports" ? (
-          <ExistingLandSiteReports
-            listingId={parcel.id}
-            siteReports={siteReports}
-            onUpdated={onReportsUpdated}
-          />
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>This block is registered.</p>
+            <Link
+              href={`/buyer/milestones?listing=${parcel.id}`}
+              className="font-medium text-primary underline-offset-2 hover:underline"
+            >
+              Add-on services and milestones
+            </Link>
+          </div>
         ) : (
           <ArchitectHirePanel listingId={parcel.id} />
         )}

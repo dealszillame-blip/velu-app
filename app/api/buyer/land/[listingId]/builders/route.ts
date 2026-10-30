@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { licensedToNearby, type LicensedBuilderRow } from "@/lib/licensed-builders";
 import type { NearbyBuilder } from "@/lib/nearby-builders";
 import { isPlaceholderDirectoryBuilder } from "@/lib/placeholder-builders";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 type RouteContext = {
   params: Promise<{ listingId: string }>;
 };
+
+const VERIFIED_BUILDER_LIMIT = 10;
 
 export async function GET(_request: Request, context: RouteContext) {
   const { listingId } = await context.params;
@@ -29,17 +30,10 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const [{ data: onboarded, error: onboardedError }, { data: licensed, error: licensedError }] =
-    await Promise.all([
-      supabase.rpc("get_public_builders_near_listing", {
-        p_listing_id: listingId,
-      }),
-      supabase.rpc("get_licensed_builders_near_listing", {
-        p_listing_id: listingId,
-        p_radius_km: 40,
-        p_limit: 20,
-      }),
-    ]);
+  const { data: onboarded, error: onboardedError } = await supabase.rpc(
+    "get_public_builders_near_listing",
+    { p_listing_id: listingId }
+  );
 
   if (onboardedError) {
     const message = onboardedError.message.includes("get_public_builders_near_listing")
@@ -48,20 +42,15 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const registerRows = Array.isArray(licensed) ? (licensed as LicensedBuilderRow[]) : [];
-  const registerBuilders = registerRows
-    .map(licensedToNearby)
-    .filter((builder) => !isPlaceholderDirectoryBuilder(builder));
-
-  const onboardedBuilders = (
-    Array.isArray(onboarded) ? (onboarded as NearbyBuilder[]) : []
-  )
+  const verified = (Array.isArray(onboarded) ? (onboarded as NearbyBuilder[]) : [])
     .map((builder) => ({ ...builder, source: "onboarded" as const }))
-    .filter((builder) => !isPlaceholderDirectoryBuilder(builder));
+    .filter(
+      (builder) =>
+        builder.insurance_verified === true &&
+        !isPlaceholderDirectoryBuilder(builder)
+    )
+    .sort((a, b) => (a.distance_km ?? Number.POSITIVE_INFINITY) - (b.distance_km ?? Number.POSITIVE_INFINITY))
+    .slice(0, VERIFIED_BUILDER_LIMIT);
 
-  if (licensedError && registerBuilders.length === 0) {
-    return NextResponse.json(onboardedBuilders);
-  }
-
-  return NextResponse.json([...registerBuilders, ...onboardedBuilders]);
+  return NextResponse.json(verified);
 }
