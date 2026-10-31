@@ -1,10 +1,10 @@
-# Velu website architecture
+# bldwise website architecture
 
-Living blueprint of [velu-app](https://github.com/dealszillame-blip/velu-app) as shipped on `main`. Production: [velu-app-sigma.vercel.app](https://velu-app-sigma.vercel.app).
+Living blueprint of [bldwise](https://github.com/dealszillame-blip/velu-app) as shipped on `main`. Production: [velu-app-sigma.vercel.app](https://velu-app-sigma.vercel.app).
 
 **What each role can do:** [FEATURES.md](./FEATURES.md).
 
-Velu is a vacant-land marketplace for South West Sydney. Buyers register or buy a block, licensed builders send packages, and the buyer compares, gets a ranked recommendation, and accepts one builder. Agents list land. Admins operate the platform.
+bldwise is a vacant-land marketplace for South West Sydney. Buyers register or buy a block, licensed builders send packages, and the buyer compares, gets a ranked recommendation, and accepts one builder. Agents list land. Admins operate the platform.
 
 ---
 
@@ -303,7 +303,7 @@ erDiagram
 | `builder_proposals` | Package price, specs, breakdown, inclusions, status |
 | `builder_proposal_templates` | Reusable builder packages |
 | `construction_projects` | Milestone after accept |
-| `milestone_payment_confirmations` | Builder says they received payment for one stage. Velu does not move the money. |
+| `milestone_payment_confirmations` | Builder says they received payment for one stage. bldwise does not move the money. |
 | `project_defects` | After handover: buyer reports, builder marks fixed, buyer approves or sends back. No retention. |
 | `builder_inquiries` + `inquiry_messages` | In-app chat |
 | `site_report_definitions` + `site_report_requests` | Soil report / site survey add-ons |
@@ -355,7 +355,7 @@ APIs are App Router `route.ts` files. They return JSON. Auth is cookie session u
 | GET | `/api/builders/map` | Builders on the map |
 | GET | `/api/builders/:id/profile` | Public profile |
 | GET | `/api/builders/published-packages` | Catalogue |
-| PATCH | `/api/projects/:id/milestone` | Builder confirms payment received for the current stage, then the stage moves one step. Velu does not transfer money. |
+| PATCH | `/api/projects/:id/milestone` | Builder confirms payment received for the current stage, then the stage moves one step. bldwise does not transfer money. |
 | GET/POST | `/api/projects/:id/defects` | After handover, both roles read the same defects. The buyer reports one. |
 | PATCH | `/api/projects/:id/defects/:defectId` | Builder marks an open defect fixed. Buyer approves it or sends it back. |
 
@@ -391,15 +391,15 @@ flowchart TD
 - Middleware sends users without a profile to `/onboarding/complete`.
 - Role homes: buyer → map, builder → dashboard, agent → listings, admin → dashboard.
 
-**Demo accounts** (password `VeluDemo123!`)
+**Demo accounts** (password `bldwiseDemo123!`)
 
 | Email | Person | Role |
 | --- | --- | --- |
-| `demo.buyer2@velu.dev` | Sam Chen | Buyer — Oran Park packages + recommend |
-| `demo.buyer@velu.dev` | Alex Morgan | Buyer — Mount Annan |
-| `demo.builder@velu.dev` | James Whitfield, Apex Homes | Builder |
-| `demo.builder2@velu.dev` | Maria Santos, Meridian | Builder |
-| `demo.builder3@velu.dev` | David Nguyen, SouthWest Living | Builder |
+| `demo.buyer2@bldwise.dev` | Sam Chen | Buyer — Oran Park packages + recommend |
+| `demo.buyer@bldwise.dev` | Alex Morgan | Buyer — Mount Annan |
+| `demo.builder@bldwise.dev` | James Whitfield, Apex Homes | Builder |
+| `demo.builder2@bldwise.dev` | Maria Santos, Meridian | Builder |
+| `demo.builder3@bldwise.dev` | David Nguyen, SouthWest Living | Builder |
 
 ---
 
@@ -411,7 +411,7 @@ Compare is the product’s “hub after land is secured”:
 /buyer/compare
   SegmentControl
     Compare        → cards + comparison grid (≥2 packages)
-                   → compact Velu recommendation banner
+                   → compact bldwise recommendation banner
     Recommend      → AiRecommendationPanel
     Tender report  → gap analysis vs brief
     Published designs → catalogue packages

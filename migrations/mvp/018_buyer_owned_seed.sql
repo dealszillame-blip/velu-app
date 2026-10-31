@@ -1,4 +1,4 @@
--- Velu MVP — demo buyers with registered (buyer-owned) land
+-- bldwise MVP — demo buyers with registered (buyer-owned) land
 -- Run after 015_buyer_owned_land.sql and demo users exist (npm run seed:demo creates users).
 
 DO $$
@@ -9,10 +9,10 @@ DECLARE
   v_builder3 UUID;
   v_listing UUID;
 BEGIN
-  SELECT id INTO v_buyer1 FROM auth.users WHERE email = 'demo.buyer@velu.dev' LIMIT 1;
-  SELECT id INTO v_buyer2 FROM auth.users WHERE email = 'demo.buyer2@velu.dev' LIMIT 1;
-  SELECT id INTO v_builder2 FROM auth.users WHERE email = 'demo.builder2@velu.dev' LIMIT 1;
-  SELECT id INTO v_builder3 FROM auth.users WHERE email = 'demo.builder3@velu.dev' LIMIT 1;
+  SELECT id INTO v_buyer1 FROM auth.users WHERE email = 'demo.buyer@bldwise.dev' LIMIT 1;
+  SELECT id INTO v_buyer2 FROM auth.users WHERE email = 'demo.buyer2@bldwise.dev' LIMIT 1;
+  SELECT id INTO v_builder2 FROM auth.users WHERE email = 'demo.builder2@bldwise.dev' LIMIT 1;
+  SELECT id INTO v_builder3 FROM auth.users WHERE email = 'demo.builder3@bldwise.dev' LIMIT 1;
 
   IF v_buyer1 IS NULL OR v_buyer2 IS NULL THEN
     RAISE NOTICE 'Demo buyers not found — run: npm run seed:demo';

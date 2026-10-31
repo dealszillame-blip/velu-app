@@ -1,4 +1,4 @@
--- Velu MVP — listing create + map query helpers
+-- bldwise MVP — listing create + map query helpers
 
 CREATE OR REPLACE FUNCTION public.create_land_listing(
   p_agent_id UUID,

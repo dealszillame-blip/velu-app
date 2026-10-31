@@ -1,4 +1,4 @@
--- Velu MVP — optional site report add-ons for buyer-owned land onboarding
+-- bldwise MVP — optional site report add-ons for buyer-owned land onboarding
 
 DO $$ BEGIN
   CREATE TYPE site_report_request_status AS ENUM (

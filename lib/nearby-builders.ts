@@ -48,5 +48,5 @@ export function displayNearbyBuilderName(builder: NearbyBuilder): string {
 }
 
 export function inviteToReviewPrefill(suburb: string, address: string): string {
-  return `Hi — I've registered my land at ${address} (${suburb}) on Velu and would like to invite you to review the block. Could you let me know if you service this area and what build options might suit the site?`;
+  return `Hi — I've registered my land at ${address} (${suburb}) on bldwise and would like to invite you to review the block. Could you let me know if you service this area and what build options might suit the site?`;
 }

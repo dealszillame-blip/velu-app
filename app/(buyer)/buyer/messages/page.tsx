@@ -10,7 +10,7 @@ export default async function BuyerMessagesPage() {
       <PageHeader
         eyebrow="Messages"
         title="Messages"
-        description="Invites and build questions land here. Phone numbers stay off Velu."
+        description="Invites and build questions land here. Phone numbers stay off bldwise."
       />
       <Suspense
         fallback={

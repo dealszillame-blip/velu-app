@@ -1,8 +1,8 @@
-# Velu MVP
+# bldwise MVP
 
 Verified vacant-land marketplace for South West Sydney — buyers, builders, and agents.
 
-Built from `Velu_MVP_PRD_v2.md` (Week 1 foundation).
+Built from the original MVP PRD (Week 1 foundation).
 
 **Architecture blueprint:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — roles, sitemap, journeys, data model, and APIs.
 
@@ -74,7 +74,7 @@ npm run sync:domain
 
 This fetches vacant land in South West Sydney postcodes and upserts into `land_listings` with statuses:
 
-| Domain | Velu status   | Map filter      |
+| Domain | bldwise status   | Map filter      |
 |--------|---------------|-----------------|
 | Active | `available`   | Available       |
 | Under contract | `under_offer` | Under contract |
@@ -91,7 +91,7 @@ curl -X POST http://localhost:3000/api/sync/domain \
 
 ## NSW builder directory — weekly licence + Google review update
 
-Nearby builders come from the **NSW Fair Trading public register**, not onboarded Velu accounts.
+Nearby builders come from the **NSW Fair Trading public register**, not onboarded bldwise accounts.
 
 1. In **Supabase SQL Editor**, run `migrations/mvp/027_nsw_builder_directory.sql` (SQL only — do not paste npm commands there).
 2. Load the list from **Admin → Data → Import Sydney snapshot**, or in a terminal:

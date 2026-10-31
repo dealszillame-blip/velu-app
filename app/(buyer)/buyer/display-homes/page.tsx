@@ -9,12 +9,12 @@ export default function BuyerDisplayHomesPage() {
       <PageHeader
         eyebrow="Milestone 4"
         title="Visit display homes"
-        description="When Velu has finished reviewing your quotes, the top 2 are the ones you take to a display-home meeting."
+        description="When bldwise has finished reviewing your quotes, the top 2 are the ones you take to a display-home meeting."
       />
       <div className="max-w-2xl space-y-4 rounded-xl border border-border bg-card p-5 sm:p-6">
         <p className="text-sm leading-relaxed text-muted-foreground">
           This page is where you decide a meeting to visit display homes. It
-          opens in full once your top 2 quotes are done. Until then, Velu’s
+          opens in full once your top 2 quotes are done. Until then, bldwise’s
           team is still comparing inclusions and exclusions on the quotes you
           request.
         </p>

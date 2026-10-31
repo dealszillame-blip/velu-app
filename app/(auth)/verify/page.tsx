@@ -15,7 +15,7 @@ export default function VerifyPage() {
       <CardHeader>
         <CardTitle>Verify your email</CardTitle>
         <CardDescription>
-          Click the link in your inbox to activate your Velu account, then sign
+          Click the link in your inbox to activate your bldwise account, then sign
           in to continue.
         </CardDescription>
       </CardHeader>

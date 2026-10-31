@@ -217,7 +217,7 @@ export function MilestoneTracker({
                       <p className="max-w-xl text-sm text-muted-foreground">
                         This records that you received payment for{" "}
                         {MILESTONE_LABELS[stage]}. The build then moves to {nextLabel}.
-                        Velu does not transfer the money.
+                        bldwise does not transfer the money.
                       </p>
                       {error && (
                         <p className="text-sm text-destructive" role="alert">
@@ -282,7 +282,7 @@ export function MilestoneTracker({
           <p>
             Current stage is {MILESTONE_LABELS[stage]}. Confirm you received
             payment for this stage
-            {upcoming ? ` to move it to ${MILESTONE_LABELS[upcoming]}` : ""}. Velu
+            {upcoming ? ` to move it to ${MILESTONE_LABELS[upcoming]}` : ""}. bldwise
             does not transfer the money. {buyer} can view the details you supplied
             and cannot confirm payment or move a stage.
           </p>

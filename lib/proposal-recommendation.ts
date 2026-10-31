@@ -298,7 +298,7 @@ export function recommendProposals(
   } else if (recommended?.gaps.length && requirements && wantedStoreyCount(requirements)) {
     summary = `Closest ${storeyLabel(requirements.storeys)} option is ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100 fit) at ${formatProposalPrice(recommended.base_price)}. Confirm the listed gaps in writing.`;
   } else if (recommended) {
-    summary = `Velu recommends ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100 fit) at ${formatProposalPrice(recommended.base_price)}.`;
+    summary = `bldwise recommends ${recommended.builder_name} — ${recommended.package_name} (${recommended.score}/100 fit) at ${formatProposalPrice(recommended.base_price)}.`;
   }
 
   return {

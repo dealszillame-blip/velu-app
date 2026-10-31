@@ -307,7 +307,7 @@ export function BuilderProfileEditor() {
               className="h-4 w-4 rounded border-input"
             />
             <Label htmlFor="profile_published" className="font-normal">
-              Publish profile — visible to buyers on Velu
+              Publish profile — visible to buyers on bldwise
             </Label>
           </div>
         </CardContent>
@@ -422,7 +422,7 @@ export function BuilderProfileEditor() {
 
       <SectionList
         title="Google review highlights"
-        description="Paste your best Google reviews for buyers to read on Velu."
+        description="Paste your best Google reviews for buyers to read on bldwise."
         onAdd={() =>
           updateField("google_reviews", [
             ...profile.google_reviews,
@@ -555,7 +555,7 @@ export function BuilderProfileEditor() {
                   updateField("product_reviews", next);
                 }}
               />
-              Verified Velu build
+              Verified bldwise build
             </label>
           </div>
         ))}

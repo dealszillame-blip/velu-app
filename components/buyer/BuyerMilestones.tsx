@@ -17,7 +17,7 @@ const STEPS = [
   {
     id: "m1",
     title: "Milestone 1 — Land registration",
-    body: "Land registration completed. Your block is on Velu, and the next step is to meet the builders who can work on it.",
+    body: "Land registration completed. Your block is on bldwise, and the next step is to meet the builders who can work on it.",
     done: true,
   },
   {
@@ -33,7 +33,7 @@ const STEPS = [
   {
     id: "m3",
     title: "Milestone 3 — Quote review",
-    body: "A quote you request is then analysed by Velu’s team. They set out any gaps and the difference between inclusions and exclusions, plus a recommendation if you should ask the contractor for something further.",
+    body: "A quote you request is then analysed by bldwise’s team. They set out any gaps and the difference between inclusions and exclusions, plus a recommendation if you should ask the contractor for something further.",
   },
   {
     id: "m4",

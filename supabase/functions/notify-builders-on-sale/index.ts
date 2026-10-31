@@ -52,12 +52,12 @@ serve(async (req: Request) => {
           },
           body: JSON.stringify({
             personalizations: [{ to: [{ email: builder.email }] }],
-            from: { email: "leads@velu.au", name: "Velu" },
+            from: { email: "leads@bldwise.au", name: "bldwise" },
             subject: `New lead: ${listing.land_size_sqm}m² in ${listing.suburb}`,
             content: [
               {
                 type: "text/plain",
-                value: `Hi ${builder.full_name},\n\nA ${listing.land_size_sqm}m² lot in ${listing.suburb} ${listing.postcode} just sold.\n\nSubmit your proposal: https://velu.au/builder/leads/${listing.id}\n\nVelu`,
+                value: `Hi ${builder.full_name},\n\nA ${listing.land_size_sqm}m² lot in ${listing.suburb} ${listing.postcode} just sold.\n\nSubmit your proposal: https://bldwise.au/builder/leads/${listing.id}\n\nbldwise`,
               },
             ],
           }),

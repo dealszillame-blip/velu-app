@@ -1,4 +1,4 @@
--- Velu MVP — enable Realtime on key tables (Week 3 lead feed + notifications)
+-- bldwise MVP — enable Realtime on key tables (Week 3 lead feed + notifications)
 
 -- Required for Realtime UPDATE events (sold status changes)
 ALTER TABLE public.land_listings REPLICA IDENTITY FULL;

@@ -124,7 +124,7 @@ INSERT INTO public.tender_knowledge_base (
     4, 2, 1, 186, 465000, 28,
     'Stone benchtops, ducted AC, double garage, 6-year warranty',
     'Median of volume-builder packages on R2 lots 400–500m² in SW Sydney.',
-    'Velu stored tenders'
+    'bldwise stored tenders'
   ),
   (
     'sws-family-5bed-granny-2025',
@@ -135,7 +135,7 @@ INSERT INTO public.tender_knowledge_base (
     5, 3, 1, 240, 540000, 33,
     'Granny flat, stone, ducted AC, solar-ready, landscaping',
     'Typical dual-living package used as a knowledge-base benchmark.',
-    'Velu stored tenders'
+    'bldwise stored tenders'
   ),
   (
     'sws-luxury-double-2025',
@@ -146,7 +146,7 @@ INSERT INTO public.tender_knowledge_base (
     5, 3, 2, 280, 720000, 38,
     'Stone, butler pantry, ducted 3-zone, solar, landscaping, 10-year warranty',
     'Upper-quartile custom packages for larger SW Sydney lots.',
-    'Velu stored tenders'
+    'bldwise stored tenders'
   )
 ON CONFLICT (key) DO UPDATE SET
   base_price = EXCLUDED.base_price,
@@ -340,7 +340,7 @@ DO $$
 DECLARE
   v_id UUID;
 BEGIN
-  SELECT id INTO v_id FROM auth.users WHERE email = 'demo.dhursan@velu.dev' LIMIT 1;
+  SELECT id INTO v_id FROM auth.users WHERE email = 'demo.dhursan@bldwise.dev' LIMIT 1;
   IF v_id IS NULL THEN
     RETURN;
   END IF;

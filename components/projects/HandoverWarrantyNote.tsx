@@ -23,7 +23,7 @@ export function HandoverWarrantyNote({
           </p>
         ) : null}
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          This is a record for the buyer and the builder to read. It is not a Velu
+          This is a record for the buyer and the builder to read. It is not a bldwise
           product and not a claim form.
         </p>
       </div>

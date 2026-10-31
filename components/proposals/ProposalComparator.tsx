@@ -219,7 +219,7 @@ function ProposalCard({
             <p className="font-medium">
               {proposal.insurance_verified
                 ? "Insurance verified"
-                : "Not verified on Velu"}
+                : "Not verified on bldwise"}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               Same directory badge as nearby builders — not a Fair Trading extract.

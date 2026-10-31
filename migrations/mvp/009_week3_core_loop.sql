@@ -1,4 +1,4 @@
--- Velu MVP — Week 3: sold leads, proposal gates, core loop RPCs
+-- bldwise MVP — Week 3: sold leads, proposal gates, core loop RPCs
 
 DROP POLICY IF EXISTS "proposals: insert (builder)" ON public.builder_proposals;
 

@@ -11,12 +11,12 @@ export type ParsedPaymentDetails = {
 };
 
 export const PAYMENT_DISCLAIMER =
-  "Velu does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money.";
+  "bldwise does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money.";
 
 export const PAYMENT_NOT_ON_FILE = "Payment details are not on file yet.";
 
 export const PAYMENT_SUPPLIED_LABEL =
-  "Details the builder supplied. Not verified by Velu.";
+  "Details the builder supplied. Not verified by bldwise.";
 
 const EMPTY: BuilderPaymentDetails = {
   account_name: null,

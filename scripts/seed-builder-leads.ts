@@ -202,7 +202,7 @@ async function reportLeadCounts() {
 }
 
 async function main() {
-  console.log("\nVelu — builder leads seed\n");
+  console.log("\nbldwise — builder leads seed\n");
 
   const listingIds = await seedSoldListings();
   await onboardBuilders();

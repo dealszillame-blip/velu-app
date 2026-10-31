@@ -1,4 +1,4 @@
-# Supabase setup for Velu MVP
+# Supabase setup for bldwise MVP
 
 Follow these steps in order. Takes about 15 minutes.
 
@@ -9,7 +9,7 @@ Follow these steps in order. Takes about 15 minutes.
 1. Go to [supabase.com/dashboard](https://supabase.com/dashboard) and sign in.
 2. Click **New project**.
 3. Settings:
-   - **Name:** `velu-mvp`
+   - **Name:** `bldwise-mvp`
    - **Database password:** save this somewhere safe
    - **Region:** **Asia Pacific (Sydney)** — `ap-southeast-2` (Australian data hosting)
 4. Wait ~2 minutes for the project to provision.
@@ -78,9 +78,10 @@ copy .env.example .env.local
 | 28 | `028_audit_now_fixes.sql` | **Required for live demo** — lead dedupe, 10× price cleanup, Figtree measurements, placeholder builder filter, distinct demo track records, licence fields on compare RPC |
 | 29 | `029_audit_leftover_cleanup.sql` | **Required after 028 on production** — SQL only (paste into SQL Editor like 028, not npm). Deletes extra Chalford listing copies (keep one per buyer + address), re-points proposals / site reports / messages, drops unpublished AAAAA/UUU `builder_profiles`. Does not delete Apex, Meridian, or SouthWest. |
 | 30 | `030_proposal_withdraw_and_quotes.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `withdrawn` proposal status, partial unique so a builder can resubmit after withdraw/expiry, `contract_type` on quotes, and Compare RPC updates. |
-| 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. Velu does not process, hold, or transfer money. |
-| 32 | `032_defects.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `project_defects` for the post-handover list. The buyer reports a defect, the builder marks it fixed, and the buyer approves it or sends it back. No retention amount. Velu does not lodge warranty claims or decide disputes. |
+| 31 | `031_milestone_payment.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds builder-supplied `account_name`, `bsb`, and `account_number` on `builder_profiles`, plus `milestone_payment_confirmations`. bldwise does not process, hold, or transfer money. |
+| 32 | `032_defects.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `project_defects` for the post-handover list. The buyer reports a defect, the builder marks it fixed, and the buyer approves it or sends it back. No retention amount. bldwise does not lodge warranty claims or decide disputes. |
 | 33 | `033_build_stages.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `approvals`, `site_clearance`, and `excavation` to `construction_milestone`. Does not change `current_stage` on existing projects. |
+| 34 | `034_rebrand_bldwise.sql` | **Required on databases created before the bldwise rename** — SQL only. Updates stored tender source labels and the defects table comment to bldwise, and retargets demo fixture logins from the previous `@velu.dev` / `VeluDemo123!` to `@bldwise.dev` / `bldwiseDemo123!`. Real customer accounts are left alone. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -133,7 +134,7 @@ Until **`031_milestone_payment.sql`** is pasted into **SQL Editor** and run, bui
 
 031 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects.
 
-Velu does not process, hold, or transfer money. The new columns are whatever the builder typed. They are not verified with a bank. The buyer pays the builder outside Velu.
+bldwise does not process, hold, or transfer money. The new columns are whatever the builder typed. They are not verified with a bank. The buyer pays the builder outside bldwise.
 
 ### After 031 — post-handover defects (032)
 
@@ -143,7 +144,7 @@ After merge, paste **`migrations/mvp/032_defects.sql`** into **SQL Editor** and 
 
 032 is SQL only. Do not paste `npm` commands into the editor. It does not seed or change demo projects. It does not add a retention amount, and it does not create a warranty claim.
 
-The statutory warranty note on the finished build is copy only. It is not a Velu product. Velu does not lodge claims, hold retention, or decide disputes.
+The statutory warranty note on the finished build is copy only. It is not a bldwise product. bldwise does not lodge claims, hold retention, or decide disputes.
 
 ### After 032 — build stages (033)
 
@@ -184,7 +185,7 @@ For production, also add `https://velu-app-sigma.vercel.app/auth/callback`.
 
 ### Email sign-in link (default — works without custom SMTP)
 
-Velu’s **Email link** tab on `/login` uses Supabase’s default magic-link email. No template changes needed.
+bldwise’s **Email link** tab on `/login` uses Supabase’s default magic-link email. No template changes needed.
 
 1. User enters email → receives “Your sign-in link” email
 2. Clicks **Sign in** → lands on `/auth/callback` → redirected into the app
@@ -204,7 +205,7 @@ To switch to numeric OTP codes later:
 Suggested OTP body:
 
 ```html
-<h2>Your Velu sign-in code</h2>
+<h2>Your bldwise sign-in code</h2>
 <p>Enter this 6-digit code on the login page. It expires in 1 hour.</p>
 <p style="font-size: 24px; letter-spacing: 0.2em; font-weight: bold;">{{ .Token }}</p>
 ```
@@ -220,11 +221,11 @@ No extra template setup required for reset links.
 
 ### Admin portal
 
-Velu includes a built-in admin CMS at **`/admin/dashboard`** (separate from buyer/builder apps).
+bldwise includes a built-in admin CMS at **`/admin/dashboard`** (separate from buyer/builder apps).
 
 #### Option A — SQL (promote existing account)
 
-1. Sign up on Velu with the email you want as admin (or use an existing account)
+1. Sign up on bldwise with the email you want as admin (or use an existing account)
 2. Open **`scripts/sql/create-admin.sql`**, change the email address
 3. Run the script in **Supabase → SQL Editor**
 4. Sign in and open `/admin/dashboard`

@@ -39,8 +39,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-velu-navy: var(--velu-navy);
-  --color-velu-green: var(--velu-green);
+  --color-bldwise-navy: var(--bldwise-navy);
+  --color-bldwise-green: var(--bldwise-green);
   --color-ink: var(--ink);
   --color-ink-strong: var(--ink-strong);
   --color-paper: var(--paper);
@@ -63,18 +63,18 @@
   --surface-inverse-soft: #121212;
   --success: #16a34a;
 
-  --velu-navy: var(--ink);
-  --velu-navy-mid: var(--ink-strong);
-  --velu-navy-deep: var(--surface-inverse);
-  --velu-navy-hero: var(--surface-inverse);
-  --velu-green: var(--ink);
-  --velu-green-bright: var(--ink-strong);
-  --velu-green-dim: rgba(9, 9, 11, 0.06);
-  --velu-off: var(--paper-muted);
-  --velu-text-mid: #71717b;
-  --velu-text-light: #a1a1aa;
-  --velu-border: #e4e4e7;
-  --velu-border-strong: #d4d4d8;
+  --bldwise-navy: var(--ink);
+  --bldwise-navy-mid: var(--ink-strong);
+  --bldwise-navy-deep: var(--surface-inverse);
+  --bldwise-navy-hero: var(--surface-inverse);
+  --bldwise-green: var(--ink);
+  --bldwise-green-bright: var(--ink-strong);
+  --bldwise-green-dim: rgba(9, 9, 11, 0.06);
+  --bldwise-off: var(--paper-muted);
+  --bldwise-text-mid: #71717b;
+  --bldwise-text-light: #a1a1aa;
+  --bldwise-border: #e4e4e7;
+  --bldwise-border-strong: #d4d4d8;
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -87,17 +87,17 @@
   --secondary: var(--surface-subtle);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-subtle);
-  --muted-foreground: var(--velu-text-mid);
+  --muted-foreground: var(--bldwise-text-mid);
   --accent: var(--surface-subtle);
   --accent-foreground: var(--ink);
   --destructive: #e40014;
-  --border: var(--velu-border);
+  --border: var(--bldwise-border);
   --input: #f4f4f5;
   --ring: #9f9fa9;
   --chart-1: var(--ink);
   --chart-2: var(--ink-strong);
-  --chart-3: var(--velu-text-mid);
-  --chart-4: var(--velu-text-light);
+  --chart-3: var(--bldwise-text-mid);
+  --chart-4: var(--bldwise-text-light);
   --chart-5: var(--paper-muted);
   --radius: 0.625rem;
   --sidebar: var(--paper);
@@ -106,7 +106,7 @@
   --sidebar-primary-foreground: var(--paper);
   --sidebar-accent: var(--paper-muted);
   --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: var(--velu-border);
+  --sidebar-border: var(--bldwise-border);
   --sidebar-ring: #9f9fa9;
 }
 
@@ -190,21 +190,21 @@
     font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--velu-text-mid);
+    color: var(--bldwise-text-mid);
   }
 
-  .velu-grid-bg {
+  .bldwise-grid-bg {
     background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
     background-size: 56px 56px;
   }
 
-  .velu-auth-aside {
+  .bldwise-auth-aside {
     background: var(--surface-inverse);
     color: #fff;
   }
 
-  .velu-auth-glow {
+  .bldwise-auth-glow {
     background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 62%);
   }
 

@@ -146,7 +146,7 @@ function NearbyBuilderCard({
                 ) : null}
                 <Badge className="rounded-full gap-1 text-[10px]">
                   <ShieldCheck className="h-3 w-3" />
-                  Velu verified
+                  bldwise verified
                 </Badge>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -384,9 +384,9 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
     return (
       <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
         <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-        <p className="text-sm font-medium">No Velu verified builders in range yet</p>
+        <p className="text-sm font-medium">No bldwise verified builders in range yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          The 10 nearest Velu verified builders for {parcel.suburb} will appear
+          The 10 nearest bldwise verified builders for {parcel.suburb} will appear
           here, closest first.
         </p>
       </div>
@@ -396,7 +396,7 @@ export function NearbyBuildersPanel({ parcel }: NearbyBuildersPanelProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {builders.length} Velu verified builder{builders.length === 1 ? "" : "s"}{" "}
+        {builders.length} bldwise verified builder{builders.length === 1 ? "" : "s"}{" "}
         nearest to {parcel.suburb}, closest first. A name opens that builder’s
         profile, inclusions, offers, and photos.
       </p>

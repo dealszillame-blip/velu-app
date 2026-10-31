@@ -1,9 +1,9 @@
--- Velu MVP � run this entire file once in Supabase SQL Editor
+-- bldwise MVP � run this entire file once in Supabase SQL Editor
 
 
 -- ========== 001_extensions_and_types.sql ==========
 
--- Velu MVP — extensions and types
+-- bldwise MVP — extensions and types
 -- Run in Supabase SQL Editor in order (001 → 005)
 
 CREATE EXTENSION IF NOT EXISTS postgis;
@@ -65,7 +65,7 @@ CREATE TYPE builder_onboarding_status AS ENUM (
 
 -- ========== 002_mvp_tables.sql ==========
 
--- Velu MVP — core tables
+-- bldwise MVP — core tables
 
 CREATE TABLE public.profiles (
   id                      UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
@@ -230,7 +230,7 @@ CREATE TABLE public.builder_inquiries (
 
 -- ========== 003_mvp_rls.sql ==========
 
--- Velu MVP — row-level security
+-- bldwise MVP — row-level security
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
@@ -393,7 +393,7 @@ CREATE POLICY "inquiries: builder update"
 
 -- ========== 004_mvp_functions.sql ==========
 
--- Velu MVP — triggers and utility functions
+-- bldwise MVP — triggers and utility functions
 
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
@@ -504,7 +504,7 @@ GRANT EXECUTE ON FUNCTION public.set_builder_anchor_geom(UUID, DOUBLE PRECISION,
 
 -- ========== 005_feature_flags.sql ==========
 
--- Velu MVP — feature flag seed data
+-- bldwise MVP — feature flag seed data
 
 INSERT INTO public.feature_flags (key, module, description, enabled) VALUES
   ('HIA_TENDER_PDF',        'module2', 'Full HIA tender form + PDF generation',                 FALSE),
@@ -521,7 +521,7 @@ INSERT INTO public.feature_flags (key, module, description, enabled) VALUES
 
 -- ========== 006_realtime.sql ==========
 
--- Velu MVP — enable Realtime on key tables (Week 3 lead feed + notifications)
+-- bldwise MVP — enable Realtime on key tables (Week 3 lead feed + notifications)
 
 -- Required for Realtime UPDATE events (sold status changes)
 ALTER TABLE public.land_listings REPLICA IDENTITY FULL;

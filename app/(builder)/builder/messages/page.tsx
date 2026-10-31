@@ -8,7 +8,7 @@ export default function BuilderMessagesPage() {
       <PageHeader
         eyebrow="4 · Messages"
         title="Messages"
-        description="Talk with a buyer about a lead, a proposal, or a build. Phone numbers stay off Velu."
+        description="Talk with a buyer about a lead, a proposal, or a build. Phone numbers stay off bldwise."
       />
       <Suspense
         fallback={

@@ -1,4 +1,4 @@
--- Velu MVP — builder leads test data
+-- bldwise MVP — builder leads test data
 -- Run in Supabase SQL Editor after migrations 008–009.
 -- Safe to re-run (uses domain_listing_id keys).
 

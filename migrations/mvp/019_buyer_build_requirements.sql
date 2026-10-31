@@ -1,4 +1,4 @@
--- Velu MVP — buyer build requirements (captured at registration)
+-- bldwise MVP — buyer build requirements (captured at registration)
 
 CREATE TABLE IF NOT EXISTS public.buyer_profiles (
   id                      UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -85,8 +85,8 @@ DECLARE
   v_buyer1 UUID;
   v_buyer2 UUID;
 BEGIN
-  SELECT id INTO v_buyer1 FROM auth.users WHERE email = 'demo.buyer@velu.dev' LIMIT 1;
-  SELECT id INTO v_buyer2 FROM auth.users WHERE email = 'demo.buyer2@velu.dev' LIMIT 1;
+  SELECT id INTO v_buyer1 FROM auth.users WHERE email = 'demo.buyer@bldwise.dev' LIMIT 1;
+  SELECT id INTO v_buyer2 FROM auth.users WHERE email = 'demo.buyer2@bldwise.dev' LIMIT 1;
 
   IF v_buyer1 IS NOT NULL THEN
     INSERT INTO public.buyer_profiles (id, build_requirements, requirements_completed_at)

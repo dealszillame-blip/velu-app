@@ -1,4 +1,4 @@
--- Velu MVP — Domain API listing sync support
+-- bldwise MVP — Domain API listing sync support
 
 ALTER TABLE public.land_listings
   ADD COLUMN IF NOT EXISTS domain_listing_id TEXT,

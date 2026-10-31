@@ -1,4 +1,4 @@
-# Velu feature blueprint
+# bldwise feature blueprint
 
 What each role can do **today** on the live app. This is a capability inventory, not a roadmap. Architecture (routes, APIs, data) lives in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
@@ -93,7 +93,7 @@ On each registered parcel:
 | --- | --- |
 | Overview | See proposal count; jump to Compare |
 | Site reports | Request soil, site survey, 3rd-party inspection, BAL, acoustic, and/or legal check; see status (requested → delivered) |
-| Builders | See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded Velu builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. Placeholder licences and names (UUU, AAAAA, and similar) are hidden. **Invite to review land** only for onboarded Velu accounts — register-only rows are not users. |
+| Builders | See nearby **NSW Fair Trading contractor-builder licences** (Greater Sydney, status Current) plus any onboarded bldwise builders. Cards show licence number / Verify NSW link, Google rating when matched, last sale, delay, builder type. Placeholder licences and names (UUU, AAAAA, and similar) are hidden. **Invite to review land** only for onboarded bldwise accounts — register-only rows are not users. |
 | Architects | Pick from the directory, add notes, send a request |
 | Workspace | Shortcuts to Messages and Compare; list active build projects |
 
@@ -113,10 +113,10 @@ Six tabs:
 
 | Tab | Can do |
 | --- | --- |
-| **Compare** | Pending packages as cards (price, contract type, weeks, specs, breakdown, inclusions) and a side-by-side table when **two or more** are pending. Cards show the NSW licence (Verify NSW) and insurance — a directory badge, not a live icare HBCF check. Statutory warranty is always on screen (Home Building Act: 6 years major defects, 2 years other). Site-cost lines stay an estimate until a soil report is **delivered** (warning only; quotes are not blocked). Accept or decline. Accept tells the buyer to confirm cooling-off, deposits, and contract terms with a solicitor and NSW Fair Trading. No hard-coded deposit %. Velu does not collect the deposit. Message the builder, open their profile, or load **demonstration packages** if land is registered but quotes are thin. |
+| **Compare** | Pending packages as cards (price, contract type, weeks, specs, breakdown, inclusions) and a side-by-side table when **two or more** are pending. Cards show the NSW licence (Verify NSW) and insurance — a directory badge, not a live icare HBCF check. Statutory warranty is always on screen (Home Building Act: 6 years major defects, 2 years other). Site-cost lines stay an estimate until a soil report is **delivered** (warning only; quotes are not blocked). Accept or decline. Accept tells the buyer to confirm cooling-off, deposits, and contract terms with a solicitor and NSW Fair Trading. No hard-coded deposit %. bldwise does not collect the deposit. Message the builder, open their profile, or load **demonstration packages** if land is registered but quotes are thin. |
 | **Recommend** | Ranked **brief-fit** score vs the saved brief (bedrooms, bathrooms, storeys, granny flat, cars, price), with why, watch-outs, and next steps. Storeys are a hard layout filter (single vs G+1). Notes that clearly say single-level do not penalise a 1-storey package. Optional Gemini write-up when `GEMINI_API_KEY` is set; OpenAI only if Gemini is missing or fails. No working key means the rules sentence stays. Page copy calls this a brief-fit scorer, not an AI decision engine. |
 | **Tender report** | Gap / watch / ok findings per package against stored tender knowledge. Optional Gemini narrative (OpenAI fallback) when a server key is set. Site $ stays an estimate until a soil report is delivered — not a hard block. Callout to request a **legal check** on My land before accepting. |
-| **Milestones** | Accepted projects link to `/buyer/project/:id/milestones` (view only). Done stages are a short trail, the current stage is the only expanded card (builder-supplied bank details and a disclaimer that Velu does not move the money), and the next stage is one locked line. After Handover the build is finished, and the same page shows defects plus the statutory warranty note. |
+| **Milestones** | Accepted projects link to `/buyer/project/:id/milestones` (view only). Done stages are a short trail, the current stage is the only expanded card (builder-supplied bank details and a disclaimer that bldwise does not move the money), and the next stage is one locked line. After Handover the build is finished, and the same page shows defects plus the statutory warranty note. |
 | **Published designs** | Browse a catalogue of indicative single- and double-storey packages. Filter only — cannot request or add to Compare. |
 | **Upcoming** | Placeholder card only. No live estates. |
 
@@ -139,12 +139,12 @@ Six tabs:
 ### Milestones (`/buyer/project/:id/milestones`)
 
 - Completed stages are a short trail: the stage name and done. No long explanation on past stages.
-- The current stage is the only expanded card. It says what that stage means. Before any account numbers, it says: Velu does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money. Then it shows the account name, BSB, and account number the builder typed, labelled as supplied by the builder and not verified by Velu. If the builder has not saved details, it says payment details are not on file yet. Actions on the card: view status, and message the builder. There is no button to mark the stage paid and no advance button.
+- The current stage is the only expanded card. It says what that stage means. Before any account numbers, it says: bldwise does not process this payment. Call the builder and read the account name, BSB, and account number back over the phone before you transfer any money. Then it shows the account name, BSB, and account number the builder typed, labelled as supplied by the builder and not verified by bldwise. If the builder has not saved details, it says payment details are not on file yet. Actions on the card: view status, and message the builder. There is no button to mark the stage paid and no advance button.
 - The immediate next stage is one locked line: it unlocks when the builder confirms payment for the current stage.
 - Stages after that next one are not listed. A quiet count is enough, such as “3 later stages” while the current stage is Slab. On Contract the locked line is Approvals, and the later count is the seven stages after that.
 - A project already on Slab or later stays on that stage. Approvals, Site clearance, and Excavation sit before Slab, so they show as done. The page does not move that build back to Approvals.
 - Names the builder company and the buyer.
-- After Handover: a finished banner, a compact trail of all nine done stages, no locked future stage, and no payment form or confirm button. The page still shows the build is finished. Below that, the buyer and the builder see the same defects list and a statutory warranty note. The note says the warranty is between the buyer and the builder under the NSW Home Building Act: 6 years for major defects and 2 years for other defects, starting when the build reached handover. Velu does not lodge claims, hold retention, or decide disputes. It is not a Velu product and not a claim form. There is no warranty approval button.
+- After Handover: a finished banner, a compact trail of all nine done stages, no locked future stage, and no payment form or confirm button. The page still shows the build is finished. Below that, the buyer and the builder see the same defects list and a statutory warranty note. The note says the warranty is between the buyer and the builder under the NSW Home Building Act: 6 years for major defects and 2 years for other defects, starting when the build reached handover. bldwise does not lodge claims, hold retention, or decide disputes. It is not a bldwise product and not a claim form. There is no warranty approval button.
 - The buyer reports a defect with a short title and a description. The buyer cannot mark it complete. The builder marks an open defect fixed. The builder cannot report a defect and cannot approve one. The buyer then approves it, or sends it back to open with **Not fixed**. Statuses are open, waiting for the buyer’s approval (`completed_by_builder`), and approved. No photos, no payment, and no retention amount.
 - The defects form stays hidden during Contract, Approvals, Site clearance, Excavation, Slab, Frame, Lock-up, and Fixing. The gradual milestone view is unchanged until handover. The same section is on `/buyer/project/:id` once the build is finished.
 
@@ -156,7 +156,7 @@ Six tabs:
 ### Demo extras
 
 - **Load demonstration packages** on Compare / Recommend (needs a registered block and `SUPABASE_SERVICE_ROLE_KEY` on the server, or SQL `025_demo_comparison_proposals.sql`).
-- Demo login: `demo.buyer2@velu.dev` / `VeluDemo123!` (Sam — Oran Park). `demo.buyer@velu.dev` is Alex (Mount Annan).
+- Demo login: `demo.buyer2@bldwise.dev` / `bldwiseDemo123!` (Sam — Oran Park). `demo.buyer@bldwise.dev` is Alex (Mount Annan).
 
 ---
 
@@ -171,7 +171,7 @@ Six tabs:
 
 - See dashboard stats: onboarded state, service radius, anchor, sold-lot count.
 - **Edit and publish a public profile** (headline, bio, portfolio, gallery, reviews, publish toggle). Preview `/builders/:id`. Star ratings are not self-entered. A Google Maps link can be saved; a number shows only when Places or the NSW register supplied it, otherwise it is omitted or labelled unverified.
-- **Save payment details** on the profile (account name, 6-digit BSB, account number). These are whatever the builder typed. Velu does not verify them with a bank and does not process, hold, or transfer the money. The same details show on that builder’s projects.
+- **Save payment details** on the profile (account name, 6-digit BSB, account number). These are whatever the builder typed. bldwise does not verify them with a bank and does not process, hold, or transfer the money. The same details show on that builder’s projects.
 - **See sold / buyer-owned lots in their service radius** (`/builder/leads`). Feed refreshes live. Empty if they have no geocoded anchor or nothing in range.
 - Open a lead (`/builder/leads/:id`): lot details + the buyer’s saved brief (if shared).
 - **Contact the buyer** (in-app message — no phone/email).
@@ -180,7 +180,7 @@ Six tabs:
 - **Pending** or **viewed** packages can be edited in place, or withdrawn so a new package can be sent. An **accepted** package cannot be edited or withdrawn.
 - List sent packages and their status (`/builder/proposals`).
 - Message buyers on those sold leads.
-- After a buyer **accepts**: open `/builder/project/:id` or `/builder/project/:id/milestones`. The milestone page keeps the full timeline. On the current stage the builder can edit the payment details stored on their profile, then **Confirm payment received**. That records that the builder says they received payment for the current stage and moves exactly one stage. There is no bare advance button. Velu does not transfer the money. After Handover it shows the same finished state as the buyer page, with no payment form and no confirm button. The same defects list and statutory warranty note appear on the project page and the milestone page. The builder marks an open defect fixed. The builder cannot report a defect, cannot approve one, and there is no warranty approval button.
+- After a buyer **accepts**: open `/builder/project/:id` or `/builder/project/:id/milestones`. The milestone page keeps the full timeline. On the current stage the builder can edit the payment details stored on their profile, then **Confirm payment received**. That records that the builder says they received payment for the current stage and moves exactly one stage. There is no bare advance button. bldwise does not transfer the money. After Handover it shows the same finished state as the buyer page, with no payment form and no confirm button. The same defects list and statutory warranty note appear on the project page and the milestone page. The builder marks an open defect fixed. The builder cannot report a defect, cannot approve one, and there is no warranty approval button.
 
 Leads, proposals, and messaging require `is_onboarded = true`. Licence-valid and onboarding-status fields exist for **admin** but do not block the builder UI today.
 
@@ -194,12 +194,12 @@ Leads, proposals, and messaging require `is_onboarded = true`. Licence-valid and
 
 ### Demo builders
 
-Same password `VeluDemo123!`:
+Same password `bldwiseDemo123!`:
 
-- `demo.builder@velu.dev` — James Whitfield, Apex Homes
-- `demo.builder2@velu.dev` — Maria Santos, Meridian
-- `demo.builder3@velu.dev` — David Nguyen, SouthWest Living
-- `demo.dhursan@velu.dev` — Dhursan Homes (NSW licences 369795C / 341107C) after `npm run seed:demo`.
+- `demo.builder@bldwise.dev` — James Whitfield, Apex Homes
+- `demo.builder2@bldwise.dev` — Maria Santos, Meridian
+- `demo.builder3@bldwise.dev` — David Nguyen, SouthWest Living
+- `demo.dhursan@bldwise.dev` — Dhursan Homes (NSW licences 369795C / 341107C) after `npm run seed:demo`.
 
 Nearby **NSW register** cards on My land are **not** these accounts. They are public-register rows.
 
@@ -210,7 +210,7 @@ Nearby **NSW register** cards on My land are **not** these accounts. They are pu
 **Home:** `/provider/reports`  
 **Nav:** Reports  
 
-Admin assigns `report_provider` on a user (no self-serve register). Demo: `demo.soil@velu.dev` (soil / BAL / legal) and `demo.survey@velu.dev` (survey / acoustic / inspection), password `VeluDemo123!` after seed.
+Admin assigns `report_provider` on a user (no self-serve register). Demo: `demo.soil@bldwise.dev` (soil / BAL / legal) and `demo.survey@bldwise.dev` (survey / acoustic / inspection), password `bldwiseDemo123!` after seed.
 
 ### Can do
 
@@ -296,8 +296,8 @@ These appear in copy or UI and should not be treated as shipped features:
 | Compare **Published designs** | Browse/filter catalogue only. |
 | Site report / architect “quoted / accepted / delivered” | Buyer can request and watch status. Providers can quote and attach a file URL; no pay UI. |
 | Google rating on a register builder | Empty until Admin matches Places (or the weekly job) with `GOOGLE_PLACES_API_KEY`. No google.com scraping. Places is optional — not required to use Compare. |
-| Compare “Insurance / HBCF” | Directory flag (“Insurance verified” or “Not verified on Velu”). Not a live icare HBCF lookup. |
-| Invite to review on an NSW register card | Hidden — only onboarded Velu builders can be messaged. |
+| Compare “Insurance / HBCF” | Directory flag (“Insurance verified” or “Not verified on bldwise”). Not a live icare HBCF lookup. |
+| Invite to review on an NSW register card | Hidden — only onboarded bldwise builders can be messaged. |
 | Feature flags in Admin → Settings | Toggles persist; they do not gate most screens yet. |
 | Builder licence-valid / onboarding-status | Admin fields; signup still marks the builder onboarded. |
 
@@ -324,18 +324,18 @@ Direct answers to the live walkthrough. Migrations **028**, **029**, and **030**
 | 13 | No edit or withdraw after submit | Partial. Pending or viewed quotes can be edited or withdrawn and resubmitted. An accepted quote cannot. A variation register after Accept is not built. |
 | 14 | Builder login lands on `/` | Fixed. A missing `next`, or `next=/`, opens `/builder/dashboard`. |
 
-**Not built** (audit Phase 2–3 and the regulated layer): icare HBCF gate, Velu Trust Score, holding deposits or escrow, open banking, DA / Planning Portal, builder CRM, and retention. Do not describe those as live. A post-handover defects list is live after the build is finished: the buyer reports, the builder marks it fixed, and the buyer approves or sends it back. There is no retention amount. The statutory warranty note is a record of the NSW Home Building Act between the buyer and the builder. Velu does not lodge claims or decide disputes. Off-platform stage payment is live: the builder types account details and confirms they received the money before a stage moves. Velu still does not hold or transfer that money.
+**Not built** (audit Phase 2–3 and the regulated layer): icare HBCF gate, bldwise Trust Score, holding deposits or escrow, open banking, DA / Planning Portal, builder CRM, and retention. Do not describe those as live. A post-handover defects list is live after the build is finished: the buyer reports, the builder marks it fixed, and the buyer approves or sends it back. There is no retention amount. The statutory warranty note is a record of the NSW Home Building Act between the buyer and the builder. bldwise does not lodge claims or decide disputes. Off-platform stage payment is live: the builder types account details and confirms they received the money before a stage moves. bldwise still does not hold or transfer that money.
 
 ---
 
 ## Typical happy path (what works end to end)
 
 1. Buyer registers a block on **My land** (or an agent marks their listing **Sold**).
-2. My land → **Builders** lists nearby NSW-licensed contractors (directory) and onboarded Velu builders.
+2. My land → **Builders** lists nearby NSW-licensed contractors (directory) and onboarded bldwise builders.
 3. Onboarded builders in range see the lot on **Leads** and send a package.
 4. Buyer opens **Compare**, optionally **Recommend** (brief-fit score; Gemini write-up only if a server key is set) / **Tender report** / **Milestones**.
 5. Buyer **Accepts** one package.
-6. Both sides open the **project** and the **milestone page**. The buyer sees the builder’s payment details and pays outside Velu. The builder confirms they received that payment, which moves one stage. After Handover the page shows the build as finished, then the defects list and the statutory warranty note.
+6. Both sides open the **project** and the **milestone page**. The buyer sees the builder’s payment details and pays outside bldwise. The builder confirms they received that payment, which moves one stage. After Handover the page shows the build as finished, then the defects list and the statutory warranty note.
 7. Either side can **message** the other on that lot (no phone/email in the thread).
 
 That loop is the product. The NSW register, site-report providers, waitlist, admin Data, and demo packages support it.

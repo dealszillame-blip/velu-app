@@ -125,7 +125,7 @@ export async function PATCH(
       recipient_id: project.buyer_id,
       type: "milestone_update",
       title: "Builder confirmed payment",
-      body: `Your builder confirmed they received payment for ${MILESTONE_LABELS[current]}. The build is now at ${MILESTONE_LABELS[upcoming]}. Velu does not transfer the money.`,
+      body: `Your builder confirmed they received payment for ${MILESTONE_LABELS[current]}. The build is now at ${MILESTONE_LABELS[upcoming]}. bldwise does not transfer the money.`,
       metadata: { project_id: id, stage: upcoming, confirmed_stage: current },
     })
   );

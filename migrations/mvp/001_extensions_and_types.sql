@@ -1,4 +1,4 @@
--- Velu MVP — extensions and types
+-- bldwise MVP — extensions and types
 -- Run in Supabase SQL Editor in order (001 → 005)
 
 CREATE EXTENSION IF NOT EXISTS postgis;

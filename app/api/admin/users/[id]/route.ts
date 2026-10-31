@@ -89,7 +89,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     fullName =
       (typeof metadata.full_name === "string" ? metadata.full_name : null) ??
       authUser.user?.email?.split("@")[0] ??
-      "Velu user";
+      "bldwise user";
   }
 
   const { data, error } = await auth.admin

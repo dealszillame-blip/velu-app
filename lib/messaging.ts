@@ -36,7 +36,7 @@ export function containsContactInfo(text: string): boolean {
 }
 
 export function contactInfoError(): string {
-  return "Please keep phone numbers and email addresses out of messages. Velu protects your contact details until you choose to share them off-platform.";
+  return "Please keep phone numbers and email addresses out of messages. bldwise protects your contact details until you choose to share them off-platform.";
 }
 
 export function publicCounterpartName(
@@ -51,4 +51,4 @@ export function publicCounterpartName(
 }
 
 export const MESSAGING_DISCLAIMER =
-  "Messages stay on Velu — phone numbers and emails are hidden until you connect off-platform.";
+  "Messages stay on bldwise — phone numbers and emails are hidden until you connect off-platform.";

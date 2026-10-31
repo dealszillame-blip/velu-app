@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type VeluLogoProps = {
+type BldwiseLogoProps = {
   href?: string;
   variant?: "light" | "dark";
   size?: "sm" | "md" | "lg";
@@ -16,20 +16,20 @@ const sizes = {
   lg: { img: 48, word: "text-2xl" },
 };
 
-export function VeluLogo({
+export function BldwiseLogo({
   href = "/",
   variant = "dark",
   size = "md",
   showWordmark = true,
   className,
-}: VeluLogoProps) {
+}: BldwiseLogoProps) {
   const { img, word } = sizes[size];
   const content = (
     <>
       <Image
-        src="/velu-logo-nav.png"
-        alt="Velu"
-        width={img * 3}
+        src="/bldwise-logo-nav.png"
+        alt="bldwise"
+        width={img}
         height={img}
         className="h-[var(--logo-h)] w-auto"
         style={{ "--logo-h": `${img}px` } as React.CSSProperties}
@@ -43,7 +43,7 @@ export function VeluLogo({
             variant === "light" ? "text-white" : "text-foreground"
           )}
         >
-          Velu
+          bldwise
         </span>
       )}
     </>

@@ -2,7 +2,7 @@ import { isDomainConfigured } from "../lib/domain/auth";
 import { syncDomainListings } from "../lib/domain/sync";
 
 async function main() {
-  console.log("\nVelu — Domain listing sync\n");
+  console.log("\nbldwise — Domain listing sync\n");
 
   if (!isDomainConfigured()) {
     console.error(

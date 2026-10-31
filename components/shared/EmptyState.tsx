@@ -25,7 +25,7 @@ export function EmptyState({
       )}
     >
       {icon && (
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:var(--velu-green-dim)] text-primary">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:var(--bldwise-green-dim)] text-primary">
           {icon}
         </div>
       )}

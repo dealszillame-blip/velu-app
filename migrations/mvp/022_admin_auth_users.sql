@@ -1,4 +1,4 @@
--- Velu MVP — admin auth user listing (service_role only)
+-- bldwise MVP — admin auth user listing (service_role only)
 
 CREATE OR REPLACE FUNCTION public.admin_list_auth_users()
 RETURNS TABLE (

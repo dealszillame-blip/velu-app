@@ -1,4 +1,4 @@
--- Velu MVP — detailed proposal breakdown + builder templates
+-- bldwise MVP — detailed proposal breakdown + builder templates
 
 ALTER TABLE public.builder_proposals
   ADD COLUMN IF NOT EXISTS price_breakdown JSONB NOT NULL DEFAULT '[]'::jsonb,

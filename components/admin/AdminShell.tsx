@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 type AdminShellProps = {
@@ -26,7 +26,7 @@ export function AdminShell({ children, userName }: AdminShellProps) {
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
-            <VeluLogo size="sm" />
+            <BldwiseLogo size="sm" />
             <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
               Admin
             </span>

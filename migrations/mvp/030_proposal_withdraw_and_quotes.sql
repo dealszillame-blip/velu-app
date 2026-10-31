@@ -1,4 +1,4 @@
--- Velu MVP — Phase 1 quotes, withdraw, and contract type
+-- bldwise MVP — Phase 1 quotes, withdraw, and contract type
 -- SQL only. Paste this file into the Supabase SQL Editor. This is not an npm command.
 -- IMMUTABLE fix: the partial unique index compares proposal_status directly (no status::text). Enum-to-text is STABLE, so Postgres rejects it in an index predicate (42P17).
 

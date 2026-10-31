@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { VeluLogo } from "@/components/shared/VeluLogo";
+import { BldwiseLogo } from "@/components/shared/BldwiseLogo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,11 +38,11 @@ export function BuyerStartForm({ onSignIn }: BuyerStartFormProps) {
   return (
     <Card className="w-full border-border shadow-[0_8px_32px_rgba(19,49,76,0.08)]">
       <CardHeader className="space-y-4">
-        <VeluLogo size="lg" href="/login" />
+        <BldwiseLogo size="lg" href="/login" />
         <div className="space-y-2">
           <CardTitle className="text-2xl">Register the block. Decide the build.</CardTitle>
           <CardDescription className="text-base leading-relaxed">
-            Velu is for the land you already have. Add who you are and the plot
+            bldwise is for the land you already have. Add who you are and the plot
             address first. The next page registers the block and signs you in.
           </CardDescription>
         </div>

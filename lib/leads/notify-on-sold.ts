@@ -20,7 +20,7 @@ function leadCopy(listing: SoldListingPayload): {
       body: `A buyer with ${listing.land_size_sqm}m² in ${listing.suburb} ${listing.postcode} is looking for builders. Submit your proposal now.`,
       emailSubject: `Build lead: ${listing.land_size_sqm}m² in ${listing.suburb}`,
       emailBody: (builderName, appUrl) =>
-        `Hi ${builderName},\n\nA buyer who already owns land in ${listing.suburb} ${listing.postcode} (${listing.land_size_sqm}m²) is ready to build.\n\nSubmit your proposal: ${appUrl}/builder/leads/${listing.id}\n\nVelu`,
+        `Hi ${builderName},\n\nA buyer who already owns land in ${listing.suburb} ${listing.postcode} (${listing.land_size_sqm}m²) is ready to build.\n\nSubmit your proposal: ${appUrl}/builder/leads/${listing.id}\n\nbldwise`,
     };
   }
 
@@ -29,7 +29,7 @@ function leadCopy(listing: SoldListingPayload): {
     body: `${listing.land_size_sqm}m² in ${listing.suburb} ${listing.postcode} just sold. Submit your proposal now.`,
     emailSubject: `New lead: ${listing.land_size_sqm}m² in ${listing.suburb}`,
     emailBody: (builderName, appUrl) =>
-      `Hi ${builderName},\n\nA ${listing.land_size_sqm}m² lot in ${listing.suburb} ${listing.postcode} just sold.\n\nSubmit your proposal: ${appUrl}/builder/leads/${listing.id}\n\nVelu`,
+      `Hi ${builderName},\n\nA ${listing.land_size_sqm}m² lot in ${listing.suburb} ${listing.postcode} just sold.\n\nSubmit your proposal: ${appUrl}/builder/leads/${listing.id}\n\nbldwise`,
   };
 }
 
@@ -77,7 +77,7 @@ export async function notifyBuildersOnSold(
           },
           body: JSON.stringify({
             personalizations: [{ to: [{ email: builder.email }] }],
-            from: { email: "leads@velu.au", name: "Velu" },
+            from: { email: "leads@bldwise.au", name: "bldwise" },
             subject: copy.emailSubject,
             content: [
               {

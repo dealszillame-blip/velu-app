@@ -124,7 +124,7 @@ export default function AdminDataPage() {
         <h1 className="text-2xl font-semibold">Builder data</h1>
         <p className="text-muted-foreground">
           Load NSW Fair Trading contractor-builder licences for Sydney, then
-          match Google ratings. These are register records, not onboarded Velu
+          match Google ratings. These are register records, not onboarded bldwise
           accounts.
         </p>
       </div>
@@ -257,7 +257,7 @@ export default function AdminDataPage() {
       ) : null}
 
       <Button onClick={() => void submit()} disabled={loading || !payload.trim()}>
-        {loading ? "Saving…" : "Ingest into Velu"}
+        {loading ? "Saving…" : "Ingest into bldwise"}
       </Button>
     </div>
   );

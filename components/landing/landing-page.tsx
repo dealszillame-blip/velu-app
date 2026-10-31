@@ -183,13 +183,13 @@ export function LandingPage() {
       <nav id="nav" className={navScrolled ? "scrolled" : undefined}>
         <Link href="/" className="nav-brand">
           <Image
-            src="/velu-logo-nav.png"
-            alt="Velu logo"
-            width={120}
+            src="/bldwise-logo-nav.png"
+            alt="bldwise logo"
+            width={34}
             height={34}
             priority
           />
-          <span>Velu</span>
+          <span>bldwise</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -202,7 +202,7 @@ export function LandingPage() {
             <a href="#builders">For builders</a>
           </li>
           <li>
-            <a href="#trust">Why Velu</a>
+            <a href="#trust">Why bldwise</a>
           </li>
         </ul>
         <Link href="/login" className="nav-cta">
@@ -215,10 +215,10 @@ export function LandingPage() {
         <div className="hero-glow" aria-hidden />
         <div className="hero-content">
           <Image
-            src="/velu-logo-hero.png"
-            alt="Velu"
-            width={600}
-            height={270}
+            src="/bldwise-logo-hero.png"
+            alt="bldwise"
+            width={450}
+            height={360}
             className="hero-logo"
             priority
           />
@@ -231,7 +231,7 @@ export function LandingPage() {
           </h1>
           <p className="hero-sub">
             Whether you&apos;re searching for vacant land or already hold a
-            block, Velu connects South West Sydney buyers with licensed builders
+            block, bldwise connects South West Sydney buyers with licensed builders
             the moment you&apos;re ready to build.
           </p>
           <div className="hero-actions">
@@ -560,7 +560,7 @@ export function LandingPage() {
             </Reveal>
             <Reveal delay={2}>
               <p className="section-body">
-                Velu connects verified builders with land buyers at the exact
+                bldwise connects verified builders with land buyers at the exact
                 moment of settlement. When a buyer registers their new block,
                 you&apos;re notified in real time and your verified profile and
                 current packages go straight to them. No more waiting for
@@ -687,7 +687,7 @@ export function LandingPage() {
           <Reveal delay={2}>
             <p className="section-body centered">
               Once your contract is signed, your builder updates every milestone
-              on Velu — and you see it the moment it happens.
+              on bldwise — and you see it the moment it happens.
             </p>
           </Reveal>
           <div className="ms-track" ref={msTrackRef}>
@@ -717,7 +717,7 @@ export function LandingPage() {
           <Reveal delay={1}>
             <span className="section-label" style={{ justifyContent: "center" }}>
               <span className="label-line" />
-              Why Velu
+              Why bldwise
             </span>
           </Reveal>
           <Reveal delay={1}>
@@ -727,7 +727,7 @@ export function LandingPage() {
           </Reveal>
           <Reveal delay={2}>
             <p className="section-body centered">
-              Every interaction on Velu is designed to protect the people who
+              Every interaction on bldwise is designed to protect the people who
               matter most — the buyers building their homes.
             </p>
           </Reveal>
@@ -736,7 +736,7 @@ export function LandingPage() {
               {
                 icon: "🛡️",
                 title: "Only verified builders",
-                desc: "Licence checked against the NSW register, insurance confirmed, profile reviewed by the Velu team. No builder reaches buyers until every step is complete.",
+                desc: "Licence checked against the NSW register, insurance confirmed, profile reviewed by the bldwise team. No builder reaches buyers until every step is complete.",
                 delay: 2,
               },
               {
@@ -766,7 +766,7 @@ export function LandingPage() {
               {
                 icon: "📍",
                 title: "Vacant land only",
-                desc: "Velu is built exclusively for new homes on vacant land. No existing homes, no rentals — a platform with one clear purpose.",
+                desc: "bldwise is built exclusively for new homes on vacant land. No existing homes, no rentals — a platform with one clear purpose.",
                 delay: 4,
               },
             ].map((card) => (
@@ -811,10 +811,10 @@ export function LandingPage() {
         <div className="cta-content">
           <Reveal delay={1}>
             <Image
-              src="/velu-logo-cta.png"
-              alt="Velu"
+              src="/bldwise-logo-cta.png"
+              alt="bldwise"
               width={120}
-              height={120}
+              height={107}
               className="cta-logo"
             />
           </Reveal>
@@ -851,12 +851,12 @@ export function LandingPage() {
         <div className="footer-inner">
           <div className="footer-brand">
             <Image
-              src="/velu-logo-nav.png"
-              alt="Velu logo"
-              width={120}
+              src="/bldwise-logo-nav.png"
+              alt="bldwise logo"
+              width={30}
               height={30}
             />
-            <span>Velu</span>
+            <span>bldwise</span>
           </div>
           <ul className="footer-links">
             <li>
@@ -870,7 +870,7 @@ export function LandingPage() {
             </li>
           </ul>
           <span className="footer-copy">
-            © 2026 Velu Pty Ltd · Ingleburn NSW
+            © 2026 bldwise Pty Ltd · Ingleburn NSW
           </span>
         </div>
       </footer>

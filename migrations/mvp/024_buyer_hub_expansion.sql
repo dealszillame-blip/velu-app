@@ -1,4 +1,4 @@
--- Velu MVP — buyer hub: architects, builder compliance, published packages, map builders
+-- bldwise MVP — buyer hub: architects, builder compliance, published packages, map builders
 
 CREATE TABLE IF NOT EXISTS public.architect_directory (
   key           TEXT PRIMARY KEY CHECK (key ~ '^[a-z0-9_]+$'),

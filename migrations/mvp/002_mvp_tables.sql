@@ -1,4 +1,4 @@
--- Velu MVP — core tables
+-- bldwise MVP — core tables
 
 CREATE TABLE public.profiles (
   id                      UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,

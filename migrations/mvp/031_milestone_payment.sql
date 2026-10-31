@@ -1,7 +1,7 @@
--- Velu MVP — builder-supplied milestone payment details
+-- bldwise MVP — builder-supplied milestone payment details
 -- SQL only. Paste this file into the Supabase SQL Editor. This is not an npm command.
--- Velu does not process, hold, or transfer money. The account fields are text the builder typed.
--- They are not verified with a bank. Buyers pay the builder outside Velu.
+-- bldwise does not process, hold, or transfer money. The account fields are text the builder typed.
+-- They are not verified with a bank. Buyers pay the builder outside bldwise.
 
 -- 1. Details live on the builder profile so every project for that builder shows the same account.
 ALTER TABLE public.builder_profiles

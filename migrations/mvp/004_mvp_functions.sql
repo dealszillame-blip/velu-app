@@ -1,4 +1,4 @@
--- Velu MVP — triggers and utility functions
+-- bldwise MVP — triggers and utility functions
 
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$

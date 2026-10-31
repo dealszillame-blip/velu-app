@@ -1,4 +1,4 @@
--- Velu audit NOW punch list (1 Oct 2026): data integrity for leads, lot
+-- bldwise audit NOW punch list (1 Oct 2026): data integrity for leads, lot
 -- measurements, placeholder builders, and fabricated identical track records.
 -- Safe to re-run.
 
@@ -461,7 +461,7 @@ SET
   requirements_completed_at = COALESCE(bp.requirements_completed_at, NOW())
 FROM auth.users u
 WHERE bp.id = u.id
-  AND u.email = 'demo.buyer2@velu.dev';
+  AND u.email = 'demo.buyer2@bldwise.dev';
 
 -- 4. Stop treating the Wattle Grove placeholder as a verified last sale / delay.
 UPDATE public.builder_profiles
@@ -479,7 +479,7 @@ SET
   last_property_sold_at = CURRENT_DATE - 19,
   avg_delay_weeks = 0.4
 FROM auth.users u
-WHERE bp.id = u.id AND u.email = 'demo.builder@velu.dev';
+WHERE bp.id = u.id AND u.email = 'demo.builder@bldwise.dev';
 
 UPDATE public.builder_profiles bp
 SET
@@ -487,7 +487,7 @@ SET
   last_property_sold_at = CURRENT_DATE - 41,
   avg_delay_weeks = 2.1
 FROM auth.users u
-WHERE bp.id = u.id AND u.email = 'demo.builder2@velu.dev';
+WHERE bp.id = u.id AND u.email = 'demo.builder2@bldwise.dev';
 
 UPDATE public.builder_profiles bp
 SET
@@ -495,7 +495,7 @@ SET
   last_property_sold_at = CURRENT_DATE - 12,
   avg_delay_weeks = 1.1
 FROM auth.users u
-WHERE bp.id = u.id AND u.email = 'demo.builder3@velu.dev';
+WHERE bp.id = u.id AND u.email = 'demo.builder3@bldwise.dev';
 
 UPDATE public.builder_profiles bp
 SET
@@ -503,7 +503,7 @@ SET
   last_property_sold_at = CURRENT_DATE - 21,
   avg_delay_weeks = 0
 FROM auth.users u
-WHERE bp.id = u.id AND u.email = 'demo.dhursan@velu.dev';
+WHERE bp.id = u.id AND u.email = 'demo.dhursan@bldwise.dev';
 
 -- 5. Unpublish junk / QA builders (UUU / AAAAA) from buyer-facing directory.
 UPDATE public.builder_profiles bp
