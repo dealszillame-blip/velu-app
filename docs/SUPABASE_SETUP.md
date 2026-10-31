@@ -82,6 +82,8 @@ copy .env.example .env.local
 | 32 | `032_defects.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `project_defects` for the post-handover list. The buyer reports a defect, the builder marks it fixed, and the buyer approves it or sends it back. No retention amount. bldwise does not lodge warranty claims or decide disputes. |
 | 33 | `033_build_stages.sql` | **Required after merge** — SQL only (paste into SQL Editor, not npm). Adds `approvals`, `site_clearance`, and `excavation` to `construction_milestone`. Does not change `current_stage` on existing projects. |
 | 34 | `034_rebrand_bldwise.sql` | **Required on databases created before the bldwise rename** — SQL only. Updates stored tender source labels and the defects table comment to bldwise, and retargets demo fixture logins from the previous `@velu.dev` / `VeluDemo123!` to `@bldwise.dev` / `bldwiseDemo123!`. Real customer accounts are left alone. |
+| 35 | `035_buyer_site_documents.sql` | **Required after merge** — SQL only. Private bucket for land drawings, site drawings, certificate 10.7, and a contour plan the buyer attaches while registering a block. |
+| 36 | `036_build_documents.sql` | **Required after merge** — SQL only. Lets the buyer add PDF or image files on a build project. The builder on that project can open them. |
 
 **Shortcut:** open `migrations/mvp/000_all_in_one.sql` and run the entire file in one go, then run `008_domain_sync.sql` if you used the all-in-one shortcut before this migration existed.
 
@@ -151,6 +153,14 @@ The statutory warranty note on the finished build is copy only. It is not a bldw
 Until **`033_build_stages.sql`** is pasted into **SQL Editor** and run, the app cannot store Approvals, Site clearance, or Excavation. Projects already on Slab or a later stage keep that stage. This file does not move them back to Approvals.
 
 033 is SQL only. Do not paste `npm` commands into the editor. It only adds enum labels. It does not update `construction_projects` and does not confirm any payment.
+
+### After 033 — site documents and build documents (035, 036)
+
+Until **`035_buyer_site_documents.sql`** is pasted into **SQL Editor** and run, a file attached to a block at registration will not upload. The checklist itself can still be saved.
+
+Until **`036_build_documents.sql`** is pasted into **SQL Editor** and run, the buyer cannot add documents on a build, and the builder cannot open them. The land sketch and side lengths do not need this file. They are stored with the buyer brief.
+
+035 and 036 are SQL only. Do not paste `npm` commands into the editor.
 
 ### Verify tables exist
 

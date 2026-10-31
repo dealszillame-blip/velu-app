@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BuildDocumentsPanel } from "@/components/projects/BuildDocumentsPanel";
 import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
 import { PostHandoverSection } from "@/components/projects/PostHandoverSection";
 import { requireRole } from "@/lib/auth";
@@ -190,6 +191,11 @@ export async function ProjectPageContent({
           />
         </div>
       </div>
+
+      <BuildDocumentsPanel
+        projectId={project.id}
+        canUpload={!isBuilder && project.buyer_id === user.id}
+      />
 
       <PostHandoverSection
         projectId={project.id}
