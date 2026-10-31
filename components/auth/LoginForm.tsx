@@ -25,15 +25,16 @@ type EmailStep = "email" | "sent";
 
 type LoginFormProps = {
   onStart?: () => void;
+  demoLogin?: { email: string; password: string; nonce: number } | null;
 };
 
-export function LoginForm({ onStart }: LoginFormProps) {
+export function LoginForm({ onStart, demoLogin }: LoginFormProps) {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [mode, setMode] = useState<LoginMode>("password");
   const [emailStep, setEmailStep] = useState<EmailStep>("email");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(demoLogin?.email ?? "");
+  const [password, setPassword] = useState(demoLogin?.password ?? "");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
