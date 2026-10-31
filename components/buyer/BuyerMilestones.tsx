@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { ExistingLandSiteReports } from "@/components/buyer/ExistingLandSiteReports";
+import { SavedLandSketch } from "@/components/buyer/SavedLandSketch";
 import { buttonVariants } from "@/components/ui/button";
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
+import type { BoundarySide } from "@/lib/buyer-requirements";
 import { cn } from "@/lib/utils";
 
 type BuyerMilestonesProps = {
@@ -44,13 +46,23 @@ const STEPS = [
 
 export function BuyerMilestones({ listingId, docsWarning }: BuyerMilestonesProps) {
   const [parcels, setParcels] = useState<BuyerOwnedLand[]>([]);
+  const [savedSides, setSavedSides] = useState<BoundarySide[]>([]);
   const [loading, setLoading] = useState(true);
 
   function load() {
-    fetch("/api/buyer/land")
-      .then((res) => res.json())
-      .then((data) => setParcels(Array.isArray(data) ? data : []))
-      .catch(() => setParcels([]))
+    Promise.all([
+      fetch("/api/buyer/land").then((res) => res.json()),
+      fetch("/api/buyer/requirements").then((res) => res.json()),
+    ])
+      .then(([data, requirements]) => {
+        setParcels(Array.isArray(data) ? data : []);
+        const sides = requirements?.build_requirements?.boundary_sides;
+        setSavedSides(Array.isArray(sides) ? sides : []);
+      })
+      .catch(() => {
+        setParcels([]);
+        setSavedSides([]);
+      })
       .finally(() => setLoading(false));
   }
 
@@ -68,6 +80,13 @@ export function BuyerMilestones({ listingId, docsWarning }: BuyerMilestonesProps
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
           The block is registered. A site file could not be uploaded. You can add it again from your land page.
         </p>
+      ) : null}
+
+      {savedSides.length >= 4 ? (
+        <SavedLandSketch
+          sides={savedSides}
+          description="Saved with your block. Your builder sees this same sketch and side order."
+        />
       ) : null}
 
       <ol className="space-y-3">

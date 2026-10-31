@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SavedLandSketch } from "@/components/buyer/SavedLandSketch";
 import { BuildDocumentsPanel } from "@/components/projects/BuildDocumentsPanel";
 import { MilestoneTracker } from "@/components/projects/MilestoneTracker";
 import { PostHandoverSection } from "@/components/projects/PostHandoverSection";
+import { normalizeBuildRequirements } from "@/lib/buyer-requirements";
 import { requireRole } from "@/lib/auth";
 import { readCounterpartyProfile } from "@/lib/inquiries";
 import { milestoneProgress, projectPartyName } from "@/lib/milestones";
@@ -50,6 +52,11 @@ export async function ProjectPageContent({
     readCounterpartyProfile(project.builder_id),
     readCounterpartyProfile(project.buyer_id),
   ]);
+
+  const { data: rawBrief } = await supabase.rpc("get_buyer_build_requirements", {
+    p_buyer_id: project.buyer_id,
+  });
+  const savedSides = normalizeBuildRequirements(rawBrief).boundary_sides ?? [];
 
   const listingRaw = project.land_listings;
   const listing = Array.isArray(listingRaw) ? listingRaw[0] : listingRaw;
@@ -158,6 +165,17 @@ export async function ProjectPageContent({
           </div>
         </div>
       </div>
+
+      {savedSides.length >= 4 ? (
+        <SavedLandSketch
+          sides={savedSides}
+          description={
+            isBuilder
+              ? "The buyer saved these sides in order, starting at the front."
+              : "Saved with your block. Your builder sees this same sketch."
+          }
+        />
+      ) : null}
 
       {/* Milestone tracker */}
       <div className="surface-subtle overflow-hidden">

@@ -16,7 +16,7 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
       viewBox={LAND_SKETCH_VIEWBOX}
       role="img"
       aria-label="Sketch of the block. Side 1 is the front, then each following side around the block."
-      className="h-auto w-full"
+      className="block aspect-[360/280] h-auto w-full max-w-md"
     >
       <polygon
         points={points}

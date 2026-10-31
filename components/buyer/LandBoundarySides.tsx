@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { LandSketch } from "@/components/buyer/LandSketch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,13 +42,22 @@ export function LandBoundarySides({
       if (event.key === "Escape") setOpen(false);
     }
     document.addEventListener("keydown", onKey);
-    document.getElementById(`${idPrefix}-length-0`)?.focus();
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, idPrefix]);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   function selectSide(index: number) {
     setActiveIndex(index);
-    document.getElementById(`${idPrefix}-length-${index}`)?.focus();
+    setOpen(true);
+    if (window.matchMedia("(min-width: 640px)").matches) {
+      window.setTimeout(() => {
+        document.getElementById(`${idPrefix}-length-${index}`)?.focus();
+      }, 0);
+    }
   }
 
   return (
@@ -55,13 +65,19 @@ export function LandBoundarySides({
       <div className="space-y-1">
         <p className="text-sm font-medium">Land sketch</p>
         <p className="text-sm text-muted-foreground">
-          Open the sketch and enter each side in order, starting at the front. Your builder
-          sees the same sketch and that sequence.
+          The drawing stays on this page. Enter each side in order, starting at the front.
+          After you save, you and your builder both see this sketch.
         </p>
       </div>
+      <LandSketch
+        labels={sides.map((side) => side.label)}
+        lengths={lengths}
+        activeIndex={activeIndex}
+        onSelect={selectSide}
+      />
       <div className="flex flex-wrap items-center gap-3">
         <Button type="button" variant="outline" onClick={() => setOpen(true)}>
-          Open land sketch
+          Enter side lengths
         </Button>
         <p className="text-sm text-muted-foreground">
           {sides.length} sides
@@ -69,16 +85,18 @@ export function LandBoundarySides({
         </p>
       </div>
 
-      {open ? (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 sm:items-center sm:p-6"
-          onMouseDown={() => setOpen(false)}
-        >
+      {open
+        ? createPortal(
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45">
+          <div
+            className="flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6"
+            onMouseDown={() => setOpen(false)}
+          >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${idPrefix}-sketch-title`}
-            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-md border border-border bg-card p-5 shadow-[6px_6px_0_var(--surface-subtle)] sm:p-6"
+            className="my-3 w-full max-w-3xl rounded-md border border-border bg-card p-5 shadow-[6px_6px_0_var(--surface-subtle)] sm:p-6"
             onMouseDown={(event) => event.stopPropagation()}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.preventDefault();
@@ -162,8 +180,11 @@ export function LandBoundarySides({
               </Button>
             </div>
           </div>
-        </div>
-      ) : null}
+          </div>
+        </div>,
+          document.body
+        )
+        : null}
     </div>
   );
 }
