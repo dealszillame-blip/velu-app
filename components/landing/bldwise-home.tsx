@@ -180,7 +180,7 @@ export function BldwiseHome() {
           <nav className="bw-nav" aria-label="Main">
             <a href="#start">Start with your land</a>
             <a href="#builders">For builders</a>
-            <a href="#portal">Builder portal demo</a>
+            <a href="#portal">Builder portal</a>
             <a href="#check">Check existing quotes</a>
           </nav>
           <Link href="/login" className="bw-nav-cta">
@@ -277,9 +277,8 @@ export function BldwiseHome() {
             <p className="bw-eyebrow">Why now</p>
             <h2>Built from real tender reviews, not a guessed workflow.</h2>
             <p>
-              The PDF makes the strongest case when it shows customer pull: real
-              homeowners are already asking for help understanding tenders, materials,
-              allowances and budget risk before signing.
+              Real homeowners are already asking for help understanding tenders,
+              materials, allowances and budget risk before signing.
             </p>
           </Reveal>
           <div className="bw-proof-grid">
@@ -307,7 +306,6 @@ export function BldwiseHome() {
             <Reveal className="bw-note-card">
               <div className="bw-sheet-top">
                 <span>What BLD Wise believes</span>
-                <em>From the PDF</em>
               </div>
               <ul>
                 {INSIGHT_POINTS.map((point) => (
@@ -422,7 +420,7 @@ export function BldwiseHome() {
         <section className="bw-band bw-portal" id="portal">
           <div className="bw-wrap bw-template-grid">
             <Reveal className="bw-section-head">
-              <p className="bw-eyebrow">Builder portal demo</p>
+              <p className="bw-eyebrow">Builder portal</p>
               <h2>Open a request and fill in the template.</h2>
               <p>
                 This is the builder-facing side of the same workflow: a request code,
@@ -432,7 +430,6 @@ export function BldwiseHome() {
             <Reveal className="bw-portal-card">
               <div className="bw-sheet-top">
                 <span>Template fields</span>
-                <em>Demo</em>
               </div>
               <ul className="bw-template-fields">
                 <li><b>Thickness or size</b><span>40 mm, 2700 mm, R4.0, class H1</span></li>
@@ -466,7 +463,6 @@ export function BldwiseHome() {
               <Reveal className="bw-table-card">
                 <div className="bw-sheet-top">
                   <span>Example schedule</span>
-                  <em>Fictional</em>
                 </div>
                 <div className="bw-scroll">
                   <table>
