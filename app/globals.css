@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono), ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display), var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -54,36 +54,39 @@
 }
 
 :root {
-  --ink: #09090b;
-  --ink-strong: #18181b;
-  --paper: #ffffff;
-  --paper-muted: #fafafa;
-  --surface-subtle: #f4f4f5;
-  --surface-inverse: #000000;
-  --surface-inverse-soft: #121212;
-  --success: #16a34a;
+  --ink: #12201c;
+  --ink-strong: #0e1614;
+  --paper: #f9faf9;
+  --paper-muted: #edf0ee;
+  --surface-subtle: #dde3e0;
+  --surface-inverse: #12201c;
+  --surface-inverse-soft: #15211e;
+  --success: #17594a;
 
   --bldwise-navy: var(--ink);
   --bldwise-navy-mid: var(--ink-strong);
   --bldwise-navy-deep: var(--surface-inverse);
   --bldwise-navy-hero: var(--surface-inverse);
-  --bldwise-green: var(--ink);
-  --bldwise-green-bright: var(--ink-strong);
-  --bldwise-green-dim: rgba(9, 9, 11, 0.06);
+  --bldwise-green: #17594a;
+  --bldwise-green-bright: #0f4035;
+  --bldwise-green-dim: rgba(23, 89, 74, 0.1);
   --bldwise-off: var(--paper-muted);
-  --bldwise-text-mid: #71717b;
-  --bldwise-text-light: #a1a1aa;
-  --bldwise-border: #e4e4e7;
-  --bldwise-border-strong: #d4d4d8;
+  --bldwise-text-mid: #5a6b65;
+  --bldwise-text-light: #7c8c86;
+  --bldwise-border: #c8d1cc;
+  --bldwise-border-strong: #9fb0a9;
+  --bldwise-mark: #f1c232;
+  --bldwise-mark-soft: #fbf0c6;
+  --bldwise-mark-ink: #4a3800;
 
-  --background: var(--paper);
+  --background: var(--paper-muted);
   --foreground: var(--ink);
   --card: var(--paper);
   --card-foreground: var(--ink);
   --popover: var(--paper);
   --popover-foreground: var(--ink);
-  --primary: var(--ink);
-  --primary-foreground: var(--paper);
+  --primary: var(--bldwise-green);
+  --primary-foreground: #f4faf7;
   --secondary: var(--surface-subtle);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-subtle);
@@ -92,14 +95,14 @@
   --accent-foreground: var(--ink);
   --destructive: #e40014;
   --border: var(--bldwise-border);
-  --input: #f4f4f5;
-  --ring: #9f9fa9;
-  --chart-1: var(--ink);
-  --chart-2: var(--ink-strong);
+  --input: #edf0ee;
+  --ring: var(--bldwise-green);
+  --chart-1: var(--bldwise-green);
+  --chart-2: var(--bldwise-mark);
   --chart-3: var(--bldwise-text-mid);
   --chart-4: var(--bldwise-text-light);
   --chart-5: var(--paper-muted);
-  --radius: 0.625rem;
+  --radius: 0.375rem;
   --sidebar: var(--paper);
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
@@ -159,6 +162,7 @@
   h2,
   h3 {
     @apply tracking-tight text-foreground;
+    font-family: var(--font-display), var(--font-sans), sans-serif;
     letter-spacing: -0.02em;
   }
 
@@ -169,15 +173,15 @@
 
 @layer utilities {
   .surface {
-    @apply rounded-2xl border border-border bg-card shadow-[0_1px_3px_rgba(0,0,0,0.08),0_10px_20px_-3px_rgba(0,0,0,0.1)];
+    @apply rounded-md border border-border bg-card shadow-[6px_6px_0_var(--surface-subtle)];
   }
 
   .surface-subtle {
-    @apply rounded-2xl border border-border bg-card;
+    @apply rounded-md border border-border bg-card;
   }
 
   .glass-nav {
-    @apply border-b border-border bg-card/86 backdrop-blur-xl backdrop-saturate-150;
+    @apply border-b border-border bg-background/90 backdrop-blur-xl backdrop-saturate-150;
   }
 
   .touch-target {
@@ -188,7 +192,7 @@
     font-family: var(--font-mono), ui-monospace, monospace;
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--bldwise-text-mid);
   }

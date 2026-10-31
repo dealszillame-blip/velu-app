@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { LandingPage } from "@/components/landing/landing-page";
+import { BldwiseHome } from "@/components/landing/bldwise-home";
 
 export const metadata: Metadata = {
-  title: "bldwise — You bring the land. We connect you.",
+  title: "BLD-Wise — Land to living",
   description:
-    "The verified marketplace connecting vacant land buyers with licensed builders in South West Sydney — the moment a block sells.",
+    "Start with your land, price the site from facts, compare builders on one standard template, and track every milestone through handover.",
 };
 
 export default function HomePage() {
-  return <LandingPage />;
+  return <BldwiseHome />;
 }

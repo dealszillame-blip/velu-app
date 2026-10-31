@@ -11,9 +11,9 @@ export default async function BuyerMilestonesPage({
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="After your land"
+        eyebrow="Land to living"
         title="What happens next"
-        description="These are the milestones from here to a display-home visit. Add-on services for this block sit on this page."
+        description="Follow the path from site reports and builder comparison through contract checks, progress payments, inspections and handover. Add-on services for this block appear at the right milestone."
       />
       <BuyerMilestones listingId={listing} docsWarning={docs === "1"} />
     </div>

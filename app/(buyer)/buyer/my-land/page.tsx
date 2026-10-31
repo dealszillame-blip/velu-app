@@ -9,8 +9,8 @@ export default function BuyerMyLandPage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="1 · Add land"
-        title="Register your land"
-        description="Add the address, size, purpose, and what you want built. Add-on services are on the next page. Guests can look at vacant lots."
+        title="Start with your land"
+        description="Add the address, boundary measurements, purchase details, and the home you want. BLD-Wise uses this to line up site reports first and then ask every builder to price the same brief."
         action={
           <Link
             href="/buyer/map"

@@ -6,7 +6,7 @@ import { RoleNav } from "@/components/shared/RoleNav";
 const STEPS: { id: BuyerStepId; href: string; label: string }[] = [
   { id: "land", href: "/buyer/my-land", label: "Land" },
   { id: "builders", href: "/buyer/builders", label: "Builders" },
-  { id: "proposals", href: "/buyer/compare", label: "Proposals" },
+  { id: "proposals", href: "/buyer/compare", label: "Compare" },
   { id: "contract", href: "/buyer/contract", label: "Contract" },
   { id: "build", href: "/buyer/builds", label: "Build" },
 ];

@@ -11,8 +11,8 @@ export default async function BuyerBuildersPage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="2 · Review builders"
-        title="Builders"
-        description="The 10 nearest bldwise verified builders for your block, closest first. Open a name to see their profile, inclusions, offers, and photos."
+        title="Matched builders"
+        description="Review builders suited to your land, area and brief. Shortlist the builders you want to receive the same request code and standard template."
         action={
           <Link
             href="/buyer/milestones"
