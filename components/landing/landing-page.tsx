@@ -184,12 +184,12 @@ export function LandingPage() {
         <Link href="/" className="nav-brand">
           <Image
             src="/bldwise-logo-nav.png"
-            alt="bldwise logo"
+            alt="BLD Wise logo"
             width={34}
             height={34}
             priority
           />
-          <span>bldwise</span>
+          <span>BLD Wise</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -852,11 +852,11 @@ export function LandingPage() {
           <div className="footer-brand">
             <Image
               src="/bldwise-logo-nav.png"
-              alt="bldwise logo"
+              alt="BLD Wise logo"
               width={30}
               height={30}
             />
-            <span>bldwise</span>
+            <span>BLD Wise</span>
           </div>
           <ul className="footer-links">
             <li>
