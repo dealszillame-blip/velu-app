@@ -128,7 +128,7 @@ export function BldwiseHome() {
   }, []);
 
   return (
-    <div className="bw-home">
+    <div className="bw-home" data-theme="light">
       <div className="bw-proto">
         Launching in NSW in March 2027. Builders, prices and examples shown here are illustrative.
       </div>
