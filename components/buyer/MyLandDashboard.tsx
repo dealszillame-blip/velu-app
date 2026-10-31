@@ -1,31 +1,43 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BuyerOwnedLandForm } from "@/components/buyer/BuyerOwnedLandForm";
 import { MyLandParcelCard } from "@/components/buyer/MyLandParcelCard";
+import { SavedLandSketch } from "@/components/buyer/SavedLandSketch";
 import {
   Card,
   CardContent,
 } from "@/components/ui/card";
 import type { BuyerOwnedLand } from "@/lib/buyer-land";
+import type { BoundarySide } from "@/lib/buyer-requirements";
 
 export function MyLandDashboard() {
   const router = useRouter();
   const [parcels, setParcels] = useState<BuyerOwnedLand[]>([]);
+  const [savedSides, setSavedSides] = useState<BoundarySide[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const res = await fetch("/api/buyer/land");
-    const data = await res.json().catch(() => []);
-    setParcels(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }, []);
+  function load() {
+    Promise.all([
+      fetch("/api/buyer/land").then((res) => res.json()),
+      fetch("/api/buyer/requirements").then((res) => res.json()),
+    ])
+      .then(([data, requirements]) => {
+        setParcels(Array.isArray(data) ? data : []);
+        const sides = requirements?.build_requirements?.boundary_sides;
+        setSavedSides(Array.isArray(sides) ? sides : []);
+      })
+      .catch(() => {
+        setParcels([]);
+        setSavedSides([]);
+      })
+      .finally(() => setLoading(false));
+  }
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -43,6 +55,12 @@ export function MyLandDashboard() {
               These blocks are saved. Register another below, or continue as a guest to look at other lots.
             </p>
           </div>
+          {savedSides.length >= 4 ? (
+            <SavedLandSketch
+              sides={savedSides}
+              description="This is the sketch saved with your block. Your builder sees the same drawing and side order."
+            />
+          ) : null}
           <div className="grid gap-4">
             {parcels.map((parcel) => (
               <MyLandParcelCard

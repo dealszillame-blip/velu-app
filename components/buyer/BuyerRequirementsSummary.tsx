@@ -8,6 +8,7 @@ import {
   Ruler,
   Sofa,
 } from "lucide-react";
+import { SavedLandSketch } from "@/components/buyer/SavedLandSketch";
 import type { BuyerBuildRequirements } from "@/lib/buyer-requirements";
 import {
   constructionGradeLabel,
@@ -188,13 +189,11 @@ export function BuyerRequirementsSummary({
         </div>
       ) : null}
       {requirements.boundary_sides?.length ? (
-        <div className="surface-subtle p-4 sm:col-span-2 lg:col-span-3">
-          <p className="label-caps mb-1">Side lengths</p>
-          <p className="text-sm font-medium">
-            {requirements.boundary_sides
-              .map((side) => `${side.label} ${side.length_meters} m`)
-              .join(" · ")}
-          </p>
+        <div className="sm:col-span-2 lg:col-span-3">
+          <SavedLandSketch
+            sides={requirements.boundary_sides}
+            description="Sides in the order the buyer entered them, starting at the front."
+          />
         </div>
       ) : null}
       {requirements.site_documents?.length ? (
