@@ -136,7 +136,7 @@ export function BldwiseHome() {
       <header className={`bw-site-head${scrolled ? " is-scrolled" : ""}`}>
         <div className="bw-wrap bw-head-inner">
           <Link href="/" className="bw-logo" aria-label="BLD-Wise home">
-            BLD<span>-</span>Wise
+            BLD <span>Wise</span>
           </Link>
           <nav className="bw-nav" aria-label="Main">
             <a href="#start">Start with your land</a>
