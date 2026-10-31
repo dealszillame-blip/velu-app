@@ -87,30 +87,27 @@ export function LandBoundarySides({
 
       {open
         ? createPortal(
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45">
-          <div
-            className="flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6"
-            onMouseDown={() => setOpen(false)}
-          >
+        <div
+          className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/45 p-3 sm:items-center sm:p-6"
+          onMouseDown={() => setOpen(false)}
+        >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${idPrefix}-sketch-title`}
-            className="my-3 w-full max-w-3xl rounded-md border border-border bg-card p-5 shadow-[6px_6px_0_var(--surface-subtle)] sm:p-6"
+            className="flex max-h-full min-h-0 w-full max-w-3xl flex-col overflow-hidden rounded-md border border-border bg-card shadow-[6px_6px_0_var(--surface-subtle)]"
             onMouseDown={(event) => event.stopPropagation()}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.preventDefault();
             }}
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4">
               <div className="space-y-1">
                 <h2 id={`${idPrefix}-sketch-title`} className="text-lg font-semibold tracking-tight">
                   Sketch your block
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Start at side 1 (the front) and continue around the block in order. Side 2 is
-                  the left boundary, then the rear, then the right. The builder receives these
-                  lengths in that sequence.
+                  Start at side 1, the front, and go around in order.
                 </p>
               </div>
               <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
@@ -118,6 +115,13 @@ export function LandBoundarySides({
               </Button>
             </div>
 
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <LandSketch
+              labels={sides.map((side) => side.label)}
+              lengths={lengths}
+              activeIndex={activeIndex}
+              onSelect={selectSide}
+            />
             <div className="mt-4 space-y-2 sm:max-w-xs">
               <Label htmlFor={`${idPrefix}-count`}>Number of sides</Label>
               <select
@@ -141,13 +145,7 @@ export function LandBoundarySides({
               </select>
             </div>
 
-            <div className="mt-5 grid items-start gap-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,16rem)]">
-              <LandSketch
-                labels={sides.map((side) => side.label)}
-                lengths={lengths}
-                activeIndex={activeIndex}
-                onSelect={selectSide}
-              />
+            <div className="mt-5 grid gap-3 sm:max-w-sm">
               <div className="grid gap-3">
                 {sides.map((side, index) => (
                   <div key={`${idPrefix}-${index}`} className="space-y-1.5">
@@ -174,12 +172,12 @@ export function LandBoundarySides({
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end">
+            </div>
+            <div className="flex shrink-0 justify-end border-t border-border px-5 py-3">
               <Button type="button" onClick={() => setOpen(false)}>
                 Done
               </Button>
             </div>
-          </div>
           </div>
         </div>,
           document.body
