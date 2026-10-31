@@ -38,10 +38,11 @@ export function SiteReportAddonSelector({
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5">
       <div className="mb-4">
-        <p className="mb-1 text-sm font-medium">Add-on Services</p>
+        <p className="mb-1 text-sm font-medium">Site reports before tender</p>
         <p className="text-sm text-muted-foreground">
-          Request soil, survey, BAL, acoustic, legal check or a 3rd party
-          inspection. Providers quote and deliver through their portal.
+          Request soil, geotechnical and survey reports before builders price.
+          BAL, acoustic, legal check and third-party inspections appear when
+          they are relevant to the milestone.
         </p>
       </div>
 
@@ -116,7 +117,7 @@ export function SiteReportAddonSelector({
           value={notes}
           disabled={disableNotes || selectedKeys.length === 0}
           maxLength={1000}
-          placeholder="Tell us about access constraints, preferred timing, or other details for the reports."
+          placeholder="Tell us about access constraints, preferred timing, slope, rock, fill, drainage or other details for the reports."
           onChange={(e) => onNotesChange(e.target.value)}
           className={cn(
             "flex w-full resize-none rounded-xl border-0 bg-background/80 px-3 py-2.5 text-sm",

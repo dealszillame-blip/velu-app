@@ -5,8 +5,8 @@ export default function BuilderJoinPage() {
   return (
     <AuthShell
       eyebrow="Builder pre-launch"
-      title="Be the first builder they see — the moment their land settles."
-      description="bldwise connects verified builders with land buyers at the exact moment of settlement. When a buyer registers their new block, you're notified in real time and your verified profile and current packages go straight to them. No more waiting for walk-ins — reach motivated clients the day they're ready to build."
+      title="Meet landowners who are ready to build."
+      description="BLD-Wise gives builders qualified requests from NSW landowners who own their block, have entered the site facts, and are comparing a shortlist. You receive one request code, fill in one standard template, and your offer is shown beside the others in the same format."
     >
       <BuilderPrelaunchForm />
     </AuthShell>

@@ -52,28 +52,30 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const start = readBuyerStart();
-    const draft = readLandDraft();
-    if (draft?.address) {
-      setAddress(draft.address);
-      setLandSize(draft.landSize);
-      if (draft.boundarySides?.length) {
-        setBoundarySides(draft.boundarySides);
-      } else if (draft.frontage || draft.depth) {
-        const sides = defaultBoundaryInputs();
-        sides[0] = { ...sides[0], length: draft.frontage };
-        sides[2] = { ...sides[2], length: draft.depth };
-        setBoundarySides(sides);
+    queueMicrotask(() => {
+      const start = readBuyerStart();
+      const draft = readLandDraft();
+      if (draft?.address) {
+        setAddress(draft.address);
+        setLandSize(draft.landSize);
+        if (draft.boundarySides?.length) {
+          setBoundarySides(draft.boundarySides);
+        } else if (draft.frontage || draft.depth) {
+          const sides = defaultBoundaryInputs();
+          sides[0] = { ...sides[0], length: draft.frontage };
+          sides[2] = { ...sides[2], length: draft.depth };
+          setBoundarySides(sides);
+        }
+        if (draft.siteDocuments?.length) setSiteDocuments(draft.siteDocuments);
+        setLandValue(draft.landValue);
+        setPurpose(draft.purpose);
+        if (draft.requirementSets?.length) {
+          setRequirementSets(draft.requirementSets);
+        }
+      } else if (start?.plotAddress) {
+        setAddress(start.plotAddress);
       }
-      if (draft.siteDocuments?.length) setSiteDocuments(draft.siteDocuments);
-      setLandValue(draft.landValue);
-      setPurpose(draft.purpose);
-      if (draft.requirementSets?.length) {
-        setRequirementSets(draft.requirementSets);
-      }
-    } else if (start?.plotAddress) {
-      setAddress(start.plotAddress);
-    }
+    });
   }, []);
 
   useEffect(() => {
@@ -161,9 +163,9 @@ export function BuyerOwnedLandForm({ onSuccess }: BuyerOwnedLandFormProps) {
   return (
     <Card className="lg:max-w-3xl">
       <CardHeader>
-        <CardTitle>Land details</CardTitle>
+        <CardTitle>Land and build brief</CardTitle>
         <CardDescription>
-          Address, size, and what you want built on this block.
+          Capture the site facts builders need before they price your real block.
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -28,7 +28,7 @@ export function BldwiseLogo({
     <>
       <Image
         src="/bldwise-logo-nav.png"
-        alt="bldwise"
+        alt="BLD Wise"
         width={img}
         height={img}
         className="h-[var(--logo-h)] w-auto"
@@ -43,7 +43,7 @@ export function BldwiseLogo({
             variant === "light" ? "text-white" : "text-foreground"
           )}
         >
-          bldwise
+          BLD Wise
         </span>
       )}
     </>

@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
-import { Roboto_Mono, Space_Grotesk } from "next/font/google";
+import {
+  IBM_Plex_Mono,
+  IBM_Plex_Sans,
+  Schibsted_Grotesk,
+} from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-const robotoMono = Roboto_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600"],
+});
+
+const schibstedGrotesk = Schibsted_Grotesk({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "bldwise — Vacant land marketplace",
+  title: "BLD-Wise - Land to living",
   description:
-    "Connect home buyers, builders, and land agents across South West Sydney.",
+    "Help NSW landowners compare builders on one standard template, understand site costs, and track each milestone through handover.",
 };
 
 export const dynamic = "force-dynamic";
@@ -31,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${robotoMono.variable} h-full antialiased`}
+      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${schibstedGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         {children}

@@ -62,18 +62,18 @@ type CompareTab = (typeof COMPARE_TABS)[number]["value"];
 const COMPARE_STEPS = [
   {
     icon: FileText,
-    title: "Add your land",
-    description: "Register the block, or mark a lot on the map.",
+    title: "Register the land facts",
+    description: "Add address, measurements, fall, purchase details, and the home you want built.",
   },
   {
     icon: Hammer,
-    title: "Invite builders",
-    description: "Review who can build in the area and invite them to price the block.",
+    title: "Get site costs grounded",
+    description: "Request soil, geotechnical and survey reports so builders price from real data.",
   },
   {
     icon: Scale,
-    title: "Review proposals",
-    description: "Read the packages, then accept one. That opens contract finalisation.",
+    title: "Compare one template",
+    description: "Review inclusions, exclusions, allowances, upgrades and contract questions side by side.",
   },
 ];
 
@@ -338,9 +338,9 @@ function CompareEmptyLayout({
     <div className="space-y-8">
       <EmptyState
         icon={<Scale className="h-6 w-6" strokeWidth={1.5} />}
-        title="No proposals yet"
-        description="Once builders submit packages on your land, they'll appear here for side-by-side comparison. You can also load demonstration packages to try the compare table and recommendation tool."
-        hint="Already own your block? Register it under My land. Bought via an agent? Mark the lot as sold on the map."
+        title="No builder answers yet"
+        description="When shortlisted builders respond to your standard template, their answers appear here for side-by-side comparison. You can also load demonstration packages to try the compare table and recommendation tool."
+        hint="Start by registering your land and requesting site reports so pricing is based on the actual block."
         action={
           <div className="flex flex-col items-center gap-3">
             <div className="flex flex-wrap justify-center gap-3">
@@ -409,8 +409,8 @@ function CompareEmptyLayout({
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <p className="label-caps">Preview</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your comparison table will look like this
+              <p className="mt-1 text-sm text-muted-foreground">
+              Builder answers will be normalised like this
             </p>
           </div>
           <Badge variant="outline" className="rounded-full">

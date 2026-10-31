@@ -7,9 +7,9 @@ export default async function BuyerComparePage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="3 · Review proposals"
-        title="Proposals"
-        description="Read each package. Accept one to take it to contract finalisation."
+        eyebrow="3 · Compare tenders"
+        title="Compare builder answers"
+        description="Review each builder on the same basis: inclusions, exclusions, allowances, site-cost assumptions, upgrade items, and the questions to ask before you sign."
       />
       <ProposalComparator />
     </div>

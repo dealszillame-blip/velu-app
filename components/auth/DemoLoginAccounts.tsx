@@ -8,11 +8,7 @@ export type DemoLoginAccount = {
 
 export const DEMO_LOGIN_ACCOUNTS: DemoLoginAccount[] = [
   { role: "Buyer", name: "Alex Morgan", email: "demo.buyer@bldwise.dev" },
-  { role: "Buyer", name: "Sam Chen", email: "demo.buyer2@bldwise.dev" },
   { role: "Builder", name: "Apex Homes", email: "demo.builder@bldwise.dev" },
-  { role: "Builder", name: "Meridian Building Co", email: "demo.builder2@bldwise.dev" },
-  { role: "Builder", name: "SouthWest Living", email: "demo.builder3@bldwise.dev" },
-  { role: "Builder", name: "Dhursan Homes", email: "demo.dhursan@bldwise.dev" },
 ];
 
 type DemoLoginAccountsProps = {
