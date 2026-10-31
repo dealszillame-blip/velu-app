@@ -51,7 +51,7 @@ export function LandBoundarySides({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-border p-4">
+    <div className="space-y-3 rounded-md border border-border p-4">
       <div className="space-y-1">
         <p className="text-sm font-medium">Land sketch</p>
         <p className="text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ export function LandBoundarySides({
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${idPrefix}-sketch-title`}
-            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-border bg-card p-5 shadow-xl sm:p-6"
+            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-md border border-border bg-card p-5 shadow-[6px_6px_0_var(--surface-subtle)] sm:p-6"
             onMouseDown={(event) => event.stopPropagation()}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.preventDefault();

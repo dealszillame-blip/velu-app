@@ -18,7 +18,12 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
       aria-label="Sketch of the block. Side 1 is the front, then each following side around the block."
       className="h-auto w-full"
     >
-      <polygon points={points} fill="#f0fdf4" stroke="#16a34a" strokeWidth={2} />
+      <polygon
+        points={points}
+        fill="var(--bldwise-green-dim)"
+        stroke="var(--bldwise-green)"
+        strokeWidth={2}
+      />
       {edges.map((edge) => {
         const active = activeIndex === edge.index;
         const number = String(edge.index + 1);
@@ -29,7 +34,7 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
               y1={edge.y1}
               x2={edge.x2}
               y2={edge.y2}
-              stroke={active ? "#14532d" : "#16a34a"}
+              stroke={active ? "var(--bldwise-green-bright)" : "var(--bldwise-green)"}
               strokeWidth={active ? 4 : 2.5}
               strokeLinejoin="round"
             />
@@ -37,8 +42,8 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
               cx={edge.numberX}
               cy={edge.numberY}
               r={13}
-              fill={active ? "#16a34a" : "#ffffff"}
-              stroke="#16a34a"
+              fill={active ? "var(--bldwise-mark)" : "var(--card)"}
+              stroke="var(--bldwise-green)"
               strokeWidth={1.5}
               className={onSelect ? "cursor-pointer" : undefined}
               onClick={onSelect ? () => onSelect(edge.index) : undefined}
@@ -48,7 +53,7 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
               y={edge.numberY}
               textAnchor="middle"
               dominantBaseline="central"
-              fill={active ? "#ffffff" : "#14532d"}
+              fill={active ? "var(--bldwise-mark-ink)" : "var(--bldwise-green)"}
               fontSize={12}
               fontWeight={700}
               className={onSelect ? "cursor-pointer" : undefined}
@@ -62,7 +67,7 @@ export function LandSketch({ labels, lengths, activeIndex = null, onSelect }: La
                 y={edge.lengthY}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="#14532d"
+                fill="var(--ink)"
                 fontSize={11}
                 fontWeight={600}
               >
