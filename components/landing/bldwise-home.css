@@ -332,6 +332,7 @@
 
 .bw-stat,
 .bw-rule-card,
+.bw-evidence-card,
 .bw-builder-point,
 .bw-milestone {
   min-width: 0;
@@ -354,6 +355,81 @@
 .bw-stat span {
   color: var(--muted);
   font-size: 13px;
+}
+
+.bw-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.bw-evidence-card {
+  background: var(--surface);
+}
+
+.bw-evidence-card > span {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font: 500 12px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bw-evidence-card h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font: 700 18px/1.2 var(--display);
+}
+
+.bw-evidence-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.bw-insight {
+  background: var(--surface);
+}
+
+.bw-note-card {
+  min-width: 0;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--bg);
+  box-shadow: 6px 6px 0 var(--hatch);
+}
+
+.bw-note-card ul {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0 16px 10px;
+  list-style: none;
+}
+
+.bw-note-card li {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.bw-note-card li:last-child {
+  border-bottom: 0;
+}
+
+.bw-note-card li::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
 }
 
 .bw-three {
@@ -703,6 +779,7 @@
 
   .bw-stats,
   .bw-three,
+  .bw-proof-grid,
   .bw-milestone-grid {
     grid-template-columns: minmax(0, 1fr);
   }

@@ -77,9 +77,48 @@ const DIFFERENCE_CARDS = [
 ];
 
 const PROBLEM_STATS = [
-  ["$517k", "Average approved value of a new NSW house cited in the application."],
+  ["$517k", "Average approved value of a new NSW house, cited from ABS 2025-26."],
   ["23%", "New builds finishing on schedule in the referenced Equifax iCIRT survey."],
-  ["377k", "New homes NSW is targeting by 2029."],
+  ["377k", "New homes NSW is targeting by 2029, according to NSW Planning."],
+];
+
+const VALIDATION_POINTS = [
+  {
+    label: "Paid proof",
+    title: "Five homeowners paid for manual tender reviews.",
+    body: "$1,250 in early revenue from $250 reviews, before the product was automated.",
+  },
+  {
+    label: "Customer calls",
+    title: "22 hours of voluntary homeowner conversations.",
+    body: "Around 30 to 40 people asked for help with their house, tender or contract.",
+  },
+  {
+    label: "Audience",
+    title: "Homeowners are already following the build journey.",
+    body: "1,850 Instagram followers, about 80,000 monthly views, plus Facebook and TikTok reach.",
+  },
+];
+
+const TEAM_POINTS = [
+  {
+    title: "Construction cost expertise",
+    body: "Furqan is a chartered civil engineer and Certified Cost Professional with 13+ years across major construction, project controls, cost, scope and risk.",
+  },
+  {
+    title: "Software and infrastructure",
+    body: "Ubaid is a Control Systems Engineer at AWS with 7+ years in industrial and building automation, and has built and deployed full-stack software end to end.",
+  },
+  {
+    title: "Lived problem",
+    body: "Both founders built their own homes and struggled with builder choice, tender comparison and understanding inclusions and exclusions.",
+  },
+];
+
+const INSIGHT_POINTS = [
+  "Homeowners do not need more quotes. They need to understand what is inside each quote, in detail.",
+  "The cheapest decisions happen before tender: soil and geotechnical reports let builders price the site from real data.",
+  "Most platforms stop at signing, just when reports, approvals, payments and inspections start piling up.",
 ];
 
 function Reveal({
@@ -215,9 +254,11 @@ export function BldwiseHome() {
               <p className="bw-eyebrow">The problem from the application</p>
               <h2>Homeowners are not short on builders. They are short on clarity.</h2>
               <p>
-                Quotes describe specifications, materials, inclusions and allowances in
-                different ways. Site conditions can change the price, and after signing
-                there is often no clear view of what to check before each payment.
+                Building a home is one of the largest financial decisions a household
+                makes. Yet buyers compare quotes that describe specifications,
+                materials, inclusions and allowances in different ways. Site conditions
+                can change the price, and after signing there is often no clear list of
+                milestones, checks, decisions or payments.
               </p>
             </Reveal>
             <div className="bw-stats">
@@ -228,6 +269,67 @@ export function BldwiseHome() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="bw-wrap bw-band bw-proof">
+          <Reveal className="bw-section-head">
+            <p className="bw-eyebrow">Why now</p>
+            <h2>Built from real tender reviews, not a guessed workflow.</h2>
+            <p>
+              The PDF makes the strongest case when it shows customer pull: real
+              homeowners are already asking for help understanding tenders, materials,
+              allowances and budget risk before signing.
+            </p>
+          </Reveal>
+          <div className="bw-proof-grid">
+            {VALIDATION_POINTS.map((point) => (
+              <Reveal className="bw-evidence-card" key={point.title}>
+                <span>{point.label}</span>
+                <h3>{point.title}</h3>
+                <p>{point.body}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        <section className="bw-band bw-insight">
+          <div className="bw-wrap bw-split">
+            <Reveal className="bw-section-head">
+              <p className="bw-eyebrow">The non-obvious insight</p>
+              <h2>The hard part is not finding a builder. It is knowing what you are buying.</h2>
+              <p>
+                Two builders can quote the same house with different specifications,
+                materials and allowances. A first-time builder often cannot see the
+                difference until it is too late or too expensive to change.
+              </p>
+            </Reveal>
+            <Reveal className="bw-note-card">
+              <div className="bw-sheet-top">
+                <span>What BLD Wise believes</span>
+                <em>From the PDF</em>
+              </div>
+              <ul>
+                {INSIGHT_POINTS.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="bw-wrap bw-band">
+          <Reveal className="bw-section-head">
+            <p className="bw-eyebrow">Why this team</p>
+            <h2>Construction cost expertise plus software execution.</h2>
+          </Reveal>
+          <div className="bw-three">
+            {TEAM_POINTS.map((point) => (
+              <Reveal className="bw-rule-card" key={point.title}>
+                <h3>{point.title}</h3>
+                <p>{point.body}</p>
+              </Reveal>
+            ))}
           </div>
         </section>
 
@@ -274,6 +376,8 @@ export function BldwiseHome() {
                 Every request comes from someone who owns their land, has measured it,
                 and is comparing a short list. You get a code, fill in one template,
                 and your answer is shown beside the others in the same format.
+                Homeowners use BLD Wise free. Builders pay a 1% success fee only
+                when a BLD Wise introduction becomes a signed contract.
               </p>
               <div className="bw-actions">
                 <Link href="/builders/join" className="bw-btn bw-btn-primary">
