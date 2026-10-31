@@ -114,32 +114,51 @@
 }
 
 .dark {
-  --background: var(--surface-inverse);
-  --foreground: #fafafa;
-  --card: #121212;
-  --card-foreground: #fafafa;
-  --popover: #121212;
-  --popover-foreground: #fafafa;
-  --primary: #ffffff;
-  --primary-foreground: #09090b;
-  --secondary: #18181b;
-  --secondary-foreground: #fafafa;
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --accent: #18181b;
-  --accent-foreground: #fafafa;
-  --destructive: #ff4d4f;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #a1a1aa;
-  --sidebar: #121212;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #09090b;
-  --sidebar-accent: #18181b;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #a1a1aa;
+  --ink: #e5ede9;
+  --ink-strong: #f4faf7;
+  --paper: #15211e;
+  --paper-muted: #0e1614;
+  --surface-subtle: #1d2b27;
+  --surface-inverse: #e5ede9;
+  --surface-inverse-soft: #c8d1cc;
+  --success: #6ccbae;
+  --bldwise-green: #6ccbae;
+  --bldwise-green-bright: #8addc4;
+  --bldwise-green-dim: rgba(108, 203, 174, 0.12);
+  --bldwise-off: var(--paper-muted);
+  --bldwise-text-mid: #9bafa8;
+  --bldwise-text-light: #7f948d;
+  --bldwise-border: #2a3b36;
+  --bldwise-border-strong: #40544d;
+  --bldwise-mark: #d9a91e;
+  --bldwise-mark-soft: #3a3010;
+  --bldwise-mark-ink: #f3de9a;
+  --background: var(--paper-muted);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--bldwise-green);
+  --primary-foreground: #0b1714;
+  --secondary: var(--surface-subtle);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-subtle);
+  --muted-foreground: var(--bldwise-text-mid);
+  --accent: var(--surface-subtle);
+  --accent-foreground: var(--ink);
+  --destructive: #e08a57;
+  --border: var(--bldwise-border);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--bldwise-green);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--bldwise-green);
+  --sidebar-primary-foreground: #0b1714;
+  --sidebar-accent: var(--surface-subtle);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--bldwise-border);
+  --sidebar-ring: var(--bldwise-green);
 }
 
 @layer base {

@@ -18,6 +18,25 @@
   background: var(--bg);
   color: var(--ink);
   font: 400 15px/1.55 var(--body);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bw-home:not([data-theme="light"]) {
+    --bg: #0e1614;
+    --surface: #15211e;
+    --ink: #e5ede9;
+    --muted: #9bafa8;
+    --line: #2a3b36;
+    --accent: #6ccbae;
+    --accent-ink: #0b1714;
+    --mark: #d9a91e;
+    --mark-soft: #3a3010;
+    --mark-ink: #f3de9a;
+    --hatch: #1d2b27;
+    --warn-line: #e08a57;
+    color-scheme: dark;
+  }
 }
 
 .bw-home * {
@@ -448,8 +467,75 @@
   gap: 14px;
 }
 
+.bw-builder-strip {
+  margin-top: 24px;
+}
+
 .bw-builder-point {
   background: var(--surface);
+}
+
+.bw-lead-card,
+.bw-portal-card {
+  min-width: 0;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--surface);
+  box-shadow: 6px 6px 0 var(--hatch);
+}
+
+.bw-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 16px;
+  margin: 0;
+  padding: 12px;
+  font-size: 13.5px;
+}
+
+.bw-facts dt {
+  color: var(--muted);
+}
+
+.bw-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.bw-portal {
+  background: var(--surface);
+}
+
+.bw-template-fields {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0 14px 8px;
+  list-style: none;
+}
+
+.bw-template-fields li {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.42fr) minmax(0, 1fr);
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  font-size: 13.5px;
+}
+
+.bw-template-fields li:last-child {
+  border-bottom: 0;
+}
+
+.bw-template-fields b {
+  font: 500 12px/1.6 var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bw-template-fields span {
+  color: var(--ink);
 }
 
 .bw-milestones {
@@ -480,6 +566,68 @@
   background: var(--ink);
   color: var(--bg);
   padding: 34px;
+}
+
+.bw-wait {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+  margin-top: 48px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 34px;
+}
+
+.bw-wait h2 {
+  margin: 0 0 8px;
+  color: var(--bg);
+  font: 700 clamp(24px, 3.4vw, 32px)/1.1 var(--display);
+  letter-spacing: -0.015em;
+}
+
+.bw-wait p {
+  max-width: 44ch;
+  margin: 0;
+  color: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+.bw-wait form {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.bw-wait label {
+  color: color-mix(in srgb, var(--bg) 80%, transparent);
+  font: 500 12px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bw-wait input,
+.bw-wait select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 10px;
+  font: inherit;
+  font-size: 14.5px;
+}
+
+.bw-wait .bw-btn-primary {
+  justify-self: start;
+  border-color: var(--mark);
+  background: var(--mark);
+  color: #241b00;
+}
+
+.bw-form-msg {
+  min-height: 1.4em;
+  font-size: 13px;
 }
 
 .bw-cta h2 {
@@ -543,6 +691,7 @@
   .bw-hero,
   .bw-template-grid,
   .bw-split,
+  .bw-wait,
   .bw-cta > .bw-reveal {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -580,5 +729,14 @@
 
   .bw-cta {
     padding: 24px 18px;
+  }
+
+  .bw-wait {
+    padding: 24px 18px;
+  }
+
+  .bw-template-fields li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
   }
 }

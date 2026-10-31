@@ -61,6 +61,21 @@ const BUILDER_POINTS = [
   },
 ];
 
+const DIFFERENCE_CARDS = [
+  {
+    title: "One template",
+    body: "Item, thickness or size, brand, standard or premium, tag mark, variation, and whether an upgrade is needed. Every builder fills in the same list.",
+  },
+  {
+    title: "Ground checked first",
+    body: "Soil and geotechnical reports come before builders price, so site costs are based on your ground, not an allowance that moves later.",
+  },
+  {
+    title: "We stay after you sign",
+    body: "Milestones, what to check before each progress payment, and the right add-on service at the right time.",
+  },
+];
+
 const PROBLEM_STATS = [
   ["$517k", "Average approved value of a new NSW house cited in the application."],
   ["23%", "New builds finishing on schedule in the referenced Equifax iCIRT survey."],
@@ -103,6 +118,7 @@ function Reveal({
 
 export function BldwiseHome() {
   const [scrolled, setScrolled] = useState(false);
+  const [waitlistMessage, setWaitlistMessage] = useState("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -123,10 +139,10 @@ export function BldwiseHome() {
             BLD<span>-</span>Wise
           </Link>
           <nav className="bw-nav" aria-label="Main">
-            <a href="#journey">Landowner journey</a>
-            <a href="#template">Template</a>
+            <a href="#start">Start with your land</a>
             <a href="#builders">For builders</a>
-            <a href="#milestones">Milestones</a>
+            <a href="#portal">Builder portal demo</a>
+            <a href="#check">Check existing quotes</a>
           </nav>
           <Link href="/login" className="bw-nav-cta">
             Start with your land
@@ -135,25 +151,27 @@ export function BldwiseHome() {
       </header>
 
       <main>
-        <section className="bw-wrap bw-hero">
+        <section className="bw-wrap bw-hero" id="start">
           <Reveal className="bw-hero-copy">
-            <p className="bw-eyebrow">For NSW landowners ready to build</p>
+            <p className="bw-eyebrow">For landowners ready to build - starting in NSW</p>
             <h1>You own the land. Now choose the builder with the facts in hand.</h1>
             <p className="bw-lede">
-              BLD-Wise takes you from a block of land to a finished home: get site
-              reports first, ask every builder to quote the same specification, compare
-              what is included and missing, then track each milestone until handover.
+              Tell us about your land and the home you want. We recommend soil
+              and geotechnical reports first, so builders price your real site.
+              Then we match builders, every builder answers the same
+              specification template, and we recommend one before you sign.
+              After that we stay with you through every milestone.
             </p>
             <div className="bw-actions">
               <Link href="/login" className="bw-btn bw-btn-primary">
-                Register your land
+                Start with your land
               </Link>
-              <Link href="/buyer/compare" className="bw-btn">
-                Compare proposals
-              </Link>
-              <Link href="/builders/join" className="bw-btn">
+              <a href="#builders" className="bw-btn">
                 I am a builder
-              </Link>
+              </a>
+              <a href="#check" className="bw-btn">
+                Check existing quotes
+              </a>
             </div>
           </Reveal>
 
@@ -174,6 +192,21 @@ export function BldwiseHome() {
               ))}
             </ol>
           </Reveal>
+        </section>
+
+        <section className="bw-wrap bw-band bw-difference">
+          <Reveal className="bw-section-head">
+            <p className="bw-eyebrow">What is different</p>
+            <h2>Quotes that answer the same questions.</h2>
+          </Reveal>
+          <div className="bw-three">
+            {DIFFERENCE_CARDS.map((card) => (
+              <Reveal className="bw-rule-card" key={card.title}>
+                <h3>{card.title}</h3>
+                <p>{card.body}</p>
+              </Reveal>
+            ))}
+          </div>
         </section>
 
         <section className="bw-band bw-problem">
@@ -232,21 +265,98 @@ export function BldwiseHome() {
           </div>
         </section>
 
-        <section className="bw-band bw-template" id="template">
+        <section className="bw-wrap bw-band" id="builders">
+          <div className="bw-split">
+            <Reveal className="bw-section-head">
+              <p className="bw-eyebrow">For builders</p>
+              <h2>Meet landowners who are ready to build.</h2>
+              <p>
+                Every request comes from someone who owns their land, has measured it,
+                and is comparing a short list. You get a code, fill in one template,
+                and your answer is shown beside the others in the same format.
+              </p>
+              <div className="bw-actions">
+                <Link href="/builders/join" className="bw-btn bw-btn-primary">
+                  Register interest
+                </Link>
+                <a href="#portal" className="bw-btn">
+                  Try the builder template
+                </a>
+              </div>
+            </Reveal>
+            <Reveal className="bw-lead-card">
+              <div className="bw-sheet-top">
+                <span>Request - BW-7KQ4-92</span>
+                <em>Ready to build</em>
+              </div>
+              <dl className="bw-facts">
+                <dt>Land</dt>
+                <dd>4 sides, 400 sqm, settled</dd>
+                <dt>Fall</dt>
+                <dd>1.2 m across the lot</dd>
+                <dt>Home</dt>
+                <dd>Double storey, 4 bed, timber</dd>
+                <dt>Budget</dt>
+                <dd>Up to $520,000</dd>
+                <dt>Site reports</dt>
+                <dd>Geotech: class H1</dd>
+                <dt>Shortlist</dt>
+                <dd>3 builders</dd>
+              </dl>
+            </Reveal>
+          </div>
+          <div className="bw-three bw-builder-strip">
+            {BUILDER_POINTS.map((point) => (
+              <Reveal className="bw-builder-point" key={point.title}>
+                <h3>{point.title}</h3>
+                <p>{point.body}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        <section className="bw-band bw-portal" id="portal">
+          <div className="bw-wrap bw-template-grid">
+            <Reveal className="bw-section-head">
+              <p className="bw-eyebrow">Builder portal demo</p>
+              <h2>Open a request and fill in the template.</h2>
+              <p>
+                This is the builder-facing side of the same workflow: a request code,
+                a job summary, a base price, and a fixed list of specification fields.
+              </p>
+            </Reveal>
+            <Reveal className="bw-portal-card">
+              <div className="bw-sheet-top">
+                <span>Template fields</span>
+                <em>Demo</em>
+              </div>
+              <ul className="bw-template-fields">
+                <li><b>Thickness or size</b><span>40 mm, 2700 mm, R4.0, class H1</span></li>
+                <li><b>Brand and model</b><span>Named product, not builder range only</span></li>
+                <li><b>Quality tier</b><span>Standard or premium</span></li>
+                <li><b>Price basis</b><span>Included, variation, allowance, excluded</span></li>
+                <li><b>Tag mark</b><span>Reference back to the builder schedule</span></li>
+              </ul>
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="bw-band bw-template" id="check">
           <div className="bw-wrap">
             <div className="bw-template-grid">
               <Reveal className="bw-section-head">
-                <p className="bw-eyebrow">One standard template</p>
-                <h2>A bill-of-quantities style comparison, built for home builders.</h2>
+                <p className="bw-eyebrow">Quote Compare</p>
+                <h2>Compare builder quotes, like for like.</h2>
                 <p>
-                  The prototype theme&apos;s schedule view is the right pattern for this
-                  product: enough structure for builders, plain enough for homeowners.
+                  Upload or enter 2 to 4 builder quotes for the same job. BLD-Wise
+                  maps them trade by trade, flags allowances that look low, prices
+                  gaps indicatively, and gives you questions for each builder.
                 </p>
                 <ul className="bw-checks">
-                  <li>Item, size or thickness, brand and model</li>
-                  <li>Standard or premium tier</li>
-                  <li>Included, excluded, allowance or variation</li>
-                  <li>Tag mark so the contract item can be found again</li>
+                  <li>One schedule across standard trade sections</li>
+                  <li>Gaps priced for missing or low-allowance items</li>
+                  <li>NSW checks for deposit, HBCF, licence, ABN and terms</li>
+                  <li>Questions to ask before you choose</li>
                 </ul>
               </Reveal>
               <Reveal className="bw-table-card">
@@ -283,45 +393,14 @@ export function BldwiseHome() {
           </div>
         </section>
 
-        <section className="bw-wrap bw-band" id="builders">
-          <div className="bw-split">
-            <Reveal className="bw-section-head">
-              <p className="bw-eyebrow">For builders</p>
-              <h2>Meet landowners who are ready to build.</h2>
-              <p>
-                Every request comes from someone who owns their land, knows the site
-                details and is comparing a shortlist. You receive a code, fill in one
-                template, and your offer is shown beside the others in the same format.
-              </p>
-              <div className="bw-actions">
-                <Link href="/builders/join" className="bw-btn bw-btn-primary">
-                  Register builder interest
-                </Link>
-                <Link href="/register/builder" className="bw-btn">
-                  Create builder account
-                </Link>
-              </div>
-            </Reveal>
-            <div className="bw-builder-points">
-              {BUILDER_POINTS.map((point) => (
-                <Reveal className="bw-builder-point" key={point.title}>
-                  <h3>{point.title}</h3>
-                  <p>{point.body}</p>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="bw-band bw-milestones" id="milestones">
           <div className="bw-wrap">
             <Reveal className="bw-section-head centered">
               <p className="bw-eyebrow">After you choose</p>
               <h2>BLD-Wise stays from contract to keys.</h2>
               <p>
-                The PDF is clear: the product should not stop at matching. The app
-                should guide what to do next, what to check, and which services belong
-                at each stage.
+                The product should not stop at matching. It guides what to do next,
+                what to check, and which services belong at each stage.
               </p>
             </Reveal>
             <div className="bw-milestone-grid">
@@ -341,6 +420,34 @@ export function BldwiseHome() {
               ))}
             </div>
           </div>
+        </section>
+
+        <section className="bw-wrap bw-wait">
+          <div>
+            <h2>Launching in NSW in March 2027.</h2>
+            <p>Leave your email and we will tell you when it opens. Landowners and builders are both welcome.</p>
+          </div>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              setWaitlistMessage("This is a prototype, so nothing was sent. At launch this form will save your details.");
+            }}
+          >
+            <label htmlFor="bw-email">Email</label>
+            <input id="bw-email" type="email" placeholder="you@example.com" required />
+            <label htmlFor="bw-role">I am a</label>
+            <select id="bw-role" defaultValue="Landowner ready to build">
+              <option>Landowner ready to build</option>
+              <option>Builder</option>
+              <option>Other</option>
+            </select>
+            <button className="bw-btn bw-btn-primary" type="submit">
+              Join the waitlist
+            </button>
+            <p className="bw-form-msg" role="status" aria-live="polite">
+              {waitlistMessage}
+            </p>
+          </form>
         </section>
 
         <section className="bw-wrap bw-cta">
