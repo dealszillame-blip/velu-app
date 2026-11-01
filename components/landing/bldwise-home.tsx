@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import "./bldwise-home.css";
@@ -8,11 +9,11 @@ const JOURNEY_STEPS = [
   ["01", "Your land", "Address, boundaries, fall, purchase and settlement details."],
   ["02", "Your home", "Bedrooms, storeys, frame type, budget and must-have inclusions."],
   ["03", "Site reports", "Soil, geotechnical and survey data before builders price."],
-  ["04", "Matched builders", "Licensed NSW builders suited to your land, area and brief."],
-  ["05", "One template", "Each builder answers the same specification and inclusions list."],
-  ["06", "Compare", "Side-by-side pricing, gaps, allowances, upgrades and questions."],
-  ["07", "Choose", "A clear recommendation before display homes and contract signing."],
-  ["08", "Build", "Milestones, checks, payments and add-on services through handover."],
+  ["04", "Builder quotes", "We request quotes from multiple builders for your project."],
+  ["05", "One template", "Every builder quotes on the same standard template."],
+  ["06", "Compare", "Line by line across inclusions, exclusions, specifications and allowances."],
+  ["07", "Choose", "A clear recommendation, so you visit only a shortlist of display homes."],
+  ["08", "Build", "A milestone tracker from approvals and contract signing through to handover."],
 ];
 
 const TEMPLATE_ROWS = [
@@ -49,11 +50,11 @@ const TEMPLATE_ROWS = [
 const BUILDER_POINTS = [
   {
     title: "Qualified requests",
-    body: "Land is owned, measured and moving toward tender. Builders price real opportunities, not window-shopping.",
+    body: "Homeowners already own their land and are ready to build, so builders spend their time on serious customers.",
   },
   {
     title: "One response format",
-    body: "Brands, sizes, quality tier, tag marks, inclusions, variations and upgrades are captured in one template.",
+    body: "Inclusions, exclusions, specifications and allowances are captured in one standard template.",
   },
   {
     title: "Success fee model",
@@ -64,61 +65,61 @@ const BUILDER_POINTS = [
 const DIFFERENCE_CARDS = [
   {
     title: "One template",
-    body: "Item, thickness or size, brand, standard or premium, tag mark, variation, and whether an upgrade is needed. Every builder fills in the same list.",
+    body: "Every builder quotes on the same template, so differences in inclusions, exclusions, specifications and allowances show up line by line.",
   },
   {
     title: "Ground checked first",
-    body: "Soil and geotechnical reports come before builders price, so site costs are based on your ground, not an allowance that moves later.",
+    body: "We recommend soil and geotechnical reports first, so builders can price the site from real data instead of allowances.",
   },
   {
     title: "We stay after you sign",
-    body: "Milestones, what to check before each progress payment, and the right add-on service at the right time.",
+    body: "A milestone tracker shows where the project is, what to check or do next, and brings in add-on services when each stage arrives.",
   },
 ];
 
 const PROBLEM_STATS = [
-  ["$517k", "Average approved value of a new NSW house, cited from ABS 2025-26."],
-  ["23%", "New builds finishing on schedule in the referenced Equifax iCIRT survey."],
-  ["377k", "New homes NSW is targeting by 2029, according to NSW Planning."],
+  ["$517k", "Average value of a new private house approval, 2025-26 (ABS)."],
+  ["23%", "Of new builds finished on schedule in the past year (Equifax iCIRT survey, Sep 2026)."],
+  ["12+ months", "To build a new house in NSW, against about 9 before the pandemic (Master Builders NSW, citing ABS)."],
 ];
 
 const VALIDATION_POINTS = [
   {
     label: "Paid proof",
-    title: "Five homeowners paid for manual tender reviews.",
-    body: "$1,250 in early revenue from $250 reviews, before the product was automated.",
+    title: "Five people have paid for a manual tender review.",
+    body: "$250 each, $1,250 in total since March 2026, through a paid tender-analysis service run on social media.",
   },
   {
     label: "Customer calls",
-    title: "22 hours of voluntary homeowner conversations.",
-    body: "Around 30 to 40 people asked for help with their house, tender or contract.",
+    title: "We have spoken with 30 to 40 prospective homeowners.",
+    body: "The same two things kept coming up: they do not understand why items are in a tender or how good they are, and they do not know what the best option on the market is.",
   },
   {
     label: "Audience",
-    title: "Homeowners are already following the build journey.",
-    body: "1,850 Instagram followers, about 80,000 monthly views, plus Facebook and TikTok reach.",
+    title: "Homeowners follow the build journey.",
+    body: "A home-building account started in November 2025 reaches 1,850 followers, 86% in Australia, and about 80,000 views a month.",
   },
 ];
 
 const TEAM_POINTS = [
   {
     title: "Construction cost expertise",
-    body: "Furqan is a chartered civil engineer and Certified Cost Professional with 13+ years across major construction, project controls, cost, scope and risk.",
+    body: "Furqan is a chartered civil engineer (CPEng) and Certified Cost Professional (CCP) with 13+ years on major construction projects in project controls and cost management. He also reviews real builder tenders for homeowners.",
   },
   {
     title: "Software and infrastructure",
-    body: "Ubaid is a Control Systems Engineer at AWS with 7+ years in industrial and building automation, and has built and deployed full-stack software end to end.",
+    body: "Ubaid is a Control Systems Engineer at AWS with 7+ years in industrial and building automation, and has built and deployed a full-stack web application end to end.",
   },
   {
     title: "Lived problem",
-    body: "Both founders built their own homes and struggled with builder choice, tender comparison and understanding inclusions and exclusions.",
+    body: "Furqan is building his own home in Sydney and Ubaid built his two years ago. Both struggled to choose a builder, compare tenders and understand inclusions and exclusions.",
   },
 ];
 
 const INSIGHT_POINTS = [
-  "Homeowners do not need more quotes. They need to understand what is inside each quote, in detail.",
+  "Homeowners do not need more quotes. They need to understand what is behind each one, and a guide who stays after they sign.",
   "The cheapest decisions happen before tender: soil and geotechnical reports let builders price the site from real data.",
-  "Most platforms stop at signing, just when reports, approvals, payments and inspections start piling up.",
+  "Most platforms we have seen stop at signing, just when reports, approvals and milestones start piling up.",
 ];
 
 function Reveal({
@@ -169,13 +170,19 @@ export function BldwiseHome() {
   return (
     <div className="bw-home" data-theme="light">
       <div className="bw-proto">
-        Launching in NSW in March 2027. Builders, prices and examples shown here are illustrative.
+        Planning to launch in NSW in March 2027. Builders, prices and examples shown here are illustrative.
       </div>
 
       <header className={`bw-site-head${scrolled ? " is-scrolled" : ""}`}>
         <div className="bw-wrap bw-head-inner">
           <Link href="/" className="bw-logo" aria-label="BLD-Wise home">
-            BLD <span>Wise</span>
+            <Image
+              src="/bldwise-logo-wordmark.png"
+              alt="BLD-Wise.com.au"
+              width={220}
+              height={52}
+              priority
+            />
           </Link>
           <nav className="bw-nav" aria-label="Main">
             <a href="#start">Start with your land</a>
@@ -197,9 +204,9 @@ export function BldwiseHome() {
             <p className="bw-lede">
               Tell us about your land and the home you want. We recommend soil
               and geotechnical reports first, so builders price your real site.
-              Then we match builders, every builder answers the same
-              specification template, and we recommend one before you sign.
-              After that we stay with you through every milestone.
+              Then we request quotes from multiple builders on one standard
+              template, review them line by line, and recommend one before you
+              sign. After that we stay with you through every milestone.
             </p>
             <div className="bw-actions">
               <Link href="/login" className="bw-btn bw-btn-primary">
@@ -251,14 +258,13 @@ export function BldwiseHome() {
         <section className="bw-band bw-problem">
           <div className="bw-wrap">
             <Reveal className="bw-section-head centered">
-              <p className="bw-eyebrow">The problem from the application</p>
+              <p className="bw-eyebrow">The problem</p>
               <h2>Homeowners are not short on builders. They are short on clarity.</h2>
               <p>
                 Building a home is one of the largest financial decisions a household
                 makes. Yet buyers compare quotes that describe specifications,
-                materials, inclusions and allowances in different ways. Site conditions
-                can change the price, and after signing there is often no clear list of
-                milestones, checks, decisions or payments.
+                materials, inclusions and allowances in different ways, and after
+                signing there is often no single guide on what happens next.
               </p>
             </Reveal>
             <div className="bw-stats">
@@ -275,10 +281,10 @@ export function BldwiseHome() {
         <section className="bw-wrap bw-band bw-proof">
           <Reveal className="bw-section-head">
             <p className="bw-eyebrow">Why now</p>
-            <h2>Built from real tender reviews, not a guessed workflow.</h2>
+            <h2>Built from real tender reviews.</h2>
             <p>
-              Real homeowners are already asking for help understanding tenders,
-              materials, allowances and budget risk before signing.
+              In those reviews, homeowners could not tell why items were in a
+              tender or how good they were.
             </p>
           </Reveal>
           <div className="bw-proof-grid">
@@ -305,7 +311,7 @@ export function BldwiseHome() {
             </Reveal>
             <Reveal className="bw-note-card">
               <div className="bw-sheet-top">
-                <span>What BLD Wise believes</span>
+                <span>What BLD-Wise believes</span>
               </div>
               <ul>
                 {INSIGHT_POINTS.map((point) => (
@@ -350,16 +356,18 @@ export function BldwiseHome() {
               <span>At tender</span>
               <h3>Quotes answer the same questions.</h3>
               <p>
-                BLD-Wise maps every builder response to one schedule: included,
-                excluded, allowance, standard, premium, upgrade and variation.
+                We review the quotes line by line across inclusions, exclusions,
+                specifications and allowances, and check whether materials are
+                standard or premium.
               </p>
             </Reveal>
             <Reveal className="bw-rule-card">
               <span>After signing</span>
               <h3>The guide stays with you.</h3>
               <p>
-                Contract checks, payment stages, inspections and add-on services appear
-                when they matter, not months too early.
+                Services such as BAL assessments, acoustic reports, fencing,
+                landscaping and solar appear only when that milestone arrives, so
+                nothing is sold too early and nothing is missed.
               </p>
             </Reveal>
           </div>
@@ -371,11 +379,11 @@ export function BldwiseHome() {
               <p className="bw-eyebrow">For builders</p>
               <h2>Meet landowners who are ready to build.</h2>
               <p>
-                Every request comes from someone who owns their land, has measured it,
-                and is comparing a short list. You get a code, fill in one template,
-                and your answer is shown beside the others in the same format.
-                Homeowners use BLD Wise free. Builders pay a 1% success fee only
-                when a BLD Wise introduction becomes a signed contract.
+                Every request comes from a landowner who already owns their land and
+                is ready to build. You fill in one standard template, and your
+                quote is shown beside the others in the same format. Homeowners
+                use BLD-Wise free. Builders pay a 1% success fee only when a
+                homeowner introduced through BLD-Wise signs a building contract.
               </p>
               <div className="bw-actions">
                 <Link href="/builders/join" className="bw-btn bw-btn-primary">
@@ -388,7 +396,7 @@ export function BldwiseHome() {
             </Reveal>
             <Reveal className="bw-lead-card">
               <div className="bw-sheet-top">
-                <span>Request - BW-7KQ4-92</span>
+                <span>Example request</span>
                 <em>Ready to build</em>
               </div>
               <dl className="bw-facts">
@@ -423,8 +431,8 @@ export function BldwiseHome() {
               <p className="bw-eyebrow">Builder portal</p>
               <h2>Open a request and fill in the template.</h2>
               <p>
-                This is the builder-facing side of the same workflow: a request code,
-                a job summary, a base price, and a fixed list of specification fields.
+                This is the builder-facing side of the same workflow: a job summary
+                and a fixed list of specification fields.
               </p>
             </Reveal>
             <Reveal className="bw-portal-card">
@@ -433,10 +441,8 @@ export function BldwiseHome() {
               </div>
               <ul className="bw-template-fields">
                 <li><b>Thickness or size</b><span>40 mm, 2700 mm, R4.0, class H1</span></li>
-                <li><b>Brand and model</b><span>Named product, not builder range only</span></li>
                 <li><b>Quality tier</b><span>Standard or premium</span></li>
-                <li><b>Price basis</b><span>Included, variation, allowance, excluded</span></li>
-                <li><b>Tag mark</b><span>Reference back to the builder schedule</span></li>
+                <li><b>Price basis</b><span>Included, allowance, excluded</span></li>
               </ul>
             </Reveal>
           </div>
@@ -449,14 +455,13 @@ export function BldwiseHome() {
                 <p className="bw-eyebrow">Quote Compare</p>
                 <h2>Compare builder quotes, like for like.</h2>
                 <p>
-                  Upload or enter 2 to 4 builder quotes for the same job. BLD-Wise
-                  maps them trade by trade, flags allowances that look low, prices
-                  gaps indicatively, and gives you questions for each builder.
+                  Upload or enter builder quotes for the same job. BLD-Wise maps
+                  them line by line across inclusions, exclusions, specifications
+                  and allowances, and gives you the right questions to ask each builder.
                 </p>
                 <ul className="bw-checks">
-                  <li>One schedule across standard trade sections</li>
-                  <li>Gaps priced for missing or low-allowance items</li>
-                  <li>NSW checks for deposit, HBCF, licence, ABN and terms</li>
+                  <li>One schedule across every builder</li>
+                  <li>Standard or premium materials, against what the market commonly offers</li>
                   <li>Questions to ask before you choose</li>
                 </ul>
               </Reveal>
@@ -499,18 +504,19 @@ export function BldwiseHome() {
               <p className="bw-eyebrow">After you choose</p>
               <h2>BLD-Wise stays from contract to keys.</h2>
               <p>
-                The product should not stop at matching. It guides what to do next,
-                what to check, and which services belong at each stage.
+                BLD-Wise does not stop at the tender. At each milestone it shows where
+                the project is, what you need to do or check next, and what decisions
+                are coming.
               </p>
             </Reveal>
             <div className="bw-milestone-grid">
               {[
-                ["Contract", "Deposit limit, HBCF certificate, soil class and variation process."],
-                ["Pre-construction", "Selections, BASIX, CDC or DA, survey and reports."],
-                ["Base", "Slab class, piers and mandatory inspection before payment."],
-                ["Frame", "Frame certificate and independent inspection access."],
-                ["Lock-up", "Glazing, insulation, lender schedule and progress claim."],
-                ["Handover", "Defects list, warranties and documents before final payment."],
+                ["Approvals", "Soil and geotechnical reports first, then the approvals your build needs."],
+                ["Contract", "What to check and decide before you sign with your chosen builder."],
+                ["Base", "Where the project is and what to check at the base stage."],
+                ["Frame", "Where the project is and what to check at the frame stage."],
+                ["Lock-up", "What decisions are coming, and which services belong at this stage."],
+                ["Handover", "What to check before you take the keys."],
               ].map(([title, body], index) => (
                 <Reveal className="bw-milestone" key={title}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
@@ -524,7 +530,7 @@ export function BldwiseHome() {
 
         <section className="bw-wrap bw-wait">
           <div>
-            <h2>Launching in NSW in March 2027.</h2>
+            <h2>Planning to launch in NSW in March 2027.</h2>
             <p>Leave your email and we will tell you when it opens. Landowners and builders are both welcome.</p>
           </div>
           <form
@@ -574,7 +580,7 @@ export function BldwiseHome() {
 
       <footer className="bw-wrap bw-foot">
         <span>BLD-Wise - land to living - starting in NSW</span>
-        <span>Prototype positioning adapted from the supplied review HTML and application draft.</span>
+        <span>bld-wise.com.au</span>
       </footer>
     </div>
   );

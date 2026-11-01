@@ -6,50 +6,41 @@ type BldwiseLogoProps = {
   href?: string;
   variant?: "light" | "dark";
   size?: "sm" | "md" | "lg";
-  showWordmark?: boolean;
   className?: string;
 };
 
-const sizes = {
-  sm: { img: 26, word: "text-base" },
-  md: { img: 34, word: "text-xl" },
-  lg: { img: 48, word: "text-2xl" },
+const ASPECT = 1240 / 291;
+
+const heights = {
+  sm: 34,
+  md: 46,
+  lg: 62,
 };
 
 export function BldwiseLogo({
   href = "/",
   variant = "dark",
   size = "md",
-  showWordmark = true,
   className,
 }: BldwiseLogoProps) {
-  const { img, word } = sizes[size];
+  const height = heights[size];
   const content = (
-    <>
-      <Image
-        src="/bldwise-logo-nav.png"
-        alt="BLD Wise"
-        width={img}
-        height={img}
-        className="h-[var(--logo-h)] w-auto"
-        style={{ "--logo-h": `${img}px` } as React.CSSProperties}
-        priority={size !== "sm"}
-      />
-      {showWordmark && (
-        <span
-          className={cn(
-            "font-bold tracking-tight",
-            word,
-            variant === "light" ? "text-white" : "text-foreground"
-          )}
-        >
-          BLD Wise
-        </span>
-      )}
-    </>
+    <Image
+      src={
+        variant === "light"
+          ? "/bldwise-logo-wordmark-light.png"
+          : "/bldwise-logo-wordmark.png"
+      }
+      alt="BLD-Wise.com.au"
+      width={Math.round(height * ASPECT)}
+      height={height}
+      className="w-auto"
+      style={{ height }}
+      priority={size !== "sm"}
+    />
   );
 
-  const classes = cn("inline-flex items-center gap-2.5", className);
+  const classes = cn("inline-flex items-center", className);
 
   if (href) {
     return (
