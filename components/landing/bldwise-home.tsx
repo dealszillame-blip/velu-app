@@ -178,7 +178,7 @@ export function BldwiseHome() {
           <Link href="/" className="bw-logo" aria-label="BLD-Wise home">
             <Image
               src="/bldwise-logo-wordmark.png"
-              alt="BLD-Wise.com.au"
+              alt="BLDWise.com.au"
               width={220}
               height={52}
               priority
@@ -580,7 +580,7 @@ export function BldwiseHome() {
 
       <footer className="bw-wrap bw-foot">
         <span>BLD-Wise - land to living - starting in NSW</span>
-        <span>bld-wise.com.au</span>
+        <span>bldwise.com.au</span>
       </footer>
     </div>
   );
