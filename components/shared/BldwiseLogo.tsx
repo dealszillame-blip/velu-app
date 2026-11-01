@@ -31,7 +31,7 @@ export function BldwiseLogo({
           ? "/bldwise-logo-wordmark-light.png"
           : "/bldwise-logo-wordmark.png"
       }
-      alt="BLD-Wise.com.au"
+      alt="BLDWise.com.au"
       width={Math.round(height * ASPECT)}
       height={height}
       className="w-auto"
